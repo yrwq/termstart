@@ -1,0 +1,78 @@
+:root {
+	--bg: #1c1c1c;
+	--bg-light: #3d3a3a;
+	--fg: #dad3d3;
+	--acc1: #d770af;
+	--acc2: #d28abf;
+	--acc3: #a488d9;
+	--acc4: #bd89de;
+}
+
+@font-face {
+  font-family: monofur;
+  src: url(monofur.ttf);
+}
+
+body {
+	background-color: var(--bg);
+	font-family: monofur;
+	display: flex;
+    	flex-direction: column;
+    	justify-content: center;
+    	min-height: 15ch;
+    	min-width: 30px;
+    	padding: 3em;
+}
+
+p {
+	margin: 10;
+}
+
+#clock{
+	float: right;
+}
+
+html {
+	align-items: center;
+	display: flex;
+	height: 100%;
+    	justify-content: center;
+}
+
+a {
+	color: var(--acc3);
+	text-decoration: none;
+	margin: 8px;
+}
+
+.prompt {
+	color:  var(--fg);
+}
+
+.purple {
+	color:  var(--acc1);
+}
+
+
+a:focus,
+a:hover {
+    font-weight: bold;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+}
+
+nav {
+    column-gap: 2em;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    padding: 1em 0;
+}
+
+input {
+	background-color: var(--bg);
+	border: none;
+	color: var(--fg);
+}
