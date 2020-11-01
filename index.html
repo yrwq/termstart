@@ -8,90 +8,33 @@
     </head>
 
     <body>
+
 	<div id="term">
 
-	<p class="prompt" ><span>--- ~ <span class="purple">></span> ls <span id=clock></span></p>
-	<nav id="links">
-        	<ul>
-                	<li><a href="https://github.com">github</a></li>
-                	<li><a href="https://unsplash.com">unsplash</a></li>
-                	<li><a href="https://chess.com">chess</a></li>
-                	<li><a href="https://www.reddit.com">reddit</a></li>
-            	</ul>
-        </nav>
+		<p class="prompt" ><span>--- ~ <span class="purple">></span> ls <span id=clock></span></p>
+
+		<nav id="links">
+        		<ul>
+                		<li><a href="https://github.com">github</a></li>
+                		<li><a href="https://unsplash.com">unsplash</a></li>
+                		<li><a href="https://chess.com">chess</a></li>
+                		<li><a href="https://www.reddit.com">reddit</a></li>
+            		</ul>
+        	</nav>
 	
-	<div style="display:flex;" id="y">
-       		<div id="x">
-		<p class="prompt" ><span>--- ~ </span><span class="purple">></span></p> 
-		</div>
-		<input type="text" placeholder="" class="search" autofocus onkeydown="search(this)"/>  
-    	</div>
+		<div style="display:flex;" id="y">
+       			<div id="x">
+				<p class="prompt" ><span>--- ~ </span><span class="purple">></span></p> 
+			</div>
+			<input type="text" placeholder="" class="search" autofocus onkeydown="search(this)"/>  
+    		</div>
 
 	</div>
 		
-	<script >
+	</body>
 
-	var pr = {
-		0: "r",
-		1: "re",
-		2: 'red', 
-		3: 'redd',
-		4: 'reddi',
-		5: 'reddit'
-	};
-
-	var pg = {
-		0: "g",
-		1: "gi",
-		2: "git",
-		3: "gith",
-		4: "githu",
-		5: "github"
-	};
-
-	function search(ele) {
-    		if(event.key === 'Enter') {
-			if( 
-				ele.value == pg[0] ||
-				ele.value == pg[1] ||
-				ele.value == pg[2] ||
-				ele.value == pg[3] ||
-				ele.value == pg[4] ||
-				ele.value == pg[5]
-			){
-				window.open("https://github.com", '_blank');
-			} else if(ele.value == 'u' || ele.value == 'unsplash'){
-				window.open("https://unsplash.com", '_blank');
-			} else if(ele.value == 'c' || ele.value == 'chess'){
-				window.open("https://chess.com", '_blank');
-			} else if(ele.value == 'r' || ele.value == 'reddit'){
-				window.open("https://reddit.com", '_blank');
-			}
-		}
-	}
-
-	function getTime() {
-            let date = new Date(),
-        	min = date.getMinutes(),
-                hour = date.getHours();
-    
-                return '' + 
-                    (hour < 10 ? ('0' + hour) : hour) + ':' + 
-                    (min < 10 ? ('0' + min) : min);
-        }
-
-	window.onload = () => {
-            // Set up the clock and date
-            document.getElementById('clock').innerHTML = getTime();
-        		
-            setInterval( () => {
-                document.getElementById('clock').innerHTML = getTime();
-            },100);
-        }
-
-	</script>
-	
-    </body>
+	<script src="sites.js"></script> 	
 
 </html>
+
 
