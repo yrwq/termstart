@@ -1,7 +1,11 @@
             DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
                     Version 2, December 2004
 
+<<<<<<< HEAD
  Copyright (C) 2020 Inhof Dávid <yrwqid@gmail.com>
+=======
+ Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+>>>>>>> c5c3f689089d59efbcc1b009d9605c24e4f60708
 
  Everyone is permitted to copy and distribute verbatim or modified
  copies of this license document, and changing it is allowed as long
@@ -12,4 +16,7 @@
 
   0. You just DO WHAT THE FUCK YOU WANT TO.
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> c5c3f689089d59efbcc1b009d9605c24e4f60708
