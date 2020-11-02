@@ -1,9 +1,12 @@
-<h2 align="center"> Termstart </h2>
-<img align="center" src="preview.png">
+<div align="center">
 
-<h3 align="center"> What is this? </h3>
+<h2> Termstart </h2>
 
-<p align="center">
+<img src="preview.png">
+
+<h3> What is this? </h3>
+
+<p>
 
 This is a terminal like website, that you can use as a startpage in any browser.  
 
@@ -15,9 +18,9 @@ To search with [duckduckgo](https://duckduckgo.com), type in search "something" 
 
 </p>
 
-<h3 align="center"> Contributing </h3>
+<h3> Contributing </h3>
 
-<p align="center">
+<p>
 
 Feel free to open issues, suggesting features or other things!  
 
@@ -26,3 +29,5 @@ Any contributions, are very welcome.
 </p>
 
 </h3>
+
+</div>
