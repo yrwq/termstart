@@ -22,8 +22,8 @@ var pu = {
 var pc = {
 	0: "c",
 	1: "ch",
-	2: "ches"
-	3: "chess",
+	2: "ches",
+	3: "chess"
 }
 
 function search(ele) {
@@ -33,25 +33,33 @@ function search(ele) {
 			ele.value == pg[1] ||
 			ele.value == pg[2] ||
 			ele.value == pg[3] 
-		){ window.open("https://github.com", '_blank'); } 
+		){
+			document.getElementById('search').value = '';
+			window.open("https://github.com", '_blank'); } 
 		else if(
 			ele.value == pu[0] ||
 			ele.value == pu[1] ||
 			ele.value == pu[2] ||
 			ele.value == pu[3] 
-		{ window.open("https://unsplash.com", '_blank'); } 
+		){
+			document.getElementById('search').value = '';
+			window.open("https://unsplash.com", '_blank'); } 
 		else if(
 			ele.value == pc[0] ||
 			ele.value == pc[1] ||
 			ele.value == pc[2] ||
 			ele.value == pc[3] 
-		){ window.open("https://chess.com", '_blank'); } 
+		){ 
+			document.getElementById('search').value = '';
+			window.open("https://chess.com", '_blank'); } 
 		else if(
 			ele.value == pr[0] ||
 			ele.value == pr[1] ||
 			ele.value == pr[2] ||
 			ele.value == pr[3] 
-		){ window.open("https://reddit.com", '_blank'); }
+		){
+			document.getElementById('search').value = '';
+			window.open("https://reddit.com", '_blank'); }
 	}
 }
 
