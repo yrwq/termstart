@@ -60,24 +60,10 @@ function search(ele) {
 		){
 			document.getElementById('search').value = '';
 			window.open("https://reddit.com", '_blank'); }
+		else if(ele.value.includes("search") == true) {
+			let doSearch = ele.value.replace("search", "");
+			window.open("https://duckduckgo.com/?q=" + doSearch);
+			document.getElementById('search').value = '';
+		}
 	}
 }
-
-function getTime() {
-	let date = new Date(),
-        min = date.getMinutes(),
-        hour = date.getHours();
-    
-        return '' + 
-        	(hour < 10 ? ('0' + hour) : hour) + ':' + 
-                (min < 10 ? ('0' + min) : min);
-}
-
-window.onload = () => {
-	document.getElementById('clock').innerHTML = getTime();
-        		
-        setInterval( () => {
-        	document.getElementById('clock').innerHTML = getTime();
-        },100);
-}
-
