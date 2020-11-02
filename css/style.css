@@ -26,10 +26,12 @@ body {
 
 p {
 	margin: 10;
+	pointer-events: none;
 }
 
 #clock{
 	float: right;
+	pointer-events: none;
 }
 
 html {
@@ -43,36 +45,42 @@ a {
 	color: var(--acc3);
 	text-decoration: none;
 	margin: 8px;
+	pointer-events: auto;
 }
 
 .prompt {
 	color:  var(--fg);
+	pointer-events: none;
 }
 
 .purple {
 	color:  var(--acc1);
+	pointer-events: none;
 }
 
 
 a:focus,
 a:hover {
-    font-weight: bold;
+    	font-weight: bold;
 }
 
 ul {
-    list-style-type: none;
-    margin: 0;
+    	list-style-type: none;
+    	margin: 0;
+	pointer-events: none;
 }
 
 nav {
-    column-gap: 2em;
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    padding: 1em 0;
+    	column-gap: 2em;
+    	display: grid;
+    	grid-template-columns: auto auto auto auto;
+    	padding: 1em 0;
+	pointer-events: none;
 }
 
 input {
 	background-color: var(--bg);
 	border: none;
 	color: var(--fg);
+	pointer-events: none;
 }

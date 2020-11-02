@@ -9,9 +9,16 @@ function getTime() {
 }
 
 window.onload = () => {
-	document.getElementById('clock').innerHTML = getTime();
-        		
+	document.getElementById("clock").innerHTML = getTime();
+	document.getElementById("search").focus();
+        
+	// focus prompt on any keypress
+	let foc = document.body;
+	foc.addEventListener('keydown', (event) => {
+		document.getElementById("search").focus();
+	});
+
         setInterval( () => {
-        	document.getElementById('clock').innerHTML = getTime();
+        	document.getElementById("clock").innerHTML = getTime();
         },100);
 }
