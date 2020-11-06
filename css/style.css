@@ -2,10 +2,8 @@
 	--bg: #1c1c1c;
 	--bg-light: #3d3a3a;
 	--fg: #dad3d3;
-	--acc1: #d770af;
-	--acc2: #d28abf;
-	--acc3: #a488d9;
-	--acc4: #bd89de;
+	--acc1: #f43753;
+	--acc2: #a488d9;
 }
 
 @font-face {
@@ -17,11 +15,11 @@ body {
 	background-color: var(--bg);
 	font-family: monofur;
 	display: flex;
-    	flex-direction: column;
-    	justify-content: center;
-    	min-height: 15ch;
-    	min-width: 30px;
-    	padding: 3em;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 15px;
+    min-width: 30px;
+    padding: 3em;
 }
 
 p {
@@ -38,11 +36,11 @@ html {
 	align-items: center;
 	display: flex;
 	height: 100%;
-    	justify-content: center;
+    justify-content: center;
 }
 
 a {
-	color: var(--acc3);
+	color: var(--acc2);
 	text-decoration: none;
 	margin: 8px;
 	pointer-events: auto;
@@ -61,20 +59,20 @@ a {
 
 a:focus,
 a:hover {
-    	font-weight: bold;
+    font-weight: bold;
 }
 
 ul {
-    	list-style-type: none;
-    	margin: 0;
+    list-style-type: none;
+    margin: 0;
 	pointer-events: none;
 }
 
 nav {
-    	column-gap: 2em;
-    	display: grid;
-    	grid-template-columns: auto auto auto auto;
-    	padding: 1em 0;
+    column-gap: 2em;
+    display: grid;
+    grid-template-columns: auto auto auto auto;
+    padding: 1em 0;
 	pointer-events: none;
 }
 
@@ -83,4 +81,8 @@ input {
 	border: none;
 	color: var(--fg);
 	pointer-events: none;
+}
+
+input:focus {
+    outline: none;
 }
