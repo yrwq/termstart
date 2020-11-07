@@ -1,41 +1,36 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="css/style.css">
+    <title> ~ </title>
+</head>
 
-    <head>
-
-        <link rel="stylesheet" href="css/style.css">
-        <title> ~ </title>
-
-    </head>
-
-    <body>
-
+<body>
 	<div id="term">
 
 		<p class="prompt" ><span>--- ~ <span class="purple">></span> ls <span id=clock></span></p>
 
 		<nav id="links">
-        		<ul>
-                		<li><a href="https://github.com" target="_blank">github</a></li>
-                		<li><a href="https://unsplash.com" target="_blank">unsplash</a></li>
-                		<li><a href="https://chess.com" target="_blank">chess</a></li>
-                		<li><a href="https://www.reddit.com" target="_blank">reddit</a></li>
-            		</ul>
-        	</nav>
+        	<ul>
+                <li><a href="https://github.com">github</a></li>
+                <li><a href="https://unsplash.com">unsplash</a></li>
+                <li><a href="https://chess.com">chess</a></li>
+				<li><a href="https://www.reddit.com">reddit</a></li>
+            </ul>
+        </nav>
 	
 		<div style="display:flex;" id="y">
-       			<div id="x">
+       		<div id="x">
 				<p class="prompt" ><span>--- ~ </span><span class="purple">></span></p> 
 			</div>
-			<input type="text" placeholder="" id="search" class="search" onkeydown="search(this)"/>  
-    		</div>
+			<input type="text" placeholder="" id="search" class="search" autofocus onkeydown="search(this)"/>  
+    	</div>
 
+		<script src="js/main.js"></script> 	
+		<script src="js/sites.js"></script> 	
 	</div>
-		
-	</body>
-
-	<script src="js/main.js"></script> 	
-	<script src="js/sites.js"></script> 	
-
+</body>
 </html>
-
 
