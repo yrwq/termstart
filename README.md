@@ -7,6 +7,7 @@
 The idea is to have a minimal but functional home page for your browser.
 
 </div>
+
 # Usage
 
 - `ls` - list all sites
