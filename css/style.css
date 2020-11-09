@@ -1,24 +1,9 @@
 :root {
-<<<<<<< HEAD
     --bg: #101010;
 	--bg-light: #303030;
 	--fg: #d0d0d0;
 	--acc1: #960050;
 	--acc2: #ff0090;
-=======
-	--bg: #1c1c1c;
-	--bg-light: #3d3a3a;
-	--fg: #dad3d3;
-	--acc1: #d770af;
-	--acc2: #d28abf;
-	--acc3: #a488d9;
-	--acc4: #bd89de;
-}
-
-@font-face {
-  font-family: monofur;
-  src: url(../monofur.ttf);
->>>>>>> 40b3ed60ac50315ccffb59a48a4931249534826b
 }
 
 body {
@@ -27,22 +12,20 @@ body {
 	display: flex;
     flex-direction: column;
     justify-content: center;
-    min-height: 15ch;
+    min-height: 15px;
     min-width: 30px;
     padding: 3em;
 }
 
 p {
 	margin: 10;
-<<<<<<< HEAD
 	pointer-events: none;
     color: var(--acc1);
-=======
->>>>>>> 40b3ed60ac50315ccffb59a48a4931249534826b
 }
 
 #clock{
 	float: right;
+	pointer-events: none;
 }
 
 html {
@@ -53,17 +36,20 @@ html {
 }
 
 a {
-	color: var(--acc3);
+	color: var(--acc2);
 	text-decoration: none;
 	margin: 8px;
+	pointer-events: auto;
 }
 
 .prompt {
 	color:  var(--fg);
+	pointer-events: none;
 }
 
 .purple {
 	color:  var(--acc1);
+	pointer-events: none;
 }
 
 a:focus,
@@ -71,30 +57,14 @@ a:hover {
     font-weight: bold;
 }
 
-<<<<<<< HEAD
-=======
-ul {
-    list-style-type: none;
-    margin: 0;
-}
-
-nav {
-    column-gap: 2em;
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    padding: 1em 0;
-}
-
->>>>>>> 40b3ed60ac50315ccffb59a48a4931249534826b
 input {
 	background-color: var(--bg);
 	border: none;
-
 	color: var(--fg);
+	pointer-events: none;
 }
 
 input:focus {
-<<<<<<< HEAD
     outline: none;
 }
 
@@ -102,8 +72,3 @@ li{
     color: #ff0090;
     margin: 8px;
 }
-=======
-	outline:none;
-
-}
->>>>>>> 40b3ed60ac50315ccffb59a48a4931249534826b
