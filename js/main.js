@@ -384,6 +384,10 @@ function runCommand(cmd) {
     // Setup event listener for commands
     document.addEventListener("keydown", handleKeyPresses);
 
+    const input = document.getElementById("prompt-input");
+    input.value = "ls";
+    return runCommand(input.value);
     // focus the prompt on init
     focusPrompt();
+
 })();
