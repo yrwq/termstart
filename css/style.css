@@ -1,19 +1,14 @@
 :root {
-	--bg: #1c1c1c;
-	--bg-light: #3d3a3a;
-	--fg: #dad3d3;
-	--acc1: #f43753;
-	--acc2: #a488d9;
-}
-
-@font-face {
-  font-family: monofur;
-  src: url(monofur.ttf);
+    --bg: #101010;
+	--bg-light: #303030;
+	--fg: #d0d0d0;
+	--acc1: #960050;
+	--acc2: #ff0090;
 }
 
 body {
 	background-color: var(--bg);
-	font-family: monofur;
+    font-family: Lucida Console,Lucida Sans Typewriter,monaco,Bitstream Vera Sans Mono,monospace;
 	display: flex;
     flex-direction: column;
     justify-content: center;
@@ -25,6 +20,7 @@ body {
 p {
 	margin: 10;
 	pointer-events: none;
+    color: var(--acc1);
 }
 
 #clock{
@@ -56,24 +52,9 @@ a {
 	pointer-events: none;
 }
 
-
 a:focus,
 a:hover {
     font-weight: bold;
-}
-
-ul {
-    list-style-type: none;
-    margin: 0;
-	pointer-events: none;
-}
-
-nav {
-    column-gap: 2em;
-    display: grid;
-    grid-template-columns: auto auto auto auto;
-    padding: 1em 0;
-	pointer-events: none;
 }
 
 input {
@@ -85,4 +66,9 @@ input {
 
 input:focus {
     outline: none;
+}
+
+li{
+    color: #ff0090;
+    margin: 8px;
 }

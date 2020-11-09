@@ -1,41 +1,38 @@
 <html>
-
     <head>
 
+	    <meta charset="UTF-8">
+	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="css/style.css">
+        <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
         <title> ~ </title>
 
     </head>
-
     <body>
 
-	<div id="term">
+	<div id="terminal-content">
+		<p class="prompt" ><span>| -<span class="purple">></span>  ls<span id=clock></span></p>
 
-		<p class="prompt" ><span>--- ~ <span class="purple">></span> ls <span id=clock></span></p>
+        <div id="links">
+            <nav>
+                <ul>
+                    <li><a href="https://github.com/yrwq/termstart" target="_blank">contribute</a></li>
+                    <li><a href="https://github.com/yrwq/termstart/blob/main/README.md" target="_blank">usage</a></li>
+                </ul>
+            </nav>
+        </div>
 
-		<nav id="links">
-        		<ul>
-                		<li><a href="https://github.com" target="_blank">github</a></li>
-                		<li><a href="https://unsplash.com" target="_blank">unsplash</a></li>
-                		<li><a href="https://chess.com" target="_blank">chess</a></li>
-                		<li><a href="https://www.reddit.com" target="_blank">reddit</a></li>
-            		</ul>
-        	</nav>
-	
-		<div style="display:flex;" id="y">
-       			<div id="x">
-				<p class="prompt" ><span>--- ~ </span><span class="purple">></span></p> 
+		<div style="display:flex;" id="shit">
+       	    <div id="input-prompt">
+		        <p class="prompt" ><span>| -</span><span class="purple">></span></p>
 			</div>
-			<input type="text" placeholder="" id="search" class="search" onkeydown="search(this)"/>  
-    		</div>
+		    <input type="text" placeholder="" id="prompt-input" autofocus class="prompt-input" onkeydown="search(this)"/>
+    	</div>
 
 	</div>
-		
+
+    <script src="js/main.js"></script>
+    <script src="js/helpers.js"></script>
+
 	</body>
-
-	<script src="js/main.js"></script> 	
-	<script src="js/sites.js"></script> 	
-
 </html>
-
-
