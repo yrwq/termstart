@@ -174,7 +174,7 @@ function listWriter(output) {
     inner =
       inner +
       output
-          .map((item) => `<li class="ls-item" style="color: #ff0090; padding-left: 8px; margin: 8px;">${item.key}</li>`)
+          .map((item) => `<li class="ls-item">${item.key}</li>`)
         .join("");
     inner = inner + "</ul>";
     outputNode.innerHTML = inner;
