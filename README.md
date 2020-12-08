@@ -1,10 +1,10 @@
 <div align="center">
 
-# Termstart
-
 <img src="preview.png">
 
 The idea is to have a minimal but functional home page for your browser.
+
+<a href="https://yrwq.github.io/termstart">Try it!</a>
 
 </div>
 

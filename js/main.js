@@ -240,6 +240,7 @@ function list(input) {
     }
 }
 
+// Open a link in a new tab
 function openLink(input) {
   if (input.length) {
     try {

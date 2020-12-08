@@ -1,15 +1,15 @@
 :root {
-    --bg: #101010;
-	--bg-light: #303030;
-	--fg: #d0d0d0;
-	--acc1: #960050;
-	--acc2: #ff0090;
+    --bg: #262626;
+    --bg-light: #3a3a3a;
+    --fg: #dab997;
+    --acc1: #d65d0e;
+    --acc2: #d75f5f;
 }
 
 body {
-	background-color: var(--bg);
-    font-family: Lucida Console,Lucida Sans Typewriter,monaco,Bitstream Vera Sans Mono,monospace;
-	display: flex;
+    background-color: var(--bg);
+    font-family: 'JetBrains Mono', monospace;
+    display: flex;
     flex-direction: column;
     justify-content: center;
     min-height: 15px;
@@ -18,38 +18,38 @@ body {
 }
 
 p {
-	margin: 10;
-	pointer-events: none;
+    margin: 10;
+    pointer-events: none;
     color: var(--acc1);
 }
 
-#clock{
-	float: right;
-	pointer-events: none;
+#clock {
+    float: right;
+    pointer-events: none;
 }
 
 html {
-	align-items: center;
-	display: flex;
-	height: 100%;
+    align-items: center;
+    display: flex;
+    height: 100%;
     justify-content: center;
 }
 
 a {
-	color: var(--acc2);
-	text-decoration: none;
-	margin: 8px;
-	pointer-events: auto;
+    color: var(--acc2);
+    text-decoration: none;
+    margin: 8px;
+    pointer-events: auto;
 }
 
 .prompt {
-	color:  var(--fg);
-	pointer-events: none;
+    color: var(--fg);
+    pointer-events: none;
 }
 
 .purple {
-	color:  var(--acc1);
-	pointer-events: none;
+    color: var(--acc1);
+    pointer-events: none;
 }
 
 a:focus,
@@ -58,23 +58,23 @@ a:hover {
 }
 
 input {
-	background-color: var(--bg);
-	border: none;
-	color: var(--fg);
-	pointer-events: none;
+    background-color: var(--bg);
+    border: none;
+    color: var(--fg);
+    pointer-events: none;
 }
 
 input:focus {
     outline: none;
 }
 
-li{
-    color: #ff0090;
+li {
+    color: var(--acc2);
     margin: 8px;
 }
 
 .ls-item {
-    color: #ff0090;
+    color: var(--acc2);
     padding-left: 8px;
     margin: 8px;
 }

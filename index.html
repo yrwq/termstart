@@ -1,32 +1,36 @@
 <html>
-    <head>
 
-	    <meta charset="UTF-8">
-	    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="stylesheet" href="css/style.css">
-        <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet">
-        <title> ~ </title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+    <title> ~ </title>
 
-    </head>
-    <body>
+</head>
 
-	<div id="terminal-content">
-        <p class="prompt" ><span>| -<span class="purple">></span>  ls<span id=clock></span></p>
+<body>
+
+    <div id="terminal-content">
+        <p class="prompt"><span>| -<span class="purple">></span> ls<span id=clock></span></p>
 
         <div id="links">
-
+            <!-- Added sites goes here -->
         </div>
-		<div style="display:flex;" id="shit">
-       	    <div id="input-prompt">
-		        <p class="prompt" ><span>| -</span><span class="purple">></span></p>
-			</div>
-		    <input type="text" placeholder="" id="prompt-input" autofocus class="prompt-input" onkeydown="search(this)"/>
-    	</div>
 
-	</div>
+        <div style="display:flex;" id="shit">
+            <div id="input-prompt">
+                <p class="prompt"><span>| -</span><span class="purple">></span></p>
+            </div>
+            <input type="text" placeholder="" id="prompt-input" autofocus class="prompt-input" onkeydown="search(this)" />
+        </div>
+
+    </div>
 
     <script src="js/main.js"></script>
     <script src="js/helpers.js"></script>
 
-	</body>
+</body>
+
 </html>
