@@ -10,6 +10,10 @@ The idea is to have a minimal but functional home page for your browser.
 
 # Usage
 
+Keys:
+- `Enter and Space`: focus prompt
+
+Commands:
 - `ls` - list all sites
 - `open <site's name>` open a site
 - `search <something>` search with duckduckgo
