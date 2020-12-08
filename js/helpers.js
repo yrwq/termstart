@@ -9,16 +9,17 @@ function getTime() {
 }
 
 window.onload = () => {
-	document.getElementById("clock").innerHTML = getTime();
-	document.getElementById("prompt-input").focus();
+    document.getElementById("clock").innerHTML = getTime();
+    document.getElementById("prompt-input").focus();
 
-	// focus prompt on any keypress
-	let foc = document.body;
-	foc.addEventListener('keydown', (event) => {
-		document.getElementById("prompt-input").focus();
-	});
+    // Focus prompt if Enter pressed
+    addEventListener("keydown", function(event) {
+	if (event.keyCode == 13 || 32) {
+	    document.getElementById("prompt-input").focus();
+	}
+    });
 
-        setInterval( () => {
-        	document.getElementById("clock").innerHTML = getTime();
-        },100);
+    setInterval( () => {
+        document.getElementById("clock").innerHTML = getTime();
+    },100);
 }
