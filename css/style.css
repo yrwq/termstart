@@ -10,6 +10,14 @@ body.gruvbox-dark {
     /* Empty is default */
 }
 
+body.gruvbox-light {
+    --bg: #ebdbb2;
+    --bg-light: #f9f5d7;
+    --fg: #504945;
+    --acc1: #9d0006;
+    --acc2: #af3a02;
+}
+
 body.nord {
     --bg: #2e3440;
     --bg-light: #3b4252;

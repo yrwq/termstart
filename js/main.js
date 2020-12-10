@@ -1,4 +1,5 @@
 const LS_KEY = "links";
+const LS_TODO = "todos";
 const LS_ENGINE_KEY = "engine";
 const LS_THEME_KEY = "theme";
 const types = {
@@ -12,6 +13,7 @@ const ENGINES = {
 };
 const THEMES = [
     "gruvbox-dark",
+    "gruvbox-light",
     "nord",
     "dracula",
     "vice",
@@ -168,6 +170,11 @@ function formatUrl(url) {
     return finalUrl;
 }
 
+function formatTodo(url) {
+    let finalUrl = url;
+    return finalUrl;
+}
+
 // LocalStorage Interaction Functions
 function readLinks() {
     return safeParse(localStorage.getItem(LS_KEY));
@@ -175,6 +182,14 @@ function readLinks() {
 
 function writeLinks() {
     localStorage.setItem(LS_KEY, JSON.stringify(links));
+}
+
+function readTodos() {
+    return safeParse(localStorage.getItem(LS_TODO));
+}
+
+function writeTodos() {
+    localStorage.setItem(LS_TODO, JSON.stringify(todos));
 }
 
 function readEngine() {
@@ -218,9 +233,9 @@ function themeWriter() {
     const outputNode = document.createElement("div");
     outputNode.classList.add("ls");
     let inner = "<ul class='ls-links'>";
-
+    
     THEMES.forEach(add);
-
+    
     function add(item){
 	inner += '<li class="ls-item">' + item + '</li>'
     }
@@ -295,6 +310,18 @@ function touch(input) {
     fastList();
 }
 
+function addTodo(input) {
+    if (input.length == 2) {
+	const path = input[0].split("/");
+	const url = formatTodo(input[1]);
+	const parent = locateParentPath(path);
+	const target = path[path.length -1];
+	parent[taget] = url;
+	writeLinks();
+    }
+    fastList();
+}
+
 function rm(input) {
     if (input.length) {
 	const path = input[0].split("/");
@@ -338,6 +365,10 @@ function theme(input) {
 */
 // available commands
 const COMMANDS = {
+    // Add todo
+    todo: {
+	func: joinWriter(addTodo, writer)
+    },
     // List links
     ls: {
         func: joinWriter(list, listWriter)
@@ -368,6 +399,7 @@ const COMMANDS = {
 
 let searchUrl = ENGINES.ddg; // default search engine
 let links = {};
+let todos = {};
 let position = []; // Determines where in the link tree we are currently
 
 function handleKeyPresses(e) {
@@ -392,6 +424,10 @@ function runCommand(cmd) {
     const lsLinks = readLinks();
     if (lsLinks) {
         links = lsLinks;
+    }
+    const lsTodos = readTodos();
+    if (lsTodos) {
+        todos = lsTodos;
     }
     // Set Engine
     const savedEngine = readEngine();
