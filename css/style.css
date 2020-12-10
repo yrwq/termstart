@@ -26,6 +26,14 @@ body.dracula {
     --acc2: #62d6e8;
 }
 
+body.vice {
+    --bg: #1f2023;
+    --bg-light: #23262c;
+    --fg: #8b9cbe;
+    --acc1: #ff9cff;
+    --acc2: #00eaff;
+}
+
 body {
     background-color: var(--bg);
     font-family: 'JetBrains Mono', monospace;
