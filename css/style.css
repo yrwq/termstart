@@ -34,6 +34,14 @@ body.vice {
     --acc2: #00eaff;
 }
 
+body.decaf {
+    --bg: #2d2d2d;
+    --bg-light: #393939;
+    --fg: #cccccc;
+    --acc1: #ff7f7b;
+    --acc2: #efb3f7;
+}
+
 body {
     background-color: var(--bg);
     font-family: 'JetBrains Mono', monospace;
