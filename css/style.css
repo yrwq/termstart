@@ -18,6 +18,14 @@ body.nord {
     --acc2: #8fbcbb;
 }
 
+body.dracula {
+    --bg: #282936;
+    --bg-light: #3a3c45;
+    --fg: #e9e9f4;
+    --acc1: #ea51b2;
+    --acc2: #62d6e8;
+}
+
 body {
     background-color: var(--bg);
     font-family: 'JetBrains Mono', monospace;
