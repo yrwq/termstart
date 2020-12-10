@@ -14,7 +14,6 @@ const THEMES = [
     "gruvbox-dark",
     "nord",
 ];
-
 // Get browser and os
 var result = bowser.getParser(window.navigator.userAgent);
 var userAgent = window.navigator.userAgent,
@@ -211,19 +210,22 @@ function listWriter(output) {
     }
 }
 
-function buildNestedList(cursor, list) {
-    Object.entries(cursor).map(([key, value]) => {
-	if (locationType(value) === types.DIR) {
-	    list.push(
-		`<li class="tree-list-item directory">${key}<ul class="tree-list">`
-	    );
-	    buildNestedList(value, list);
-	    list.push("</ul></li>");
-	} else {
-	    list.push(`<li class="tree-list-item">${key}</li>`);
-	}
-    });
-    return list;
+function themeWriter() {
+    const terminal = document.getElementById("links");
+    const outputNode = document.createElement("div");
+    outputNode.classList.add("ls");
+    let inner = "<ul class='ls-links'>";
+
+    THEMES.forEach(add);
+
+    function add(item){
+	inner += '<li class="ls-item">' + item + '</li>'
+    }
+    
+    inner = inner + "</ul>";
+    outputNode.innerHTML = inner;
+    document.getElementById("links").innerHTML = "";
+    terminal.appendChild(outputNode);
 }
 
 function writer(output = "") {
@@ -258,6 +260,10 @@ function list(input) {
 	    type: locationType(value), // Determine if dir or link
         };
     });
+}
+
+function themes(input) {
+    // TODO
 }
 
 // Open a link in a new tab
@@ -351,6 +357,9 @@ const COMMANDS = {
     },
     theme: {
 	func: joinWriter(theme, writer),
+    },
+    themes: {
+	func: joinWriter(themes, themeWriter)
     },
 };
 
