@@ -13,6 +13,9 @@ const ENGINES = {
 const THEMES = [
     "gruvbox-dark",
     "nord",
+    "dracula",
+    "vice",
+    "decaf",
 ];
 // Get browser and os
 var result = bowser.getParser(window.navigator.userAgent);
