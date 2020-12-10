@@ -1,9 +1,9 @@
 :root {
-    --bg: #262626;
-    --bg-light: #3a3a3a;
-    --fg: #dab997;
+    --bg: #1d2021;
+    --bg-light: #3c3836;
+    --fg: #bdae93;
     --acc1: #d65d0e;
-    --acc2: #d75f5f;
+    --acc2: #fb4934;
 }
 
 body.gruvbox-dark {
