@@ -17,6 +17,12 @@ Commands:
 - `ls` - list all sites
 - `open <site's name>` open a site
 - `search <something>` search with duckduckgo
+- `search -c engine` change search engine
+
+  - Available: 
+  -           google: `search -c google`
+  -           duckduckgo: `search -c ddg`
+  
 - `del <site's name>` delete a site
 - `add <site's name> <site's url>` add a site
 

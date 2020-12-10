@@ -6,6 +6,18 @@
     --acc2: #d75f5f;
 }
 
+body.gruvbox-dark {
+    /* Empty definition to handle switching back to "dark" as default */
+}
+
+body.nord {
+    --bg: #2e3440;
+    --bg-light: #3b4252;
+    --fg: #eceff4;
+    --acc1: #5e81ac;
+    --acc2: #8fbcbb;
+}
+
 body {
     background-color: var(--bg);
     font-family: 'JetBrains Mono', monospace;

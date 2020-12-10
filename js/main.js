@@ -1,18 +1,52 @@
-// constants
-const LS_KEY = "cli-page-links";
-const LS_ENGINE_KEY = "cli-page-engine";
-// File Constants
+const LS_KEY = "links";
+const LS_ENGINE_KEY = "engine";
+const LS_THEME_KEY = "theme";
 const types = {
     LINK: "link",
     DIR: "directory",
 };
-// Defined Engines
 const ENGINES = {
     google: "https://google.com/search?q=",
     ddg: "https://duckduckgo.com/?q=",
     bing: "https://www.bing.com/search?q=",
 };
+const THEMES = [
+    "gruvbox-dark",
+    "nord",
+];
 
+// Get browser and os
+var result = bowser.getParser(window.navigator.userAgent);
+var userAgent = window.navigator.userAgent,
+    platform = window.navigator.platform,
+    macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+    windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+    iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+    os = null;
+
+if (macosPlatforms.indexOf(platform) !== -1) {
+    os = 'mac';
+} else if (iosPlatforms.indexOf(platform) !== -1) {
+    os = 'ios';
+} else if (windowsPlatforms.indexOf(platform) !== -1) {
+    os = 'windows';
+} else if (/Android/.test(userAgent)) {
+    os = 'android';
+} else if (!os && /Linux/.test(platform)) {
+    os = 'linux';
+}
+
+// Support Browser
+// Mainstream browsers (Vivaldi, Brave, etc) are Chrome or Firefox based,
+// Qutebrowser, Vimb, Suckless Surf identifies as safari however safari support tabs on Mac OS
+// If i missed something please open an issue, or make a pull request, to add support for a browser.
+
+if (os == 'mac') {
+    var supported = ["Firefox", "Chrome", "Opera", "Safari", "Seamonkey"];
+} else {
+    var supported = ["Firefox", "Chrome", "Opera", "Edge", "Chromium", "Seamonkey"];
+}
+    
 /*
  * Utils
 */
@@ -34,10 +68,6 @@ function joinWriter(command, writer) {
     return (input) => {
         writer(command(input));
     };
-}
-
-function focusPrompt() {
-    document.getElementById("prompt-input").focus();
 }
 
 function getCursor(pos) {
@@ -93,15 +123,6 @@ function locateParentPath(fullPath) {
     return cursor;
 }
 
-function replacePrompt() {
-    const oldPrompt = document.getElementById("prompt-input");
-    const value = oldPrompt.value;
-    const promptText = document.createElement("p");
-    promptText.innerText = value;
-    promptText.classList.add("prompt-text");
-    oldPrompt.replaceWith(promptText);
-}
-
 // Parse command input by keeping strings in "" together as an single item
 function parseCommand(input) {
     const re = /"([^"]+)"|([^\s]+)/g;
@@ -124,7 +145,6 @@ function extractFlags(command, flagMap = {}) {
         if (isFlag) {
             const flag = isFlag[2];
             // If flag marked boolean, don't capture input
-            // TODO: throw error if not found in map?
             if (flagMap[flag] !== "boolean") {
                 flags[flag] = command[i + 1];
                 i++;
@@ -163,158 +183,145 @@ function writeEngine(url) {
     localStorage.setItem(LS_ENGINE_KEY, url);
 }
 
+function readTheme() {
+  return localStorage.getItem(LS_THEME_KEY);
+}
+
+function writeTheme(theme) {
+  localStorage.setItem(LS_THEME_KEY, theme);
+}
+
 // writers
 //
 function listWriter(output) {
-  if (Array.isArray(output)) {
-    const terminal = document.getElementById("links");
-    const outputNode = document.createElement("div");
-    outputNode.classList.add("ls");
-    let inner = "<ul class='ls-links'>";
-    inner =
-      inner +
-      output
-          .map((item) => `<li class="ls-item"><a target='_blank' href='${links[item.key]}'>${item.key}</a></li>`)
-        .join("");
-    inner = inner + "</ul>";
-    outputNode.innerHTML = inner;
-    document.getElementById("links").innerHTML = "";
-    terminal.appendChild(outputNode);
-  } else {
-    textWriter(output);
-  }
-}
-
-function textWriter(output = "") {
-  const terminal = document.getElementById("links");
-  const outputNode = document.createElement("div");
-  outputNode.classList.add("links");
-  const textNode = document.createElement("p");
-  textNode.innerText = output;
+    if (Array.isArray(output)) {
+	const terminal = document.getElementById("links");
+	const outputNode = document.createElement("div");
+	outputNode.classList.add("ls");
+	let inner = "<ul class='ls-links'>";
+	inner =
+	    inner +
+	    output
+            .map((item) => `<li class="ls-item"><a target='_blank' href='${links[item.key]}'>${item.key}</a></li>`)
+            .join("");
+	inner = inner + "</ul>";
+	outputNode.innerHTML = inner;
+	document.getElementById("links").innerHTML = "";
+	terminal.appendChild(outputNode);
+    }
 }
 
 function buildNestedList(cursor, list) {
-  Object.entries(cursor).map(([key, value]) => {
-    if (locationType(value) === types.DIR) {
-      list.push(
-        `<li class="tree-list-item directory">${key}<ul class="tree-list">`
-      );
-      buildNestedList(value, list);
-      list.push("</ul></li>");
-    } else {
-      list.push(`<li class="tree-list-item">${key}</li>`);
-    }
-  });
-  return list;
+    Object.entries(cursor).map(([key, value]) => {
+	if (locationType(value) === types.DIR) {
+	    list.push(
+		`<li class="tree-list-item directory">${key}<ul class="tree-list">`
+	    );
+	    buildNestedList(value, list);
+	    list.push("</ul></li>");
+	} else {
+	    list.push(`<li class="tree-list-item">${key}</li>`);
+	}
+    });
+    return list;
 }
 
-function treeWriter(output = "") {
-  if (Array.isArray(output)) {
-    listWriter(output);
-  } else if (typeof output === "object") {
-    const terminal = document.getElementById("links");
-    const outputNode = document.createElement("nav");
-    outputNode.classList.add("links");
-    let inner = "<ul class='tree-list'>";
-    inner = inner + buildNestedList(output, []).join("") + "</ul>";
-    outputNode.innerHTML = inner;
-    terminal.appendChild(outputNode);
-  } else {
-    textWriter(output);
-  }
+function writer(output = "") {
+    if (Array.isArray(output)) {
+	listWriter(output);
+    }
 }
+
 /*
  * Commands
 */
 
-// Add flag on ls to show actual links with names
+function focusPrompt() {
+    document.getElementById("prompt-input").focus();
+}
+
+function fastList() {
+    const input = document.getElementById("prompt-input");
+    return runCommand("ls");
+}
+
+function clearPrompt() {
+    const input = document.getElementById("prompt-input");
+    input.value = "";
+}
+
 function list(input) {
     const cursor = getCurrentCursor();
-    if (locationType(cursor) === types.DIR) {
-      return Object.entries(cursor).map(([key, value]) => {
+    return Object.entries(cursor).map(([key, value]) => {
         return {
-          key,
-          type: locationType(value), // Determine if dir or link
+	    key,
+	    type: locationType(value), // Determine if dir or link
         };
-      });
-    }
+    });
 }
 
 // Open a link in a new tab
 function openLink(input) {
-  if (input.length) {
-    try {
-      const path = input[0].split("/");
-      const target = locatePath(path);
-      if (locationType(target) === types.DIR) {
-        return `not a link: ${path[path.length - 1]}`;
-      }
-      window.open(target, "_blank");
-      return;
-    } catch (err) {
-      return err;
+    if (input.length) {
+	const path = input[0].split("/");
+	const target = locatePath(path);
+	
+	if (supported.includes(result.parsedResult.browser.name)) {
+	    window.open(target, "_blank");
+	} else {
+	    window.open(target, "_self");
+	}
     }
-  }
-  return COMMANDS.open.help;
 }
 
 function touch(input) {
-  if (input.length == 2) {
-    try {
-      const path = input[0].split("/");
-      const url = formatUrl(input[1]);
-      const parent = locateParentPath(path);
-      const target = path[path.length - 1];
-      parent[target] = url;
-      return writeLinks();
-    } catch (err) {
-      return err;
+    if (input.length == 2) {
+	const path = input[0].split("/");
+	const url = formatUrl(input[1]);
+	const parent = locateParentPath(path);
+	const target = path[path.length - 1];
+	parent[target] = url;
+	writeLinks();
     }
-  }
+    fastList();
 }
 
 function rm(input) {
-  if (input.length) {
-    const path = input[0].split("/");
-    try {
-      const parent = locateParentPath(path);
-      const target = path[path.length - 1];
-      if (!parent[target]) {
-        return `no such link: ${target}`;
-      }
-      if (locationType(parent[target]) !== types.LINK) {
-        return `not a link: ${target}`;
-      }
-      delete parent[target];
-      writeLinks();
-      return;
-    } catch (err) {
-      return err;
+    if (input.length) {
+	const path = input[0].split("/");
+	const parent = locateParentPath(path);
+	const target = path[path.length - 1];
+	delete parent[target];
+	writeLinks();
     }
-  }
-  return COMMANDS.rm.help;
+    fastList();
 }
 
 function search(input) {
-  const { command, flags } = extractFlags(input, {
-    e: "string",
-  });
-  let currentSearchUrl = searchUrl;
-  if (flags.e) {
-    currentSearchUrl = ENGINES[flags.e] ? ENGINES[flags.e] : flags.e;
-    if (!command[0]) {
-      // Set saved engine to given
-      searchUrl = currentSearchUrl;
-      writeEngine(currentSearchUrl);
-      return `Updated search engine to: ${currentSearchUrl}`;
+    const { command, flags } = extractFlags(input, {
+	c: "string",
+    });
+    let currentSearchUrl = searchUrl;
+    if (flags.c) {
+	currentSearchUrl = ENGINES[flags.c] ? ENGINES[flags.c] : flags.c;
+	if (!command[0]) {
+	    // Set saved engine to given
+	    searchUrl = currentSearchUrl;
+	    writeEngine(currentSearchUrl);
+	}
     }
-  }
-  if (command && command[0]) {
-    const searchString = command[0];
-    window.open(currentSearchUrl + searchString, "_blank");
-    return;
-  }
-  return COMMANDS.search.help;
+    if (command && command[0]) {
+	const searchString = command[0];
+	window.open(currentSearchUrl + searchString, "_blank");
+    }
+}
+
+function theme(input) {
+    if (input.length) {
+	document.body.className = "";
+	document.body.classList.add(input[0]);
+	writeTheme(input[0]);
+    }
 }
 
 /*
@@ -322,20 +329,28 @@ function search(input) {
 */
 // available commands
 const COMMANDS = {
+    // List links
     ls: {
-        func: joinWriter(list, treeWriter)
+        func: joinWriter(list, listWriter)
     },
+    // Open a link
     open: {
-        func: joinWriter(openLink, textWriter)
+        func: joinWriter(openLink, writer)
     },
+    // Add a link
     add: {
-        func: joinWriter(touch, textWriter)
+        func: joinWriter(touch, writer)
     },
+    // Delete a link
     del: {
-        func: joinWriter(rm, textWriter)
+        func: joinWriter(rm, writer)
     },
+    // search with ddg or google
     search: {
-        func: joinWriter(search, textWriter)
+        func: joinWriter(search, writer)
+    },
+    theme: {
+	func: joinWriter(theme, writer),
     },
 };
 
@@ -348,7 +363,6 @@ function handleKeyPresses(e) {
         // Enter
         const input = document.getElementById("prompt-input");
         return runCommand(input.value);
-        focusPrompt()
     }
 }
 
@@ -356,19 +370,10 @@ function handleKeyPresses(e) {
 function runCommand(cmd) {
     const parsedCmd = parseCommand(cmd);
     let response;
-    if (COMMANDS[parsedCmd[0]]) {
-        if (parsedCmd.length > 1 && parsedCmd[1] === "-h") {
-            response = COMMANDS.help.func([parsedCmd[0]]);
-        } else {
-            response = COMMANDS[parsedCmd[0]].func(
-                parsedCmd.slice(1, parsedCmd.length)
-            );
-        }
-    }
-
-    // clear input value after running a command
-    const input = document.getElementById("prompt-input");
-    input.value = "";
+    response = COMMANDS[parsedCmd[0]].func(
+        parsedCmd.slice(1, parsedCmd.length)
+    );
+    clearPrompt();
 }
 // IIFE for setup
 (() => {
@@ -381,14 +386,10 @@ function runCommand(cmd) {
     if (savedEngine) {
         searchUrl = savedEngine;
     }
-
-    // Setup event listener for commands
+    // Get current theme
+    const currentTheme = readTheme();
+    theme([currentTheme]);
+    
     document.addEventListener("keydown", handleKeyPresses);
-
-    const input = document.getElementById("prompt-input");
-    input.value = "ls";
-    return runCommand(input.value);
-    // focus the prompt on init
-    focusPrompt();
-
+    fastList();
 })();
