@@ -1,26 +1,25 @@
 
-#+html: <p align="center"> <img src="preview.png"> </p>
+#+html: <p align="center"> <img src=".assets/preview.png"> </p>
 
 #+html: <p align="center"> The idea is to have a minimal but functional home page for your browser. </p>
 
-[[https://yrwq.github.io/termstart][try it!]]
+#+html: <p align="center"> <a href="https://yrwq.github.io/termstart"> Try it! </p>
 
 * Usage
 
-- Enter/Space: focus prompt
-- ls: list all sites
-- open: open a site
-- search <something>` search with duckduckgo
-- `search -c engine` change search engine
+| Command/key | What it does                    | Example                 |
+|-------------+---------------------------------+-------------------------|
+| Enter/Space | Focus prompt                    |                         |
+| ls          | list links                      |                         |
+| open        | open a link                     | open github             |
+| search      | search for a term on ddg/google | search "github"         |
+| search -c   | change search engine            | search -c ddg or google |
+| del         | deletes added site              | del github              |
+| add         | add a site                      | add github github.com   |
+| theme       | change theme                    | theme gruvbox-dark      |
+| themes      | list all themes                 |                        |
 
-  - Available: 
-  -           google: `search -c google`
-  -           duckduckgo: `search -c ddg`
-  
-- `del <site's name>` delete a site
-- `add <site's name> <site's url>` add a site
-
-# Contributing
+* Contributing 
 
 Feel free to open issues, suggesting features or other things!
 
