@@ -1,13 +1,9 @@
 
-#+html: <p align="center">
+#+html: <p align="center"> <img src="preview.png"> </p>
 
-[[file:preview.png]]
-
-The idea is to have a minimal but functional home page for your browser.
+#+html: <p align="center"> The idea is to have a minimal but functional home page for your browser. </p>
 
 [[https://yrwq.github.io/termstart][try it!]]
-
-#+html: </p>
 
 * Usage
 
