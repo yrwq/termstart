@@ -19,6 +19,17 @@
 | theme       | change theme                    | theme gruvbox-dark      |
 | themes      | list all themes                 |                        |
 
+* Themes
+
+** Gruvbox-dark
+
+#+html: <p align="center"> <img src=".assets/gruvbox.png"> </p>
+
+** Gruvbox-light
+
+#+html: <p align="center"> <img src=".assets/gruvbox-light.png"> </p>
+
+
 * Contributing 
 
 Feel free to open issues, suggesting features or other things!
