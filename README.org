@@ -1,5 +1,5 @@
 
-<p align="center">
+#+html: <p align="center">
 
 [[file:preview.png]]
 
@@ -7,7 +7,7 @@ The idea is to have a minimal but functional home page for your browser.
 
 [[https://yrwq.github.io/termstart][try it!]]
 
-</p>
+#+html: </p>
 
 * Usage
 
