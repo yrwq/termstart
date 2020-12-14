@@ -29,7 +29,21 @@
 
 #+html: <p align="center"> <img src=".assets/gruvbox-light.png"> </p>
 
+** Nord
 
+#+html: <p align="center"> <img src=".assets/nord.png"> </p>
+
+** Dracula
+
+#+html: <p align="center"> <img src=".assets/dracula.png"> </p>
+
+** Vice
+
+#+html: <p align="center"> <img src=".assets/vice.png"> </p>
+
+** Decaf
+
+#+html: <p align="center"> <img src=".assets/decaf.png"> </p>
 * Contributing 
 
 Feel free to open issues, suggesting features or other things!
