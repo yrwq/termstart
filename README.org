@@ -1,22 +1,20 @@
-<div align="center">
 
-<img src="preview.png">
+<p align="center">
+
+[[file:preview.png]]
 
 The idea is to have a minimal but functional home page for your browser.
 
-<a href="https://yrwq.github.io/termstart">Try it!</a>
+[[https://yrwq.github.io/termstart][try it!]]
 
-</div>
+</p>
 
-# Usage
+* Usage
 
-Keys:
-- `Enter and Space`: focus prompt
-
-Commands:
-- `ls` - list all sites
-- `open <site's name>` open a site
-- `search <something>` search with duckduckgo
+- Enter/Space: focus prompt
+- ls: list all sites
+- open: open a site
+- search <something>` search with duckduckgo
 - `search -c engine` change search engine
 
   - Available: 
