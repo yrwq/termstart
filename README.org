@@ -11,13 +11,15 @@
 |-------------+---------------------------------+-------------------------|
 | Enter/Space | Focus prompt                    |                         |
 | ls          | list links                      |                         |
+| clear       | clear the "terminal"            |                         |
+| help        | show available commands         |                         |
 | open        | open a link                     | open github             |
 | search      | search for a term on ddg/google | search "github"         |
 | search -c   | change search engine            | search -c ddg or google |
 | del         | deletes added site              | del github              |
 | add         | add a site                      | add github github.com   |
 | theme       | change theme                    | theme gruvbox-dark      |
-| themes      | list all themes                 |                        |
+| themes      | list all themes                 |                         |
 
 * Themes
 
