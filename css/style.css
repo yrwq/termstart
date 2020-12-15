@@ -62,11 +62,13 @@ p {
     margin: 10;
     pointer-events: none;
     color: var(--acc1);
+    font-family: 'JetBrains Mono', monospace;
 }
 
 #clock {
     float: right;
     pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 html {
@@ -81,20 +83,24 @@ a {
     text-decoration: none;
     margin: 8px;
     pointer-events: auto;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 a:focus,
 a:hover {
     font-weight: bold;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .prompt {
     color: var(--fg);
     pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
 }
 
 .purple {
     color: var(--acc1);
+    font-family: 'JetBrains Mono', monospace;
     pointer-events: none;
 }
 
@@ -104,6 +110,7 @@ input:focus {
     background-color: var(--bg);
     fon: inherit;
     margin: 0;
+    font-family: 'JetBrains Mono', monospace;
     border: none;
     color: var(--fg);
     pointer-events: none;
@@ -112,11 +119,13 @@ input:focus {
 
 li {
     color: var(--acc2);
+    font-family: 'JetBrains Mono', monospace;
     margin: 8px;
 }
 
 .ls-item {
     color: var(--acc2);
+    font-family: 'JetBrains Mono', monospace;
     padding-left: 8px;
     margin: 8px;
 }
