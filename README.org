@@ -1,5 +1,5 @@
-#+ATTR_HTML: width="100px"
-#+ATTR_ORG: :width 100
+#+ATTR_HTML: width="120px"
+#+ATTR_ORG: :width 120
 
 #+html: <p align="center"> <img src=".assets/preview.png"> </p>
 
@@ -24,8 +24,10 @@
 | themes      | list all themes                 |                         |
 
 * Themes
-| [[file:.assets/gruvbox.png]] | [[file:.assets/gruvbox-light.png]] | [[file:.assets/nord.png]] |
-| [[file:.assets/dracula.png]] | [[file:.assets/vice.png]] | [[file:.assets/decaf.png]] |
+
+| [[file:.assets/gruvbox.png]] | [[file:.assets/gruvbox-light.png]] | [[file:.assets/nord.png]]  |
+|--------------------------+--------------------------------+------------------------|
+| [[file:.assets/dracula.png]] | [[file:.assets/vice.png]]          | [[file:.assets/decaf.png]] |
 
 * Contributing 
 
