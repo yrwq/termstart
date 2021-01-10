@@ -1,13 +1,10 @@
-#+ATTR_HTML: width="120px"
-#+ATTR_ORG: :width 120
+# <p align="center"> <img src=".assets/preview.png"> </p>
 
-#+html: <p align="center"> <img src=".assets/preview.png"> </p>
+## <p align="center"> The idea is to have a minimal but functional home page for your browser. </p>
 
-#+html: <p align="center"> The idea is to have a minimal but functional home page for your browser. </p>
+## <p align="center"> <a href="https://yrwq.github.io/termstart"> Try it! </p>
 
-#+html: <p align="center"> <a href="https://yrwq.github.io/termstart"> Try it! </p>
-
-* Installing
+## Installing
 
 Termstart is now available as an extension on Google Chrome only  
 To do this:  
@@ -19,10 +16,10 @@ To do this:
  5. Select the cloned repo folder
  6. Open a new tab and enjoy
 
-* Usage
+## Usage
 
 | Command/key | What it does                    | Example                 |
-|-------------+---------------------------------+-------------------------|
+|-------------|---------------------------------|-------------------------|
 | Enter/Space | Focus prompt                    |                         |
 | ls          | list links                      |                         |
 | clear       | clear the "terminal"            |                         |
@@ -35,13 +32,13 @@ To do this:
 | theme       | change theme                    | theme gruvbox-dark      |
 | themes      | list all themes                 |                         |
 
-* Themes
+## Themes
 
 | [[file:.assets/gruvbox.png]] | [[file:.assets/gruvbox-light.png]] | [[file:.assets/nord.png]]  |
 |--------------------------+--------------------------------+------------------------|
 | [[file:.assets/dracula.png]] | [[file:.assets/vice.png]]          | [[file:.assets/decaf.png]] |
 
-* Contributing 
+## Contributing  
 
 Feel free to open issues, suggesting features or other things!
 
