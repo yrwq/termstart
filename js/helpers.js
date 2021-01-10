@@ -22,4 +22,4 @@ window.onload = () => {
     setInterval( () => {
         document.getElementById("clock").innerHTML = getTime();
     },100);
-}
+};

@@ -37,7 +37,7 @@ const COMMANDS = {
     },
 };
 
-let searchUrl = ENGINES.ddg; // default search engine
+let searchUrl = ENGINES.google; // default search engine
 let links = {};
 let position = []; // Determines where in the link tree we are currently
 
@@ -66,11 +66,11 @@ function runCommand(cmd) {
 	outputNode.classList.add("ls");
 	let inner = "<ul class='ls-links'>";
 	
-	inner += '<h3> <p> Available commands </p></h3>'
+	inner += '<h3> <p> Available commands </p></h3>';
 	COMM.forEach(add);
     
 	function add(item){
-	    inner += '<li class="ls-item">' + item + '</li>'
+	    inner += '<li class="ls-item">' + item + '</li>';
 	}
 	
 	inner = inner + "</ul>";

@@ -3,8 +3,8 @@
 */
 
 // Get browser and os
-var result = bowser.getParser(window.navigator.userAgent);
-var userAgent = window.navigator.userAgent,
+let result = bowser.getParser(window.navigator.userAgent);
+let userAgent = window.navigator.userAgent,
     platform = window.navigator.platform,
     macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
     windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
@@ -29,9 +29,9 @@ if (macosPlatforms.indexOf(platform) !== -1) {
 // If i missed something please open an issue, or make a pull request, to add support for a browser.
 
 if (os == 'mac') {
-    var supported = ["Firefox", "Chrome", "Opera", "Safari", "Seamonkey"];
+    let supported = ["Firefox", "Chrome", "Opera", "Safari", "Seamonkey"];
 } else {
-    var supported = ["Firefox", "Chrome", "Opera", "Edge", "Chromium", "Seamonkey"];
+    let supported = ["Firefox", "Chrome", "Opera", "Edge", "Chromium", "Seamonkey"];
 }
     
 function safeParse(input) {
