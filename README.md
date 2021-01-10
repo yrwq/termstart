@@ -1,6 +1,6 @@
 # ![preview](/.assets/preview.png)  
 
-<center style="font-size: 30px">The idea is to have a minimal but functional home page for your browser.</center>  
+<center style="font-size: 30px">The idea is to have a minimal but functional home page for your browser. <br></center>  
 
 <center><a href="https://yrwq.github.io/termstart"> Try it! </a></center>  
 
@@ -34,9 +34,9 @@ To do this:
 
 ## Themes
 
-| [[file:.assets/gruvbox.png]] | [[file:.assets/gruvbox-light.png]] | [[file:.assets/nord.png]]  |
-| ---------------------------- | ---------------------------------- | -------------------------- |
-| [[file:.assets/dracula.png]] | [[file:.assets/vice.png]]          | [[file:.assets/decaf.png]] |
+| ![gruvbox](.assets/gruvbox.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
+| ------------------------------- | ------------------------------------------- | --------------------------- |
+| ![dracula](.assets/dracula.png) | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
 
 ## Contributing  
 
