@@ -1,10 +1,11 @@
 # ![preview](/.assets/preview.png)  
 
-<center style="font-size: 30px">The idea is to have a minimal but functional home page for your browser. <br></center>  
+<p align="center">The idea is to have a minimal but functional home page for your browser.</p>
+<p align="center"><a href="https://yrwq.github.io/termstart"> Try it! </a></p>
 
-<center><a href="https://yrwq.github.io/termstart"> Try it! </a></center>  
+---
 
-## Usage  
+## Installing  
 
 Termstart is now available as an extension on Google Chrome only  
 To do this:  
