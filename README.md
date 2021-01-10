@@ -1,4 +1,4 @@
-# ![preview](/.assets/preview.png)  
+<p align="center"><img src=".assets/preview.png" /><p>
 
 <p align="center">The idea is to have a minimal but functional home page for your browser.</p>
 <p align="center"><a href="https://yrwq.github.io/termstart"> Try it! </a></p>
@@ -10,7 +10,7 @@
 Termstart is now available as an extension on Google Chrome only  
 To do this:  
 
- 1. Clone this repository to somewhere like `Documents`
+ 1. Clone this repository
  2. Start Chrome and go to `chrome://extensions`
  3. Enable `Developer Mode` in the top-right corner of the page
  4. In the top-left corner of the page, click `Load Unpacked`
