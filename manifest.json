@@ -1,0 +1,15 @@
+{
+	"name": "Termstart",
+	"version": "1.0",
+	"description": "Minimal New Tab Page for Google Chrome",
+	"chrome_url_overrides": {
+		"newtab": "index.html"
+	},
+	"icons": {
+		"16": "favicon-1.png",
+		"32": "favicon-2.png",
+		"48": "favicon-3.png",
+		"128": "favicon-4.png"
+	},
+	"manifest_version": 2
+}

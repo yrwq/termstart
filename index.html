@@ -1,42 +1,37 @@
 <html>
-  
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="preconnect" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
-    <title>~</title>
-    
-  </head>
 
-  <body onClick="focusPrompt()">
-    
-    <div id="terminal-content">
-      <p id="prompt" class="prompt"><span>| -<span class="purple">></span> ls<span id="clock"></span></p>
-      
-      <div id="links">
-	<!-- Added sites goes here -->
-      </div>
-      
-      <div style="display:flex;" id="shit">
-	<div id="input-prompt">
-          <p class="prompt"><span>| -</span><span class="purple">></span></p>
-	</div>
-	<input type="text" placeholder="" id="prompt-input" autofocus class="prompt-input" onkeydown="" spellcheck="false" />
-      </div>
-      
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <title>~</title>
+</head>
+
+<body>
+  <div id="terminal-content">
+    <p id="prompt" class="prompt"><span>| -<span class="purple">></span> ls<span id="clock"></span></p>
+    <div id="links">
+      <!-- Added sites goes here -->
     </div>
-    
-    <script src="https://unpkg.com/bowser@2.7.0/es5.js"></script>
-    <script src="js/consts.js"></script>
-    <script src="js/utils.js"></script>
-    <script src="js/writers.js"></script>
-    <script src="js/commands.js"></script>
-    <script src="js/main.js"></script>
-    <script src="js/helpers.js"></script>
-    
-  </body>
-  
+    <div style="display:flex;" id="shit">
+      <div id="input-prompt">
+        <p class="prompt"><span>| -</span><span class="purple">></span></p>
+      </div>
+      <input type="text" placeholder="Type Here" id="prompt-input" autofocus class="prompt-input" onkeydown="" spellcheck="false" />
+    </div>
+  </div>
+
+  <script src="js/bowser.js"></script>
+  <script src="js/consts.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/writers.js"></script>
+  <script src="js/commands.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/helpers.js"></script>
+
+</body>
+
 </html>

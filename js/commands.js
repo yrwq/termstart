@@ -71,13 +71,15 @@ function rm(input) {
     fastList();
 }
 
+
+
 function search(input) {
     const { command, flags } = extractFlags(input, {
 	c: "string",
     });
     let currentSearchUrl = searchUrl;
     if (flags.c) {
-	currentSearchUrl = ENGINES[flags.c] ? ENGINES[flags.c] : flags.c;
+		currentSearchUrl = ENGINES[flags.c] ? ENGINES[flags.c] : flags.c;
 	if (!command[0]) {
 	    // Set saved engine to given
 	    searchUrl = currentSearchUrl;
