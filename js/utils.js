@@ -2,38 +2,7 @@
   Utils
 */
 
-// Get browser and os
-let result = bowser.getParser(window.navigator.userAgent);
-let userAgent = window.navigator.userAgent,
-    platform = window.navigator.platform,
-    macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
-    windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
-    iosPlatforms = ['iPhone', 'iPad', 'iPod'],
-    os = null;
 
-if (macosPlatforms.indexOf(platform) !== -1) {
-    os = 'mac';
-} else if (iosPlatforms.indexOf(platform) !== -1) {
-    os = 'ios';
-} else if (windowsPlatforms.indexOf(platform) !== -1) {
-    os = 'windows';
-} else if (/Android/.test(userAgent)) {
-    os = 'android';
-} else if (!os && /Linux/.test(platform)) {
-    os = 'linux';
-}
-
-// Support Browser
-// Other mainstream browsers such as Vivaldi, Brave, etc. are Chrome or Firefox based,
-// Qutebrowser, Vimb, Suckless Surf identifies as safari however safari support tabs on Mac OS
-// If i missed something please open an issue, or make a pull request, to add support for a browser.
-
-if (os == 'mac') {
-    let supported = ["Firefox", "Chrome", "Opera", "Safari", "Seamonkey"];
-} else {
-    let supported = ["Firefox", "Chrome", "Opera", "Edge", "Chromium", "Seamonkey"];
-}
-    
 function safeParse(input) {
     try {
         return JSON.parse(input) || {};
