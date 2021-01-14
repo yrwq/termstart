@@ -1,7 +1,7 @@
 {
 	"name": "Termstart",
 	"version": "1.0",
-	"description": "Minimal New Tab Page for Google Chrome",
+	"description": "Terminal themed new tab page.",
 	"chrome_url_overrides": {
 		"newtab": "index.html"
 	},

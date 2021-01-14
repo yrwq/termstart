@@ -5,17 +5,23 @@
 
 ---
 
-## Installing  
+## Installing
 
-Termstart is now available as an extension on Google Chrome only  
-To do this:  
+Termstart is now available as an extension!
 
- 1. Clone this repository
- 2. Start Chrome and go to `chrome://extensions`
- 3. Enable `Developer Mode` in the top-right corner of the page
- 4. In the top-left corner of the page, click `Load Unpacked`
- 5. Select the cloned repo folder
- 6. Open a new tab and enjoy
+- Firefox
+    1. Clone this repository
+    2. Open the `about:debugging` page.
+    3. Click `This Firefox`.
+    4. Click `Load Temporary Add-on`.
+    5. Select any file from the cloned directory.
+
+- Chrome/Chromium/Brave/...
+    1. Clone this repository
+    2. Start Chrome and go to `chrome://extensions`
+    3. Enable `Developer Mode` in the top-right corner of the page
+    4. In the top-left corner of the page, click `Load Unpacked`
+    5. Select the cloned folder
 
 ## Usage
 
@@ -39,7 +45,7 @@ To do this:
 | ------------------------------- | ------------------------------------------- | --------------------------- |
 | ![dracula](.assets/dracula.png) | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
 
-## Contributing  
+## Contributing
 
 Feel free to open issues, suggesting features or other things!
 
