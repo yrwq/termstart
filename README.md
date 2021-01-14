@@ -9,19 +9,21 @@
 
 Termstart is now available as an extension!
 
-- Firefox
-    1. Clone this repository
-    2. Open the `about:debugging` page.
-    3. Click `This Firefox`.
-    4. Click `Load Temporary Add-on`.
-    5. Select any file from the cloned directory.
+### Firefox
 
-- Chrome/Chromium/Brave/...
-    1. Clone this repository
-    2. Start Chrome and go to `chrome://extensions`
-    3. Enable `Developer Mode` in the top-right corner of the page
-    4. In the top-left corner of the page, click `Load Unpacked`
-    5. Select the cloned folder
+1. Clone this repository
+2. Open the `about:debugging` page.
+3. Click `This Firefox`.
+4. Click `Load Temporary Add-on`.
+5. Select any file from the cloned directory.
+
+### Chrome / Chromium / Brave / ...
+
+1. Clone this repository
+2. Start Chrome and go to `chrome://extensions`
+3. Enable `Developer Mode` in the top-right corner of the page
+4. In the top-left corner of the page, click `Load Unpacked`
+5. Select the cloned folder
 
 ## Usage
 
