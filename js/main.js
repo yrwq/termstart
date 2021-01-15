@@ -69,7 +69,7 @@ function runCommand(cmd) {
     outputNode.classList.add("ls");
     let inner = "<ul class='ls-links'>";
 
-    inner += "<h4> <p> Available commands </p></h4>";
+    inner += "<h3 class='purple'> Unknown command: " + parsedCmd[0] + "</h3>";
     COMM.forEach(add);
 
     function add(item) {
