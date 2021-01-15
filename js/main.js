@@ -58,13 +58,18 @@ function runCommand(cmd) {
     response = COMMANDS[parsedCmd[0]].func(
       parsedCmd.slice(1, parsedCmd.length)
     );
-  } catch (err) {
+  }
+
+  // Handling errors
+
+  catch (err) {
+
     const terminal = document.getElementById("links");
     const outputNode = document.createElement("div");
     outputNode.classList.add("ls");
     let inner = "<ul class='ls-links'>";
 
-    inner += "<h3> <p> Available commands </p></h3>";
+    inner += "<h4> <p> Available commands </p></h4>";
     COMM.forEach(add);
 
     function add(item) {
@@ -75,7 +80,9 @@ function runCommand(cmd) {
     outputNode.innerHTML = inner;
     document.getElementById("links").innerHTML = "";
     terminal.appendChild(outputNode);
+
   }
+
   clearPrompt();
   prompt.innerHTML =
     '<span>| -<span class="purple">></span> ' +
@@ -84,17 +91,21 @@ function runCommand(cmd) {
 }
 
 (() => {
+
   const lsLinks = readLinks();
   if (lsLinks) {
     links = lsLinks;
   }
+
   const savedEngine = readEngine();
   if (savedEngine) {
     searchUrl = savedEngine;
   }
+
   const currentTheme = readTheme();
   theme([currentTheme]);
 
   document.addEventListener("keydown", handleKeyPresses);
   fastList();
+
 })();
