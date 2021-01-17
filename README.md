@@ -1,12 +1,13 @@
 <p align="center"><img src=".assets/gruvbox-dark.png" /><p>
 
 <p align="center">The idea is to have a minimal but functional home page for your browser.</p>
-<p align="center"><a href="https://yrwq.github.io/termstart"> Try it! </a></p>
+
+<p align="center"> <a href="https://yrwq.github.io/termstart"><img src="https://forthebadge.com/images/badges/check-it-out.svg"/></a></p>
 
 ---
 
-[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)](https://forthebadge.com)
-[![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)](https://forthebadge.com)
+[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)]
+[![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)]
 
 ## Installing
 
