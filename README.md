@@ -44,8 +44,8 @@ Termstart is now available as an extension!
 ## Themes
 
 | ![gruvbox](.assets/gruvbox-dark.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
-| gruvbox-dark                         | gruvbox-light                               | nord                        |
 | -------------------------------      | ------------------------------------------- | --------------------------- |
+| gruvbox-dark                         | gruvbox-light                               | nord                        |
 | ![dracula](.assets/dracula.png)      | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
 | dracula                              | vice                                        | decaf                       |
 
