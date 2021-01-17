@@ -28,7 +28,7 @@ Termstart is now available as an extension!
 ## Usage
 
 | Command/key  | What it does                    | Example                  |
-| -------------| ------------------------------- | -------------------------|
+| :-: | :-: |:-: |
 | `Enter/Space`| Focus prompt                    |                          |
 | `ls`         | list links                      |                          |
 | `clear`      | clear the "terminal"            |                          |
@@ -44,7 +44,7 @@ Termstart is now available as an extension!
 ## Themes
 
 | ![gruvbox](.assets/gruvbox-dark.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
-| -------------------------------      | ------------------------------------------- | --------------------------- |
+| :-: | :-: | :-: |
 | gruvbox-dark                         | gruvbox-light                               | nord                        |
 
 | ![dracula](.assets/dracula.png)      | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
