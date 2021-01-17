@@ -35,10 +35,15 @@ const COMMANDS = {
   clear: {
     func: joinWriter(command, clearWriter),
   },
+  // Books
+  books: {
+    func: joinWriter(booksList, bookWriter)
+  }
 };
 
 let searchUrl = ENGINES.google; // default search engine
 let links = {};
+let bookmarks = {};
 let position = []; // Determines where in the link tree we are currently
 
 function handleKeyPresses(e) {
@@ -95,6 +100,11 @@ function runCommand(cmd) {
   const lsLinks = readLinks();
   if (lsLinks) {
     links = lsLinks;
+  }
+
+  const booksLinks = readBooks();
+  if (booksLinks) {
+    bookmarks = booksLinks();
   }
 
   const savedEngine = readEngine();

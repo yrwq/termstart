@@ -5,11 +5,14 @@
 	"chrome_url_overrides": {
 		"newtab": "index.html"
 	},
+	"permissions": [
+		"bookmarks"
+	],
 	"icons": {
-		"16": "favicon-1.png",
-		"32": "favicon-2.png",
-		"48": "favicon-3.png",
-		"128": "favicon-4.png"
+		"16": "./favicons/favicon-1.png",
+		"32": "./favicons/favicon-2.png",
+		"48": "./favicons/favicon-3.png",
+		"128": "./favicons/favicon-4.png"
 	},
 	"manifest_version": 2
 }

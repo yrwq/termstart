@@ -29,8 +29,20 @@ function getCursor(pos) {
   return cursor;
 }
 
+function getBooksCursor(pos) {
+  let cursor = bookmarks;
+  pos.forEach((p) => {
+    cursor = cursor[p];
+  });
+  return cursor;
+}
+
 function getCurrentCursor() {
   return getCursor(position);
+}
+
+function getBooksCurrentCursor() {
+  return getBooksCursor(position);
 }
 
 function pushCommand(cmd) {
@@ -140,4 +152,16 @@ function readTheme() {
 
 function writeTheme(theme) {
   localStorage.setItem(LS_THEME_KEY, theme);
+}
+
+function readBooks() {
+  chrome.bookmarks.getTree(function(bookmarkTreeNodes) {
+    let payload = {};
+    for (i = 0; i < bookmarkTreeNodes[0].children[0].children.length; i++) {
+      let title = bookmarkTreeNodes[0].children[0].children[i].title; 
+      let url = bookmarkTreeNodes[0].children[0].children[i].url; 
+      payload[title] = url;
+    }
+    return payload;
+  });
 }

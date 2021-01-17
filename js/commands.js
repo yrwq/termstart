@@ -59,6 +59,16 @@ function list(input) {
   });
 }
 
+function booksList(input) {
+  const cursor = getBooksCurrentCursor();
+  return Object.entries(cursor).map(([key, value]) => {
+    return {
+      key,
+      type: locationType(value), // Determine if dir or link
+    };
+  });
+}
+
 function themes(input) {
   // TODO
 }

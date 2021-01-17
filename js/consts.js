@@ -28,6 +28,7 @@ const COMM = [
   "add - add a site",
   "del - delete a site",
   "open - open a site",
+  "books - list bookmarks",
   "search - search on google/ddg",
   "theme - change theme",
   "themes - list themes",

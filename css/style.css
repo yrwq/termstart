@@ -107,7 +107,7 @@ a:hover {
 input,
 input:focus {
   background-color: var(--bg);
-  fon: inherit;
+  font: inherit;
   margin: 0;
   font-family: "JetBrains Mono", monospace;
   border: none;
@@ -122,7 +122,7 @@ li {
   margin: 8px;
 }
 
-.ls-item {
+.ls-item, .books-item {
   color: var(--acc2);
   font-family: "JetBrains Mono", monospace;
   padding-left: 8px;

@@ -25,6 +25,29 @@ function listWriter(output) {
   }
 }
 
+function bookWriter(output) {
+  if (Array.isArray(output)) {
+    const terminal = document.getElementById("links");
+    const outputNode = document.createElement("div");
+    outputNode.classList.add("books");
+    let inner = "<ul class='books'>";
+    inner =
+      inner +
+      output
+        .map(
+          (item) =>
+            `<li class="books-item"><a target='_blank' href='${bookmarks[item.key]}'>${
+              item.key
+            }</a></li>`
+        )
+        .join("");
+    inner = inner + "</ul>";
+    outputNode.innerHTML = inner;
+    document.getElementById("links").innerHTML = "";
+    terminal.appendChild(outputNode);
+  }
+}
+
 function themeWriter() {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
