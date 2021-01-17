@@ -73,7 +73,8 @@ function runCommand(cmd) {
     COMM.forEach(add);
 
     function add(item) {
-      inner += '<li class="ls-item">' + item + "</li>";
+      inner += '<li class="ls-item">' + item.name + ' - ' + item.description + "</li>";
+      inner += '<p class="ls-item" style="color: #c7c7c7"> Arguments: ' + item.args + "</p>";
     }
 
     inner = inner + "</ul>";
