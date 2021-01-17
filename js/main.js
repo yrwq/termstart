@@ -104,7 +104,7 @@ function runCommand(cmd) {
 
   const booksLinks = readBooks();
   if (booksLinks) {
-    bookmarks = booksLinks();
+    bookmarks = booksLinks;
   }
 
   const savedEngine = readEngine();

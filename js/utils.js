@@ -155,13 +155,13 @@ function writeTheme(theme) {
 }
 
 function readBooks() {
+  let payload = {};
   chrome.bookmarks.getTree(function(bookmarkTreeNodes) {
-    let payload = {};
     for (i = 0; i < bookmarkTreeNodes[0].children[0].children.length; i++) {
       let title = bookmarkTreeNodes[0].children[0].children[i].title; 
       let url = bookmarkTreeNodes[0].children[0].children[i].url; 
       payload[title] = url;
     }
-    return payload;
   });
+  return payload;
 }
