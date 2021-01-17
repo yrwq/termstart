@@ -5,6 +5,8 @@
 
 ---
 
+[![HitCount](http://hits.dwyl.com/yrwq/termstart.svg)](http://hits.dwyl.com/yrwq/termstart)
+
 ## Installing
 
 Termstart is now available as an extension!
