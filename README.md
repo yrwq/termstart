@@ -6,7 +6,7 @@
 
 ---
 
-<p align="center"> <img src="https://forthebadge.com/images/badges/built-with-love.svg"/> <img src="https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg"/> </p>
+<p align="center"> <img src="https://forthebadge.com/images/badges/built-with-love.svg"/> <img src="https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg"/> <img src="https://forthebadge.com/images/badges/powered-by-black-magic.svg"/> </p>
 
 ## Installing
 
