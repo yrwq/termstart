@@ -6,10 +6,10 @@
 		"newtab": "index.html"
 	},
 	"icons": {
-		"16": "favicon-1.png",
-		"32": "favicon-2.png",
-		"48": "favicon-3.png",
-		"128": "favicon-4.png"
+		"16": "./.assets/favicon-1.png",
+		"32": "./.assets/favicon-2.png",
+		"48": "./.assets/favicon-3.png",
+		"128": "./.assets/favicon-4.png"
 	},
 	"manifest_version": 2
 }
