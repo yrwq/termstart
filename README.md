@@ -6,8 +6,7 @@
 
 ---
 
-[![forthebadge](https://forthebadge.com/images/badges/built-with-love.svg)]
-[![forthebadge](https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg)]
+<p align="center"> <img src="https://forthebadge.com/images/badges/built-with-love.svg"/> <img src="https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg"/> </p>
 
 ## Installing
 
