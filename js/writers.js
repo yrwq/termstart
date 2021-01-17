@@ -61,7 +61,6 @@ function errorWriter() {
   function add(item) {
     inner += '<li class="ls-item">' + item.name + ' - ' + item.description + "</li>";
     inner += '<p class="ls-item" style="color: #c7c7c7"> Arguments: ' + item.args + "</p>";
-    console.log(item)
   }
 
   inner = inner + "</ul>";
