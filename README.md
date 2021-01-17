@@ -40,6 +40,7 @@ Termstart is now available as an extension!
 | `add`         | add a site                      | `add github github.com`   |
 | `theme`       | change theme                    | `theme gruvbox-dark`      |
 | `themes`      | list all themes                 |                           |
+| `books`       | list bookmarks                  |                           |
 
 ## Themes
 
