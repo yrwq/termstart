@@ -27,27 +27,27 @@ Termstart is now available as an extension!
 
 ## Usage
 
-| Command/key   | What it does                    | Example                   |
-| ------------- | ------------------------------- | ------------------------- |
-| `Enter/Space` | Focus prompt                    |                           |
-| `ls`          | list links                      |                           |
-| `clear`       | clear the "terminal"            |                           |
-| `help`        | show available commands         |                           |
-| `open`        | open a link                     | `open github`             |
-| `search`      | search for a term on ddg/google | `search "github"`         |
-| `search -c`   | change search engine            | `search -c ddg or google` |
-| `del`         | deletes added site              | `del github`              |
-| `add`         | add a site                      | `add github github.com`   |
-| `theme`       | change theme                    | `theme gruvbox-dark`      |
-| `themes`      | list all themes                 |                           |
+|: Command/key  :|: What it does                    :|: Example                  :|
+|: -------------:|: ------------------------------- :|: -------------------------:|
+|: `Enter/Space`:|: Focus prompt                    :|:                          :|
+|: `ls`         :|: list links                      :|:                          :|
+|: `clear`      :|: clear the "terminal"            :|:                          :|
+|: `help`       :|: show available commands         :|:                          :|
+|: `open`       :|: open a link                     :|: `open github`            :|
+|: `search`     :|: search for a term on ddg/google :|: `search "github"`        :|
+|: `search -c`  :|: change search engine            :|: `search -c ddg or google`:|
+|: `del`        :|: deletes added site              :|: `del github`             :|
+|: `add`        :|: add a site                      :|: `add github github.com`  :|
+|: `theme`      :|: change theme                    :|: `theme gruvbox-dark`     :|
+|: `themes`     :|: list all themes                 :|:                          :|
 
 ## Themes
 
-| ![gruvbox](.assets/gruvbox-dark.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
-| -------------------------------      | ------------------------------------------- | --------------------------- |
-| gruvbox-dark                         | gruvbox-light                               | nord                        |
-| ![dracula](.assets/dracula.png)      | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
-| dracula                              | vice                                        | decaf                       |
+|: ![gruvbox](.assets/gruvbox-dark.png) :|: ![gboxlight](.assets/gruvbox-light.png)     :|: ![nord](.assets/nord.png)   :|
+|: gruvbox-dark                         :|: gruvbox-light                               :|: nord                        :|
+|: -------------------------------      :|: ------------------------------------------- :|: --------------------------- :|
+|: ![dracula](.assets/dracula.png)      :|: ![vice](.assets/vice.png)                   :|: ![decaf](.assets/decaf.png) :|
+|: dracula                              :|: vice                                        :|: decaf                       :|
 
 ## Contributing
 
