@@ -1,4 +1,4 @@
-<p align="center"><img src=".assets/preview.png" /><p>
+<p align="center"><img src=".assets/gruvbox-dark.png" /><p>
 
 <p align="center">The idea is to have a minimal but functional home page for your browser.</p>
 <p align="center"><a href="https://yrwq.github.io/termstart"> Try it! </a></p>
@@ -43,7 +43,7 @@ Termstart is now available as an extension!
 
 ## Themes
 
-| ![gruvbox](.assets/gruvbox.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
+| ![gruvbox](.assets/gruvbox-dark.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
 | ------------------------------- | ------------------------------------------- | --------------------------- |
 | ![dracula](.assets/dracula.png) | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
 
