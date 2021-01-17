@@ -28,7 +28,7 @@ Termstart is now available as an extension!
 ## Usage
 
 | Command/key  | What it does                    | Example                  |
-| -------------| ------------------------------- | -------------------------|
+|: -------------: |: ------------------------------- :|: ------------------------- :|
 | `Enter/Space`| Focus prompt                    |                          |
 | `ls`         | list links                      |                          |
 | `clear`      | clear the "terminal"            |                          |
