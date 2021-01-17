@@ -1,131 +1,130 @@
 :root {
-    --bg: #1d2021;
-    --bg-light: #3c3836;
-    --fg: #bdae93;
-    --acc1: #d65d0e;
-    --acc2: #fb4934;
+  --bg: #1d2021;
+  --bg-light: #3c3836;
+  --fg: #bdae93;
+  --acc1: #d65d0e;
+  --acc2: #fb4934;
 }
 
 body.gruvbox-dark {
-    /* Empty is default */
+  /* Empty is default */
 }
 
 body.gruvbox-light {
-    --bg: #ebdbb2;
-    --bg-light: #f9f5d7;
-    --fg: #504945;
-    --acc1: #9d0006;
-    --acc2: #af3a02;
+  --bg: #ebdbb2;
+  --bg-light: #f9f5d7;
+  --fg: #504945;
+  --acc1: #9d0006;
+  --acc2: #af3a02;
 }
 
 body.nord {
-    --bg: #2e3440;
-    --bg-light: #3b4252;
-    --fg: #eceff4;
-    --acc1: #5e81ac;
-    --acc2: #8fbcbb;
+  --bg: #2e3440;
+  --bg-light: #3b4252;
+  --fg: #eceff4;
+  --acc1: #5e81ac;
+  --acc2: #8fbcbb;
 }
 
 body.dracula {
-    --bg: #282936;
-    --bg-light: #3a3c45;
-    --fg: #e9e9f4;
-    --acc1: #ea51b2;
-    --acc2: #62d6e8;
+  --bg: #282936;
+  --bg-light: #3a3c45;
+  --fg: #e9e9f4;
+  --acc1: #ea51b2;
+  --acc2: #62d6e8;
 }
 
 body.vice {
-    --bg: #1f2023;
-    --bg-light: #23262c;
-    --fg: #8b9cbe;
-    --acc1: #ff9cff;
-    --acc2: #00eaff;
+  --bg: #1f2023;
+  --bg-light: #23262c;
+  --fg: #8b9cbe;
+  --acc1: #ff9cff;
+  --acc2: #00eaff;
 }
 
 body.decaf {
-    --bg: #2d2d2d;
-    --bg-light: #393939;
-    --fg: #cccccc;
-    --acc1: #ff7f7b;
-    --acc2: #efb3f7;
+  --bg: #2d2d2d;
+  --bg-light: #393939;
+  --fg: #cccccc;
+  --acc1: #ff7f7b;
+  --acc2: #efb3f7;
 }
 
 body {
-    background-color: var(--bg);
-    font-family: 'JetBrains Mono', monospace;
-    height: 100%;
-    display: table-cell;
-    vertical-align: middle;
+  background-color: var(--bg);
+  font-family: "JetBrains Mono", monospace;
+  height: 100%;
+  display: table-cell;
+  vertical-align: middle;
 }
 
 p {
-    margin: 10;
-    pointer-events: none;
-    color: var(--acc1);
-    font-family: 'JetBrains Mono', monospace;
+  margin: 10;
+  pointer-events: none;
+  color: var(--acc1);
+  font-family: "JetBrains Mono", monospace;
 }
 
 #clock {
-    float: right;
-    pointer-events: none;
-    font-family: 'JetBrains Mono', monospace;
+  float: right;
+  pointer-events: none;
+  font-family: "JetBrains Mono", monospace;
 }
 
 html {
-    font-family: 'JetBrains Mono', monospace;
-    height: 100%;
-    display: table;
-    margin: auto;
+  font-family: "JetBrains Mono", monospace;
+  height: 100%;
+  display: table;
+  margin: auto;
 }
 
 a {
-    color: var(--acc2);
-    text-decoration: none;
-    margin: 8px;
-    pointer-events: auto;
-    font-family: 'JetBrains Mono', monospace;
+  color: var(--acc2);
+  text-decoration: none;
+  margin: 8px;
+  pointer-events: auto;
+  font-family: "JetBrains Mono", monospace;
 }
 
 a:focus,
 a:hover {
-    font-weight: bold;
-    font-family: 'JetBrains Mono', monospace;
+  font-weight: bold;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .prompt {
-    color: var(--fg);
-    pointer-events: none;
-    font-family: 'JetBrains Mono', monospace;
+  color: var(--fg);
+  pointer-events: none;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .purple {
-    color: var(--acc1);
-    font-family: 'JetBrains Mono', monospace;
-    pointer-events: none;
+  color: var(--acc1);
+  font-family: "JetBrains Mono", monospace;
+  pointer-events: none;
 }
-
 
 input,
 input:focus {
-    background-color: var(--bg);
-    fon: inherit;
-    margin: 0;
-    font-family: 'JetBrains Mono', monospace;
-    border: none;
-    color: var(--fg);
-    pointer-events: none;
-    outline: none;
+  background-color: var(--bg);
+  fon: inherit;
+  margin: 0;
+  font-family: "JetBrains Mono", monospace;
+  border: none;
+  color: var(--fg);
+  pointer-events: none;
+  outline: none;
 }
 
 li {
-    color: var(--acc2);
-    font-family: 'JetBrains Mono', monospace;
-    margin: 8px;
+  color: var(--acc2);
+  font-family: "JetBrains Mono", monospace;
+  margin: 8px;
 }
 
 .ls-item {
-    color: var(--acc2);
-    font-family: 'JetBrains Mono', monospace;
-    padding-left: 8px;
-    margin: 8px;
+  color: var(--acc2);
+  font-family: "JetBrains Mono", monospace;
+  padding-left: 8px;
+  margin: 8px;
 }
