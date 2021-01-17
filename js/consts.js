@@ -30,5 +30,6 @@ const COMM = [
   { name: 'open', description: 'open a site', args: 'url' },
   { name: 'search', description: 'search on google/ddg', args: 'string' },
   { name: 'theme', description: 'change theme', args: 'theme' },
-  { name: 'themes', description: 'list themes', args: 'none' }
+  { name: 'themes', description: 'list themes', args: 'none' },
+  { name: 'clear', description: 'clear the "terminal"', args: 'none' }
 ];
