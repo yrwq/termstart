@@ -100,7 +100,7 @@ a:hover {
 
 .purple {
   color: var(--acc1);
-  font-family: "JetBrains Mono", monospace;
+  font: inherit;
   pointer-events: none;
 }
 
@@ -117,9 +117,9 @@ input:focus {
 }
 
 li {
+  list-style: none;
   color: var(--acc2);
   font-family: "JetBrains Mono", monospace;
-  margin: 8px;
 }
 
 .ls-item, .books-item {
@@ -127,4 +127,13 @@ li {
   font-family: "JetBrains Mono", monospace;
   padding-left: 8px;
   margin: 8px;
+}
+
+.material-icons.md-36 {
+  font-size: 36px;
+  vertical-align: middle;
+}
+
+.ls-item-padd {
+  padding-left: 45px;
 }
