@@ -5,15 +5,15 @@ const COMMANDS = {
   },
   // Open a link
   open: {
-    func: joinWriter(openLink, writer),
+    func: joinWriter(open_link, writer),
   },
   // Add a link
   add: {
-    func: joinWriter(touch, writer),
+    func: joinWriter(add, writer),
   },
   // Delete a link
   del: {
-    func: joinWriter(rm, writer),
+    func: joinWriter(del, writer),
   },
   // search with ddg or google
   search: {
@@ -37,7 +37,7 @@ const COMMANDS = {
   },
 };
 
-let searchUrl = ENGINES.google; // default search engine
+let searchUrl = ENGINES.ddg; // default search engine
 let links = {};
 let position = []; // Determines where in the link tree we are currently
 

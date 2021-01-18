@@ -49,7 +49,7 @@ function writer(output = "") {
   }
 }
 
-function errorWriter() {
+function errorWriter(error_cmd) {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");

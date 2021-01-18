@@ -10,18 +10,13 @@ function safeParse(input) {
   }
 }
 
-function locationType(val) {
-  if (typeof val === "string") return types.LINK;
-  return types.DIR;
-}
-
 function joinWriter(command, writer) {
   return (input) => {
     writer(command(input));
   };
 }
 
-function getCursor(pos) {
+function get_cursor(pos) {
   let cursor = links;
   pos.forEach((p) => {
     cursor = cursor[p];
@@ -29,8 +24,8 @@ function getCursor(pos) {
   return cursor;
 }
 
-function getCurrentCursor() {
-  return getCursor(position);
+function get_current_cursor() {
+  return get_cursor(position);
 }
 
 function pushCommand(cmd) {
@@ -39,38 +34,18 @@ function pushCommand(cmd) {
   focusPrompt();
 }
 
-function locatePath(path) {
-  let cursor = locateParentPath(path);
+function locate_path(path) {
+  let cursor = locate_parent_path(path);
   if (path.length) {
     const final = path[path.length - 1];
-    if (!cursor[final]) {
-      throw `no such link or directory: ${final}`;
-    }
     return cursor[final];
   }
   return cursor;
 }
 
-function locateParentPath(fullPath) {
+function locate_parent_path(fullPath) {
   const path = fullPath.slice(0, fullPath.length - 1);
-  let cursor = getCurrentCursor();
-  const newPosition = [...position];
-  for (let i = 0; i < path.length; i++) {
-    const m = path[i];
-    if (m === "..") {
-      newPosition.pop();
-      cursor = getCursor(newPosition);
-    } else {
-      if (!cursor[m]) {
-        throw `no such link or directory: ${m}`;
-      }
-      if (locationType(cursor[m]) === types.LINK) {
-        throw `not a directory: ${m}`;
-      }
-      newPosition.push(m);
-      cursor = getCursor(newPosition);
-    }
-  }
+  let cursor = get_current_cursor();
   return cursor;
 }
 

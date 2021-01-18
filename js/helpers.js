@@ -12,7 +12,7 @@ window.onload = () => {
   document.getElementById("clock").innerHTML = getTime();
   document.getElementById("prompt-input").focus();
 
-  // Focus prompt if Enter pressed
+  // Focus prompt if Enter or Space pressed
   addEventListener("keydown", function (event) {
     if (event.keyCode == 13 || 32) {
       document.getElementById("prompt-input").focus();

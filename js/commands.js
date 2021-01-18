@@ -40,21 +40,18 @@ function focusPrompt() {
 }
 
 function fastList() {
-  const input = document.getElementById("prompt-input");
   return runCommand("ls");
 }
 
 function clearPrompt() {
-  const input = document.getElementById("prompt-input");
-  input.value = "";
+  document.getElementById("prompt-input").value = "";
 }
 
 function list(input) {
-  const cursor = getCurrentCursor();
+  const cursor = get_cursor(position);
   return Object.entries(cursor).map(([key, value]) => {
     return {
-      key,
-      type: locationType(value), // Determine if dir or link
+      key, value
     };
   });
 }
@@ -68,10 +65,10 @@ function command(input) {
 }
 
 // Open a link in a new tab
-function openLink(input) {
+function open_link(input) {
   if (input.length) {
-    const path = input[0].split("/");
-    const target = locatePath(path);
+
+    const target = locate_path(input);
 
     if (supported.includes(result.parsedResult.browser.name)) {
       window.open(target, "_blank");
@@ -81,22 +78,22 @@ function openLink(input) {
   }
 }
 
-function touch(input) {
+function add(input) {
   if (input.length == 2) {
-    const path = input[0].split("/");
-    const url = formatUrl(input[1]);
-    const parent = locateParentPath(path);
-    const target = path[path.length - 1];
-    parent[target] = url;
-    writeLinks();
+      const path = input[0].split(" ");
+      const url = formatUrl(input[1]);
+      const parent = locate_parent_path(path);
+      const target = path[path.length - 1];
+      parent[target] = url;
+      writeLinks();
   }
   fastList();
 }
 
-function rm(input) {
+function del(input) {
   if (input.length) {
-    const path = input[0].split("/");
-    const parent = locateParentPath(path);
+    const path = input[0].split(" ");
+    const parent = locate_parent_path(path);
     const target = path[path.length - 1];
     delete parent[target];
     writeLinks();
@@ -119,7 +116,11 @@ function search(input) {
   }
   if (command && command[0]) {
     const searchString = command.join(' ');
-    window.open(currentSearchUrl + searchString, "_blank");
+    if (supported.includes(result.parsedResult.browser.name)) {
+      window.open(target, "_blank");
+    } else {
+      window.open(target, "_self");
+    }
   }
 }
 
