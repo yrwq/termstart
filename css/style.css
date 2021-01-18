@@ -52,10 +52,17 @@ body #links .title {
 body #links .padding {
   padding-left: 45px;
 }
-body #links ul li .item {
+body #links ul {
+  list-style: none;
+}
+body #links ul .item {
   color: var(--acc2);
+  font-size: 14px;
   padding-left: 8px;
   margin: 8px;
+}
+body #links ul .item span {
+  padding-right: 5px;
 }
 body .material-icons.md-36 {
   font-size: 36px;

@@ -59,13 +59,18 @@ body {
         .padding {
             padding-left: 45px;
         }
-        
+
         ul {
-            li {
-                .item {
-                    color: var(--acc2);
-                    padding-left: 8px;
-                    margin: 8px;
+            list-style: none;
+
+            .item {
+                color: var(--acc2);
+                font-size: 14px;
+                padding-left: 8px;
+                margin: 8px;
+
+                span {
+                    padding-right: 5px;
                 }
             }
         }
