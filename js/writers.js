@@ -8,6 +8,7 @@ function list_writer(output) {
     const outputNode = document.createElement("div");
     outputNode.classList.add("ls");
     let inner = "<ul class='ls-links'>";
+
     inner =
       inner +
       output
@@ -18,6 +19,7 @@ function list_writer(output) {
             }</a></li>`
         )
         .join("");
+
     inner = inner + "</ul>";
     outputNode.innerHTML = inner;
     document.getElementById("links").innerHTML = "";
@@ -56,6 +58,7 @@ function error_writer(error_cmd) {
   let inner = "<ul class='ls-links'>";
 
   inner += "<h3 class='purple'>Available commands</h3>";
+
   COMM.forEach(add);
 
   function add(item) {

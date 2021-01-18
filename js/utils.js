@@ -92,6 +92,10 @@ function format_url(url) {
   return finalUrl;
 }
 
+/*
+ * Cursors
+*/
+
 // LocalStorage Interaction Functions
 function read_links() {
   return safe_parse(localStorage.getItem(LS_KEY));

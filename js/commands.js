@@ -81,7 +81,7 @@ function open_link(input) {
 function add(input) {
   if (input.length == 2) {
       const path = input[0].split(" ");
-      const url = formatUrl(input[1]);
+      const url = format_url(input[1]);
       const parent = locate_parent_path(path);
       const target = path[path.length - 1];
       parent[target] = url;
@@ -102,27 +102,17 @@ function del(input) {
 }
 
 function search(input) {
-  const { command, flags } = extract_flags(input, {
-    c: "string",
-  });
   let currentSearchUrl = searchUrl;
-  if (flags.c) {
-    currentSearchUrl = ENGINES[flags.c] ? ENGINES[flags.c] : flags.c;
-    if (!command[0]) {
-      // Set saved engine to given
-      searchUrl = currentSearchUrl;
-      write_engine(currentSearchUrl);
-    }
-  }
-  if (command && command[0]) {
-    const searchString = command.join(' ');
-    if (supported.includes(result.parsedResult.browser.name)) {
-      window.open(target, "_blank");
-    } else {
-      window.open(target, "_self");
-    }
+  const searchString = command.join(' ');
+  let target = currentSearchUrl + searchString
+
+  if (supported.includes(result.parsedResult.browser.name)) {
+    window.open(target, "_blank");
+  } else {
+    window.open(target, "_self");
   }
 }
+
 
 function theme(input) {
   if (input.length) {
