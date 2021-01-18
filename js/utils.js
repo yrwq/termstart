@@ -38,3 +38,25 @@ const write = (string) => {
 
     linksDiv.appendChild(child)
 }
+
+const getLinks = () => JSON.parse(localStorage.getItem('links') || "[]")
+
+const addLink = (name = 'default', url = '') => {
+    const links = getLinks()
+    links.push({ name: name, url: url })
+    localStorage.setItem('links', JSON.stringify(links || []))
+}
+
+const delLink = (name = 'default') => {
+    const links = getLinks()
+    const link = links.find(link => link.name == name)
+    const index = links.indexOf(link)
+    delete links[index]
+
+    const newLinks = []
+    links.forEach(link => link ? newLinks.push(link) : null)
+
+    links[0] != undefined 
+        ? localStorage.setItem('links', JSON.stringify(newLinks)) 
+        : localStorage.removeItem('links')
+}
