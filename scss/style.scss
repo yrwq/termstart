@@ -1,11 +1,13 @@
 html {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'JetBrains Mono', monospace !important;
     height: 100%;
     display: table;
     margin: auto;
 }
 
 body {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 100%;
     background: var(--bg);
     height: 100%;
     display: table-cell;
