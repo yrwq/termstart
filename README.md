@@ -58,4 +58,4 @@ Termstart is now available as an extension!
 
 Feel free to open issues, suggesting features or other things!
 
-Any contributions, are very welcome.
+See [CONTRIBUTING.md](https://github.com/yrwq/termstart/blob/main/CONTRIBUTING.md)
