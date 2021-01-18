@@ -30,14 +30,14 @@ const search = (string) => {
         localStorage.setItem('engine', parsedArgs[1])
         location.reload()
     } else {
-        window.open(`${Engines[searchEngine]}${string}`)
+        window.open(`${Engines[searchEngine]}${string.join(' ')}`)
     }
 }
 
 const help = (name) => {
     let temp = []
 
-    Commands.forEach(cmd => temp.push({ text: `${cmd.name} - ${cmd.description}` }))
+    Commands.forEach(cmd => temp.push({ text: `${cmd.data.name} - ${cmd.data.description}` }))
 
     writeList(temp)
 }
