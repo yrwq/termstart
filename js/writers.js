@@ -2,7 +2,7 @@
   Writers
 */
 
-function listWriter(output) {
+function list_writer(output) {
   if (Array.isArray(output)) {
     const terminal = document.getElementById("links");
     const outputNode = document.createElement("div");
@@ -25,7 +25,7 @@ function listWriter(output) {
   }
 }
 
-function themeWriter() {
+function theme_writer() {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");
@@ -45,11 +45,11 @@ function themeWriter() {
 
 function writer(output = "") {
   if (Array.isArray(output)) {
-    listWriter(output);
+    list_writer(output);
   }
 }
 
-function errorWriter(error_cmd) {
+function error_writer(error_cmd) {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");
@@ -68,7 +68,7 @@ function errorWriter(error_cmd) {
   terminal.appendChild(outputNode);
 }
 
-function clearWriter() {
+function clear_writer() {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");

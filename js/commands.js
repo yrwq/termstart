@@ -35,15 +35,15 @@ if (os == "mac") {
   supported = ["Firefox", "Chrome", "Opera", "Edge", "Chromium", "Seamonkey"];
 }
 
-function focusPrompt() {
+function focus_prompt() {
   document.getElementById("prompt-input").focus();
 }
 
-function fastList() {
-  return runCommand("ls");
+function fast_list() {
+  return run_command("ls");
 }
 
-function clearPrompt() {
+function clear_prompt() {
   document.getElementById("prompt-input").value = "";
 }
 
@@ -85,9 +85,9 @@ function add(input) {
       const parent = locate_parent_path(path);
       const target = path[path.length - 1];
       parent[target] = url;
-      writeLinks();
+      write_links();
   }
-  fastList();
+  fast_list();
 }
 
 function del(input) {
@@ -96,13 +96,13 @@ function del(input) {
     const parent = locate_parent_path(path);
     const target = path[path.length - 1];
     delete parent[target];
-    writeLinks();
+    write_links();
   }
-  fastList();
+  fast_list();
 }
 
 function search(input) {
-  const { command, flags } = extractFlags(input, {
+  const { command, flags } = extract_flags(input, {
     c: "string",
   });
   let currentSearchUrl = searchUrl;
@@ -111,7 +111,7 @@ function search(input) {
     if (!command[0]) {
       // Set saved engine to given
       searchUrl = currentSearchUrl;
-      writeEngine(currentSearchUrl);
+      write_engine(currentSearchUrl);
     }
   }
   if (command && command[0]) {
@@ -128,6 +128,6 @@ function theme(input) {
   if (input.length) {
     document.body.className = "";
     document.body.classList.add(input[0]);
-    writeTheme(input[0]);
+    write_theme(input[0]);
   }
 }

@@ -1,39 +1,39 @@
 const COMMANDS = {
   // List links
   ls: {
-    func: joinWriter(list, listWriter),
+    func: join_writer(list, list_writer),
   },
   // Open a link
   open: {
-    func: joinWriter(open_link, writer),
+    func: join_writer(open_link, writer),
   },
   // Add a link
   add: {
-    func: joinWriter(add, writer),
+    func: join_writer(add, writer),
   },
   // Delete a link
   del: {
-    func: joinWriter(del, writer),
+    func: join_writer(del, writer),
   },
   // search with ddg or google
   search: {
-    func: joinWriter(search, writer),
+    func: join_writer(search, writer),
   },
   // change theme
   theme: {
-    func: joinWriter(theme, writer),
+    func: join_writer(theme, writer),
   },
   // list themes
   themes: {
-    func: joinWriter(themes, themeWriter),
+    func: join_writer(themes, theme_writer),
   },
   // help
   help: {
-    func: joinWriter(command, errorWriter),
+    func: join_writer(command, error_writer),
   },
   // clear
   clear: {
-    func: joinWriter(command, clearWriter),
+    func: join_writer(command, clear_writer),
   },
 };
 
@@ -41,16 +41,16 @@ let searchUrl = ENGINES.ddg; // default search engine
 let links = {};
 let position = []; // Determines where in the link tree we are currently
 
-function handleKeyPresses(e) {
+function handle_key_presses(e) {
   if (e.keyCode === 13) {
     // Enter
     const input = document.getElementById("prompt-input");
-    return runCommand(input.value);
+    return run_command(input.value);
   }
 }
 
-function runCommand(cmd) {
-  const parsedCmd = parseCommand(cmd);
+function run_command(cmd) {
+  const parsedCmd = parse_command(cmd);
   let response;
   let prompt = document.getElementById("prompt");
 
@@ -83,7 +83,8 @@ function runCommand(cmd) {
 
   }
 
-  clearPrompt();
+  clear_prompt();
+
   prompt.innerHTML =
     `<span class="purple material-icons md-36">chevron_right</span>
     ${parsedCmd[0]}
@@ -92,20 +93,20 @@ function runCommand(cmd) {
 
 (() => {
 
-  const lsLinks = readLinks();
+  const lsLinks = read_links();
   if (lsLinks) {
     links = lsLinks;
   }
 
-  const savedEngine = readEngine();
+  const savedEngine = read_engine();
   if (savedEngine) {
     searchUrl = savedEngine;
   }
 
-  const currentTheme = readTheme();
+  const currentTheme = read_theme();
   theme([currentTheme]);
 
-  document.addEventListener("keydown", handleKeyPresses);
-  fastList();
+  document.addEventListener("keydown", handle_key_presses);
+  fast_list();
 
 })();

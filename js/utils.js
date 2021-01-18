@@ -2,7 +2,7 @@
   Utils
 */
 
-function safeParse(input) {
+function safe_parse(input) {
   try {
     return JSON.parse(input) || {};
   } catch {
@@ -10,7 +10,7 @@ function safeParse(input) {
   }
 }
 
-function joinWriter(command, writer) {
+function join_writer(command, writer) {
   return (input) => {
     writer(command(input));
   };
@@ -28,10 +28,10 @@ function get_current_cursor() {
   return get_cursor(position);
 }
 
-function pushCommand(cmd) {
+function push_command(cmd) {
   const prompt = document.getElementById("prompt-input");
   prompt.value = cmd;
-  focusPrompt();
+  focus_prompt();
 }
 
 function locate_path(path) {
@@ -50,7 +50,7 @@ function locate_parent_path(fullPath) {
 }
 
 // Parse command input by keeping strings in "" together as an single item
-function parseCommand(input) {
+function parse_command(input) {
   const re = /"([^"]+)"|([^\s]+)/g;
   const parsedCmd = [];
   let temp;
@@ -62,7 +62,7 @@ function parseCommand(input) {
 }
 
 // Parse command array to extract flags
-function extractFlags(command, flagMap = {}) {
+function extract_flags(command, flagMap = {}) {
   const finalCommand = [];
   const flags = {};
   for (let i = 0; i < command.length; i++) {
@@ -84,7 +84,7 @@ function extractFlags(command, flagMap = {}) {
   return { command: finalCommand, flags };
 }
 
-function formatUrl(url) {
+function format_url(url) {
   let finalUrl = url;
   if (!/^http|https:\/\//.test(finalUrl)) {
     finalUrl = "https://" + finalUrl;
@@ -93,26 +93,26 @@ function formatUrl(url) {
 }
 
 // LocalStorage Interaction Functions
-function readLinks() {
-  return safeParse(localStorage.getItem(LS_KEY));
+function read_links() {
+  return safe_parse(localStorage.getItem(LS_KEY));
 }
 
-function writeLinks() {
+function write_links() {
   localStorage.setItem(LS_KEY, JSON.stringify(links));
 }
 
-function readEngine() {
+function read_engine() {
   return localStorage.getItem(LS_ENGINE_KEY);
 }
 
-function writeEngine(url) {
+function write_engine(url) {
   localStorage.setItem(LS_ENGINE_KEY, url);
 }
 
-function readTheme() {
+function read_theme() {
   return localStorage.getItem(LS_THEME_KEY);
 }
 
-function writeTheme(theme) {
+function write_theme(theme) {
   localStorage.setItem(LS_THEME_KEY, theme);
 }

@@ -19,6 +19,7 @@ const THEMES = [
   "dracula",
   "vice",
   "decaf",
+  "pastel",
 ];
 
 const COMM = [

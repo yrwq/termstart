@@ -50,6 +50,14 @@ body.decaf {
   --acc2: #efb3f7;
 }
 
+body.pastel {
+  --bg: #282828;
+  --bg-light: #393939;
+  --fg: #cdc1c1;
+  --acc1: #db7464;
+  --acc2: #a073d6;
+}
+
 body {
   background-color: var(--bg);
   font-family: "JetBrains Mono", monospace;
