@@ -105,7 +105,7 @@ function search(input) {
   let currentSearchUrl = searchUrl;
   const searchString = input.join(' ');
 
-  let target = currentSearchUrl + searchString
+  let target = currentSearchUrl + searchString;
 
   if (supported.includes(result.parsedResult.browser.name)) {
     window.open(target, "_blank");

@@ -12,13 +12,8 @@
 
 ### As an extension
 
-It is recommended to add `Termstart` as an extension for your browser.
-
 1. Clone this repository
    - `git clone https://github.com/yrwq/termstart`
-
-2. Switch to experimental branch
-   - `git branch -M experimental`
 
 #### Firefox
 
