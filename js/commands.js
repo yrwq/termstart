@@ -103,7 +103,8 @@ function del(input) {
 
 function search(input) {
   let currentSearchUrl = searchUrl;
-  const searchString = command.join(' ');
+  const searchString = input.join(' ');
+
   let target = currentSearchUrl + searchString
 
   if (supported.includes(result.parsedResult.browser.name)) {
