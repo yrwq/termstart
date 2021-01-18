@@ -8,25 +8,33 @@
 
 <p align="center"> <img src="https://forthebadge.com/images/badges/built-with-love.svg"/> <img src="https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg"/> <img src="https://forthebadge.com/images/badges/powered-by-black-magic.svg"/> </p>
 
-## Installing
+## Installation
 
-Termstart is now available as an extension!
+### As an extension
 
-### Firefox
-
-1. Clone this repository
-2. Open the `about:debugging` page.
-3. Click `This Firefox`.
-4. Click `Load Temporary Add-on`.
-5. Select any file from the cloned directory.
-
-### Chrome / Chromium / Brave / ...
+It is recommended to add `Termstart` as an extension for your browser.
 
 1. Clone this repository
-2. Start Chrome and go to `chrome://extensions`
-3. Enable `Developer Mode` in the top-right corner of the page
-4. In the top-left corner of the page, click `Load Unpacked`
-5. Select the cloned folder
+   - `git clone https://github.com/yrwq/termstart`
+
+2. Switch to experimental branch
+   - `git branch -M experimental`
+
+#### Firefox
+
+1. Go to `about:debugging`.
+2. Click `This Firefox`.
+3. Click `Load Temporary Add-on`.
+4. Select `index.html` from the cloned directory.
+
+#### Chrome / Chromium / Brave / ...
+
+1. Go to `chrome://extensions`.
+2. Enable `Developer Mode` in the top-right corner of the page.
+3. In the top-left corner of the page, click `Load Unpacked`.
+4. Select the cloned folder.
+
+If you use a browser which doesn't support adding 3rd party extensions, you can simply add `https://yrwq.github.io/termstart` as your startpage.
 
 ## Usage
 
