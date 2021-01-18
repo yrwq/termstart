@@ -1,5 +1,5 @@
 body {
-  background-color: var(--bg);
+  background-color: var(--bg-light);
   font-family: "JetBrains Mono", monospace;
   height: 100%;
   display: table-cell;
@@ -50,6 +50,12 @@ a:hover {
   color: var(--acc1);
   font: inherit;
   pointer-events: none;
+}
+
+#terminal-content {
+  background-color: var(--bg);
+  border-radius: 20px;
+  padding: 100px;
 }
 
 input,

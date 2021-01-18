@@ -13,6 +13,7 @@ const ENGINES = {
 };
 
 const THEMES = [
+  "material",
   "gruvbox-dark",
   "gruvbox-light",
   "nord",
