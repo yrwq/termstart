@@ -1,0 +1,15 @@
+{
+	"name": "Termstart",
+	"version": "1.0",
+	"description": "Terminal themed new tab page.",
+	"chrome_url_overrides": {
+		"newtab": "index.html"
+	},
+	"icons": {
+		"16": "./favicons/favicon-1.png",
+		"32": "./favicons/favicon-2.png",
+		"48": "./favicons/favicon-3.png",
+		"128": "./favicons/favicon-4.png"
+	},
+	"manifest_version": 2
+}
