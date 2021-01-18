@@ -1,9 +1,12 @@
-<p align="center"><img src=".assets/preview.png" /><p>
+<p align="center"><img src=".assets/gruvbox-dark.png" /><p>
 
 <p align="center">The idea is to have a minimal but functional home page for your browser.</p>
-<p align="center"><a href="https://yrwq.github.io/termstart"> Try it! </a></p>
+
+<p align="center"> <a href="https://yrwq.github.io/termstart" target="_blank"><img src="https://forthebadge.com/images/badges/check-it-out.svg"/></a></p>
 
 ---
+
+<p align="center"> <img src="https://forthebadge.com/images/badges/built-with-love.svg"/> <img src="https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg"/> <img src="https://forthebadge.com/images/badges/powered-by-black-magic.svg"/> </p>
 
 ## Installing
 
@@ -27,6 +30,7 @@ Termstart is now available as an extension!
 
 ## Usage
 
+<<<<<<< HEAD
 | Command/key   | What it does                    | Example                   |
 | ------------- | ------------------------------- | ------------------------- |
 | `Enter/Space` | Focus prompt                    |                           |
@@ -41,12 +45,31 @@ Termstart is now available as an extension!
 | `theme`       | change theme                    | `theme gruvbox-dark`      |
 | `themes`      | list all themes                 |                           |
 | `books`       | list bookmarks                  |                           |
+=======
+| Command/key  | What it does                    | Example                  |
+| :-: | :-: |:-: |
+| `Enter/Space`| Focus prompt                    |                          |
+| `ls`         | list links                      |                          |
+| `clear`      | clear the "terminal"            |                          |
+| `help`       | show available commands         |                          |
+| `open`       | open a link                     | `open github`            |
+| `search`     | search for a term on ddg/google | `search "github"`        |
+| `search -c`  | change search engine            | `search -c ddg or google`|
+| `del`        | deletes added site              | `del github`             |
+| `add`        | add a site                      | `add github github.com`  |
+| `theme`      | change theme                    | `theme gruvbox-dark`     |
+| `themes`     | list all themes                 |                          |
+>>>>>>> 6f2ae443113185de2a0ea1a625e651398bb64c14
 
 ## Themes
 
-| ![gruvbox](.assets/gruvbox.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
-| ------------------------------- | ------------------------------------------- | --------------------------- |
-| ![dracula](.assets/dracula.png) | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
+| ![gruvbox](.assets/gruvbox-dark.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
+| :-: | :-: | :-: |
+| gruvbox-dark                         | gruvbox-light                               | nord                        |
+
+| ![dracula](.assets/dracula.png)      | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
+| :-: | :-: | :-: |
+| dracula                              | vice                                        | decaf                       |
 
 ## Contributing
 

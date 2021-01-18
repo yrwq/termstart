@@ -128,7 +128,7 @@ function search(input) {
     }
   }
   if (command && command[0]) {
-    const searchString = command[0];
+    const searchString = command.join(' ');
     window.open(currentSearchUrl + searchString, "_blank");
   }
 }

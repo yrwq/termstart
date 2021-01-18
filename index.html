@@ -7,20 +7,23 @@
   <link rel="icon" href="./favicons/favicon.ico" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <title>~</title>
 </head>
 
 <body>
   <div id="terminal-content">
-    <p id="prompt" class="prompt"><span>| -<span class="purple">></span> ls<span id="clock"></span></p>
+
+      <p id="prompt" class="prompt"><span class="purple material-icons md-36">chevron_right</span> <span id="clock"></span></p>
+
     <div id="links">
       <!-- Added sites goes here -->
     </div>
     <div style="display:flex;" id="shit">
       <div id="input-prompt">
-        <p class="prompt"><span>| -</span><span class="purple">></span></p>
+          <p class="prompt"><span class="purple material-icons md-36">chevron_right</span></p>
       </div>
-      <input type="text" placeholder="Type Here" id="prompt-input" autofocus class="prompt-input" onkeydown="" spellcheck="false" />
+      <input type="text" placeholder="..." id="prompt-input" autofocus class="prompt-input" onkeydown="" spellcheck="false" />
     </div>
   </div>
 

@@ -78,7 +78,7 @@ function runCommand(cmd) {
     COMM.forEach(add);
 
     function add(item) {
-      inner += '<li class="ls-item">' + item + "</li>";
+      inner += '<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>' + item.name + ' - ' + item.description + "</li>";
     }
 
     inner = inner + "</ul>";
@@ -90,7 +90,7 @@ function runCommand(cmd) {
 
   clearPrompt();
   prompt.innerHTML =
-    '<span>| -<span class="purple">></span> ' +
+    '<span class="purple material-icons md-36">chevron_right</span> ' +
     parsedCmd[0] +
     "<span id=clock></span>";
 }

@@ -13,7 +13,7 @@ function listWriter(output) {
       output
         .map(
           (item) =>
-            `<li class="ls-item"><a target='_blank' href='${links[item.key]}'>${
+            `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span><a target='_blank' href='${links[item.key]}'>${
               item.key
             }</a></li>`
         )
@@ -57,7 +57,7 @@ function themeWriter() {
   THEMES.forEach(add);
 
   function add(item) {
-    inner += '<li class="ls-item">' + item + "</li>";
+    inner += '<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>' + item + "</li>";
   }
 
   inner = inner + "</ul>";
@@ -78,11 +78,11 @@ function errorWriter() {
   outputNode.classList.add("ls");
   let inner = "<ul class='ls-links'>";
 
-  inner += "<h3> <p> Available commands </p></h3>";
+  inner += "<h3 class='purple'>Available commands</h3>";
   COMM.forEach(add);
 
   function add(item) {
-    inner += '<li class="ls-item">' + item + "</li>";
+    inner += '<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>' + item.name + ' - ' + item.description + "</li>";
   }
 
   inner = inner + "</ul>";
