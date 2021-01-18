@@ -60,3 +60,10 @@ const delLink = (name = 'default') => {
         ? localStorage.setItem('links', JSON.stringify(newLinks)) 
         : localStorage.removeItem('links')
 }
+
+const updateClock = () => {
+    const date = new Date()
+    const hour = date.getHours()
+    const minutes = date.getMinutes()
+    document.getElementById('clock').innerHTML = `${hour < 10 ? `0${hour}` : hour}:${minutes < 10 ? `0${minutes}` : minutes}`
+}
