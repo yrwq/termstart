@@ -23,7 +23,10 @@ addEventListener('keydown', e => {
         const argsTemp = input.value.replace(`${name}`, '').split(' ')
         const args = argsTemp.join(' ').split(' ')
         console.log(args)
-        if (cmd && cmd.data.args == '' ? true : args[1] ? true : false) cmd.exec(args)
+        /**
+         * @TODO add switch with commands.
+         */
+        //if (cmd && cmd.data.args == '' ? true : args[1] ? true : false) cmd.exec(args)
         input.value = ''
         last.innerText = name
     }
