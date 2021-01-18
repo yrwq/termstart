@@ -19,10 +19,19 @@ const del = (name) => {
 
 const open = (url) => {
     if (!url) return write('Invalid arguments.')
+    window.open(url)
 }
 
 const search = (string) => {
     if (!string) return write('Invalid arguments.')
+    const parsedArgs = string.split(' ')
+    console.log(parsedArgs)
+    if (parsedArgs[0] == '-c' && Object.keys(Engines).includes(parsedArgs[1])) {
+        localStorage.setItem('engine', parsedArgs[1])
+        location.reload()
+    } else {
+        window.open(`${Engines[searchEngine]}${string}`)
+    }
 }
 
 const help = (name) => {
