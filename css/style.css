@@ -11,8 +11,9 @@ body {
   display: table-cell;
   vertical-align: middle;
 }
-body * {
-  font-family: "JetBrains Mono", monospace;
+body #clock {
+  float: right;
+  pointer-events: none;
 }
 body p {
   color: var(--acc1);
@@ -32,17 +33,33 @@ body .prompt {
   color: var(--fg);
   pointer-events: none;
 }
-body .purple {
-  color: var(--acc1);
-  font: inherit;
-  pointer-events: none;
+body #promptContainer {
+  display: flex;
 }
-body input, body input:focus {
+body #promptContainer input, body #promptContainer input:focus {
   background-color: var(--bg);
   font: inherit;
   margin: 0;
   border: none;
   color: var(--fg);
   outline: none;
+  pointer-events: none;
+}
+body li .item {
+  color: var(--acc2);
+  padding-left: 8px;
+  margin: 8px;
+}
+body li .padding {
+  padding-left: 45px;
+}
+body .material-icons.md-36 {
+  font-size: 36px;
+  vertical-align: middle;
+}
+
+.purple {
+  color: var(--acc1);
+  font: inherit;
   pointer-events: none;
 }

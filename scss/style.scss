@@ -1,19 +1,20 @@
 html {
-    font-family: "JetBrains Mono", monospace;
+    font-family: 'JetBrains Mono', monospace;
     height: 100%;
     display: table;
     margin: auto;
 }
 
 body {
-    * {
-        font-family: 'JetBrains Mono', monospace;
-    }
-
     background: var(--bg);
     height: 100%;
     display: table-cell;
     vertical-align: middle;
+
+    #clock {
+        float: right;
+        pointer-events: none;
+    }
 
     p {
         color: var(--acc1);
@@ -36,20 +37,39 @@ body {
         color: var(--fg);
         pointer-events: none;
     }
-
-    .purple {
-        color: var(--acc1);
-        font: inherit;
-        pointer-events: none;
+    #promptContainer {
+        display: flex;
+        
+        input, input:focus {
+            background-color: var(--bg);
+            font: inherit;
+            margin: 0;
+            border: none;
+            color: var(--fg);
+            outline: none;
+            pointer-events: none;
+        }
     }
 
-    input, input:focus {
-        background-color: var(--bg);
-        font: inherit;
-        margin: 0;
-        border: none;
-        color: var(--fg);
-        outline: none;
-        pointer-events: none;
+    li {
+        .item {
+            color: var(--acc2);
+            padding-left: 8px;
+            margin: 8px;
+        }
+        .padding {
+            padding-left: 45px;
+        }
     }
+
+    .material-icons.md-36 {
+        font-size: 36px;
+        vertical-align: middle;
+    }
+}
+
+.purple {
+    color: var(--acc1);
+    font: inherit;
+    pointer-events: none;
 }
