@@ -34,7 +34,7 @@ function themeWriter() {
   THEMES.forEach(add);
 
   function add(item) {
-    inner += '<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>' + item + "</li>";
+    inner += `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>${item}</li>`;
   }
 
   inner = inner + "</ul>";
@@ -59,7 +59,7 @@ function errorWriter(error_cmd) {
   COMM.forEach(add);
 
   function add(item) {
-    inner += '<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>' + item.name + ' - ' + item.description + "</li>";
+    inner += `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>${item.name} - ${item.description}</li>`;
   }
 
   inner = inner + "</ul>";
