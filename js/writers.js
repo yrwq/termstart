@@ -36,7 +36,7 @@ function bookWriter(output) {
       output
         .map(
           (item) =>
-            `<li class="books-item"><a target='_blank' href='${bookmarks[item.key]}'>${
+            `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span><a target='_blank' href='${bookmarks[item.key]}'>${
               item.key
             }</a></li>`
         )
