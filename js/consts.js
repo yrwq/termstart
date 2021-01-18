@@ -5,23 +5,23 @@ const Commands = [
     },
     {
         data: { name: 'add', description: 'add a site', args: 'name, url' },
-        exec: (...args) => add(...args)
+        exec: (name, url) => add(...args)
     },
     {
         data: { name: 'del', description: 'deletes added site', args: 'name' },
-        exec: (...args) => del(...args)
+        exec: (name) => del(...args)
     },
     {
         data: { name: 'open', description: 'open a link', args: 'url' },
-        exec: (...args) => open(...args)
+        exec: (url) => open(...args)
     },
     {
         data: { name: 'search', description: 'search for a term on ddg/google', args: '[-c ddg/google] string' },
-        exec: (...args) => search(...args)
+        exec: (string) => search(string)
     },
     {
         data: { name: 'help', description: 'show available commands', args: 'name' },
-        exec: (...args) => help(...args)
+        exec: () => help('')
     },
     {
         data: { name: 'clear', description: 'clear the "terminal"', args: '' },
@@ -33,7 +33,7 @@ const Commands = [
     },
     {
         data: { name: 'theme', description: 'change theme', args: 'theme' },
-        exec: (...args) => theme(...args)
+        exec: (theme) => theme(theme)
     }
 ]
 
