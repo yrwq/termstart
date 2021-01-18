@@ -1,34 +1,47 @@
-<p align="center"><img src=".assets/preview.png" /><p>
+<p align="center"><img src=".assets/gruvbox-dark.png" /><p>
 
 <p align="center">The idea is to have a minimal but functional home page for your browser.</p>
-<p align="center"><a href="https://yrwq.github.io/termstart"> Try it! </a></p>
+
+<p align="center"> <a href="https://yrwq.github.io/termstart" target="_blank"><img src="https://forthebadge.com/images/badges/check-it-out.svg"/></a></p>
 
 ---
 
-## Installing
+<p align="center"> <img src="https://forthebadge.com/images/badges/built-with-love.svg"/> <img src="https://forthebadge.com/images/badges/60-percent-of-the-time-works-every-time.svg"/> <img src="https://forthebadge.com/images/badges/powered-by-black-magic.svg"/> </p>
 
-Termstart is now available as an extension!
+## Installation
 
-### Firefox
+### As an extension
 
-1. Clone this repository
-2. Open the `about:debugging` page.
-3. Click `This Firefox`.
-4. Click `Load Temporary Add-on`.
-5. Select any file from the cloned directory.
-
-### Chrome / Chromium / Brave / ...
+It is recommended to add `Termstart` as an extension for your browser.
 
 1. Clone this repository
-2. Start Chrome and go to `chrome://extensions`
-3. Enable `Developer Mode` in the top-right corner of the page
-4. In the top-left corner of the page, click `Load Unpacked`
-5. Select the cloned folder
+   - `git clone https://github.com/yrwq/termstart`
+
+2. Switch to experimental branch
+   - `git branch -M experimental`
+
+#### Firefox
+
+1. Go to `about:debugging`.
+2. Click `This Firefox`.
+3. Click `Load Temporary Add-on`.
+4. Select `index.html` from the cloned directory.
+
+#### Chrome / Chromium / Brave / ...
+
+1. Go to `chrome://extensions`.
+2. Enable `Developer Mode` in the top-right corner of the page.
+3. In the top-left corner of the page, click `Load Unpacked`.
+4. Select the cloned folder.
+
+### As a startpage
+
+If you use a browser which doesn't support adding 3rd party extensions, you can simply add `https://yrwq.github.io/termstart` as your startpage.
 
 ## Usage
 
 | Command/key   | What it does                    | Example                   |
-| ------------- | ------------------------------- | ------------------------- |
+| :-:           | :-:                             | :-:                       |
 | `Enter/Space` | Focus prompt                    |                           |
 | `ls`          | list links                      |                           |
 | `clear`       | clear the "terminal"            |                           |
@@ -43,12 +56,16 @@ Termstart is now available as an extension!
 
 ## Themes
 
-| ![gruvbox](.assets/gruvbox.png) | ![gboxlight](.assets/gruvbox-light.png)     | ![nord](.assets/nord.png)   |
-| ------------------------------- | ------------------------------------------- | --------------------------- |
-| ![dracula](.assets/dracula.png) | ![vice](.assets/vice.png)                   | ![decaf](.assets/decaf.png) |
+| ![gruvbox](.assets/gruvbox-dark.png) | ![gboxlight](.assets/gruvbox-light.png) | ![nord](.assets/nord.png) |
+| :-:                                  | :-:                                     | :-:                       |
+| gruvbox-dark                         | gruvbox-light                           | nord                      |
+
+| ![dracula](.assets/dracula.png) | ![vice](.assets/vice.png) | ![decaf](.assets/decaf.png) |
+| :-:                             | :-:                       | :-:                         |
+| dracula                         | vice                      | decaf                       |
 
 ## Contributing
 
 Feel free to open issues, suggesting features or other things!
 
-Any contributions, are very welcome.
+See [CONTRIBUTING.md](https://github.com/yrwq/termstart/blob/main/CONTRIBUTING.md)

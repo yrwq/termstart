@@ -5,15 +5,15 @@ const COMMANDS = {
   },
   // Open a link
   open: {
-    func: joinWriter(openLink, writer),
+    func: joinWriter(open_link, writer),
   },
   // Add a link
   add: {
-    func: joinWriter(touch, writer),
+    func: joinWriter(add, writer),
   },
   // Delete a link
   del: {
-    func: joinWriter(rm, writer),
+    func: joinWriter(del, writer),
   },
   // search with ddg or google
   search: {
@@ -37,7 +37,7 @@ const COMMANDS = {
   },
 };
 
-let searchUrl = ENGINES.google; // default search engine
+let searchUrl = ENGINES.ddg; // default search engine
 let links = {};
 let position = []; // Determines where in the link tree we are currently
 
@@ -73,8 +73,7 @@ function runCommand(cmd) {
     COMM.forEach(add);
 
     function add(item) {
-      inner += '<li class="ls-item">' + item.name + ' - ' + item.description + "</li>";
-      inner += '<p class="ls-item" style="color: #c7c7c7"> Arguments: ' + item.args + "</p>";
+      inner += '<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>' + item.name + ' - ' + item.description + "</li>";
     }
 
     inner = inner + "</ul>";
@@ -86,7 +85,7 @@ function runCommand(cmd) {
 
   clearPrompt();
   prompt.innerHTML =
-    '<span>| -<span class="purple">></span> ' +
+    '<span class="purple material-icons md-36">chevron_right</span> ' +
     parsedCmd[0] +
     "<span id=clock></span>";
 }
