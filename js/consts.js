@@ -24,16 +24,6 @@ const THEMES = [
 ];
 
 const COMM = [
-<<<<<<< HEAD
-  "ls - list links",
-  "add - add a site",
-  "del - delete a site",
-  "open - open a site",
-  "books - list bookmarks",
-  "search - search on google/ddg",
-  "theme - change theme",
-  "themes - list themes",
-=======
   { name: 'ls', description: 'list links', args: 'none' },
   { name: 'add', description: 'add a site', args: 'name, url' },
   { name: 'del', description: 'delete a site', args: 'name' },
@@ -42,5 +32,4 @@ const COMM = [
   { name: 'theme', description: 'change theme', args: 'theme' },
   { name: 'themes', description: 'list themes', args: 'none' },
   { name: 'clear', description: 'clear the "terminal"', args: 'none' }
->>>>>>> 6f2ae443113185de2a0ea1a625e651398bb64c14
 ];

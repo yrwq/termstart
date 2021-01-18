@@ -30,22 +30,6 @@ Termstart is now available as an extension!
 
 ## Usage
 
-<<<<<<< HEAD
-| Command/key   | What it does                    | Example                   |
-| ------------- | ------------------------------- | ------------------------- |
-| `Enter/Space` | Focus prompt                    |                           |
-| `ls`          | list links                      |                           |
-| `clear`       | clear the "terminal"            |                           |
-| `help`        | show available commands         |                           |
-| `open`        | open a link                     | `open github`             |
-| `search`      | search for a term on ddg/google | `search "github"`         |
-| `search -c`   | change search engine            | `search -c ddg or google` |
-| `del`         | deletes added site              | `del github`              |
-| `add`         | add a site                      | `add github github.com`   |
-| `theme`       | change theme                    | `theme gruvbox-dark`      |
-| `themes`      | list all themes                 |                           |
-| `books`       | list bookmarks                  |                           |
-=======
 | Command/key  | What it does                    | Example                  |
 | :-: | :-: |:-: |
 | `Enter/Space`| Focus prompt                    |                          |
@@ -59,7 +43,6 @@ Termstart is now available as an extension!
 | `add`        | add a site                      | `add github github.com`  |
 | `theme`      | change theme                    | `theme gruvbox-dark`     |
 | `themes`     | list all themes                 |                          |
->>>>>>> 6f2ae443113185de2a0ea1a625e651398bb64c14
 
 ## Themes
 
