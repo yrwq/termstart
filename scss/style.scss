@@ -37,6 +37,7 @@ body {
         color: var(--fg);
         pointer-events: none;
     }
+
     #promptContainer {
         display: flex;
         
@@ -50,15 +51,23 @@ body {
             pointer-events: none;
         }
     }
-
-    li {
-        .item {
-            color: var(--acc2);
-            padding-left: 8px;
+    #links {
+        .title {
+            font-size: 20px;
             margin: 8px;
         }
         .padding {
             padding-left: 45px;
+        }
+        
+        ul {
+            li {
+                .item {
+                    color: var(--acc2);
+                    padding-left: 8px;
+                    margin: 8px;
+                }
+            }
         }
     }
 
