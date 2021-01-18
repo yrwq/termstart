@@ -69,11 +69,11 @@ function runCommand(cmd) {
     outputNode.classList.add("ls");
     let inner = "<ul class='ls-links'>";
 
-    inner += "<h3 class='purple'> Unknown command: " + parsedCmd[0] + "</h3>";
+    inner += `<h3 class='purple'> Unknown command: ${parsedCmd[0]}</h3>`;
     COMM.forEach(add);
 
     function add(item) {
-      inner += '<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>' + item.name + ' - ' + item.description + "</li>";
+      inner += `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>${item.name} - ${item.description}</li>`;
     }
 
     inner = inner + "</ul>";
@@ -85,9 +85,9 @@ function runCommand(cmd) {
 
   clearPrompt();
   prompt.innerHTML =
-    '<span class="purple material-icons md-36">chevron_right</span> ' +
-    parsedCmd[0] +
-    "<span id=clock></span>";
+    `<span class="purple material-icons md-36">chevron_right</span>
+    ${parsedCmd[0]}
+    <span id=clock></span>`;
 }
 
 (() => {
