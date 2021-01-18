@@ -20,7 +20,7 @@ const Commands = [
         exec: (...args) => search(...args)
     },
     {
-        data: { name: 'help', description: 'show available commands', args: '' },
+        data: { name: 'help', description: 'show available commands', args: 'name' },
         exec: (...args) => help(...args)
     },
     {
