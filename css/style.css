@@ -1,3 +1,8 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+
 html {
   font-family: "JetBrains Mono", monospace !important;
   height: 100%;
@@ -47,12 +52,15 @@ body #promptContainer input, body #promptContainer input:focus {
   outline: none;
   pointer-events: none;
 }
+body #links {
+  padding: 10px 0px;
+}
 body #links .title {
   font-size: 20px;
   margin: 8px;
 }
 body #links .padding {
-  padding-left: 45px;
+  padding-left: 32px;
 }
 body #links ul {
   list-style: none;

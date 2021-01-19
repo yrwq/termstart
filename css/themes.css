@@ -1,21 +1,13 @@
 :root {
-  --bg: #212121;
-  --bg-light: #303030;
-  --fg: #eceff1;
-  --acc1: #f07178;
-  --acc2: #c792ea;
-}
-
-body.material {
-  /* Empty is the default */
-}
-
-body.gruvbox-dark {
   --bg: #1d2021;
   --bg-light: #3c3836;
   --fg: #bdae93;
   --acc1: #d65d0e;
   --acc2: #fb4934;
+}
+
+body.gruvbox-dark {
+  /* Empty is default */
 }
 
 body.gruvbox-light {

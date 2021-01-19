@@ -1,3 +1,8 @@
+* {
+    padding: 0;
+    margin: 0;
+}
+
 html {
     font-family: 'JetBrains Mono', monospace !important;
     height: 100%;
@@ -54,12 +59,14 @@ body {
         }
     }
     #links {
+        padding: 10px 0px;
+
         .title {
             font-size: 20px;
             margin: 8px;
         }
         .padding {
-            padding-left: 45px;
+            padding-left: 32px;
         }
 
         ul {
