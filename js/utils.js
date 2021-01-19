@@ -28,6 +28,7 @@ const writeList = (elements = []) => {
         child.appendChild(arrowSpan)
         child.classList.add('item')
         child.setAttribute('href', element.href || '')
+        child.setAttribute('target', '_blank')
         child.append(element.text)
         list.appendChild(child)
         parent.appendChild(list)

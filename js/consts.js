@@ -4,7 +4,7 @@ const Commands = [
         exec: () => ls()
     },
     {
-        data: { name: 'add', description: 'add a site', args: 'name, url' },
+        data: { name: 'add', description: 'add a site', args: 'url, name' },
         exec: (...args) => add(...args)
     },
     {

@@ -7,7 +7,7 @@ const ls = () => {
 }
 
 const add = (...args) => {
-    if (args[0] && args[1]) addLink(args[0], args[1])
+    if (args[0] && args[1]) addLink(args.join(' ').replace(args[0], '').replace(' ', ''), args[0])
     else return write('Invalid arguments.')
     clear()
 }

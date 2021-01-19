@@ -46,9 +46,6 @@ addEventListener('keydown', e => {
         const args = string.replace(name, '').split(' ')
         args.splice(0, 1)
 
-        /**
-         * @TODO add "" support.
-         */
         if (cmd) cmd.exec(...args)
 
         input.value = ''
