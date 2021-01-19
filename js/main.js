@@ -3,9 +3,9 @@
  */
 const currentTheme = localStorage.getItem('theme')
 const searchEngine = localStorage.getItem('engine') || Engines.ddg
+const linksDiv = document.getElementById('links')
 const input = document.getElementById('input')
 const last = document.getElementById('last')
-
 const result = bowser.getParser(window.navigator.userAgent);
 const userAgent = window.navigator.userAgent,
     platform = window.navigator.platform,

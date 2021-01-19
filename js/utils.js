@@ -1,11 +1,18 @@
-const linksDiv = document.getElementById('links')
-
+/**
+ * Clear screen.
+ * @returns undefined
+ */
 const resetLinksDiv = () => {
     for (let i = 0; i < linksDiv.children.length; i++) {
         linksDiv.children[i].remove()
     }
 }
 
+/**
+ * Write list on screen.
+ * @param {object} elements 
+ * @returns undefined
+ */
 const writeList = (elements = []) => {
     resetLinksDiv()
 
@@ -29,6 +36,11 @@ const writeList = (elements = []) => {
     linksDiv.appendChild(parent)
 }
 
+/**
+ * Write text on screen.
+ * @param {string} string
+ * @returns undefined 
+ */
 const write = (string) => {
     resetLinksDiv()
 
@@ -39,14 +51,30 @@ const write = (string) => {
     linksDiv.appendChild(child)
 }
 
+
+/**
+ * Get all links from localStorage
+ * @returns Object of links.
+ */
 const getLinks = () => JSON.parse(localStorage.getItem('links') || "[]")
 
+/**
+ * Add link to localStorage.
+ * @param {string} name 
+ * @param {string} url
+ * @returns undefined
+ */
 const addLink = (name = 'default', url = '') => {
     const links = getLinks()
     links.push({ name: name, url: url })
     localStorage.setItem('links', JSON.stringify(links || []))
 }
 
+/**
+ * Delete link from localStorage.
+ * @param {string} name 
+ * @returns undefined
+ */
 const delLink = (name = 'default') => {
     const links = getLinks()
     const link = links.find(link => link.name == name)
@@ -61,6 +89,10 @@ const delLink = (name = 'default') => {
         : localStorage.removeItem('links')
 }
 
+/**
+ * Update clock.
+ * @returns undefined
+ */
 const updateClock = () => {
     const date = new Date()
     const hour = date.getHours()
