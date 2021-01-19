@@ -1,0 +1,91 @@
+html {
+    font-family: 'JetBrains Mono', monospace !important;
+    height: 100%;
+    display: table;
+    margin: auto;
+}
+
+body {
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 100%;
+    background: var(--bg);
+    height: 100%;
+    display: table-cell;
+    vertical-align: middle;
+
+    #clock {
+        float: right;
+        pointer-events: none;
+    }
+
+    p {
+        color: var(--acc1);
+        margin: 10;
+        pointer-events: none;
+    }
+
+    a {
+        color: var(--acc2);
+        text-decoration: none;
+        margin: 8px;
+        pointer-events: auto;
+    }
+
+    a:focus, a:hover {
+        font-weight: bold;
+    }
+
+    .prompt {
+        color: var(--fg);
+        pointer-events: none;
+    }
+
+    #promptContainer {
+        display: flex;
+        
+        input, input:focus {
+            background-color: var(--bg);
+            font: inherit;
+            margin: 0;
+            border: none;
+            color: var(--fg);
+            outline: none;
+            pointer-events: none;
+        }
+    }
+    #links {
+        .title {
+            font-size: 20px;
+            margin: 8px;
+        }
+        .padding {
+            padding-left: 45px;
+        }
+
+        ul {
+            list-style: none;
+
+            .item {
+                color: var(--acc2);
+                font-size: 14px;
+                padding-left: 8px;
+                margin: 8px;
+
+                span {
+                    padding-right: 5px;
+                }
+            }
+        }
+    }
+
+    .material-icons.md-36 {
+        font-size: 36px;
+        vertical-align: middle;
+    }
+}
+
+.purple {
+    color: var(--acc1);
+    font: inherit;
+    pointer-events: none;
+}

@@ -1,0 +1,59 @@
+:root {
+    --bg: #1d2021;
+    --bg-light: #3c3836;
+    --fg: #bdae93;
+    --acc1: #d65d0e;
+    --acc2: #fb4934;
+}
+
+body.gruvbox-dark {
+    /* Empty is default */
+}
+
+body.gruvbox-light {
+    --bg: #ebdbb2;
+    --bg-light: #f9f5d7;
+    --fg: #504945;
+    --acc1: #9d0006;
+    --acc2: #af3a02;
+}
+
+body.nord {
+    --bg: #2e3440;
+    --bg-light: #3b4252;
+    --fg: #eceff4;
+    --acc1: #5e81ac;
+    --acc2: #8fbcbb;
+}
+
+body.dracula {
+    --bg: #282936;
+    --bg-light: #3a3c45;
+    --fg: #e9e9f4;
+    --acc1: #ea51b2;
+    --acc2: #62d6e8;
+}
+
+body.vice {
+    --bg: #1f2023;
+    --bg-light: #23262c;
+    --fg: #8b9cbe;
+    --acc1: #ff9cff;
+    --acc2: #00eaff;
+}
+
+body.decaf {
+    --bg: #2d2d2d;
+    --bg-light: #393939;
+    --fg: #cccccc;
+    --acc1: #ff7f7b;
+    --acc2: #efb3f7;
+}
+
+body.pastel {
+    --bg: #282828;
+    --bg-light: #393939;
+    --fg: #cdc1c1;
+    --acc1: #db7464;
+    --acc2: #a073d6;
+}

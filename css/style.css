@@ -1,93 +1,78 @@
-body {
-  background-color: var(--bg-light);
-  font-family: "JetBrains Mono", monospace;
-  height: 100%;
-  display: table-cell;
-  vertical-align: middle;
-}
-
-p {
-  margin: 10;
-  pointer-events: none;
-  color: var(--acc1);
-  font-family: "JetBrains Mono", monospace;
-}
-
-#clock {
-  float: right;
-  pointer-events: none;
-  font-family: "JetBrains Mono", monospace;
-}
-
 html {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "JetBrains Mono", monospace !important;
   height: 100%;
   display: table;
   margin: auto;
 }
 
-a {
+body {
+  font-family: "JetBrains Mono", monospace !important;
+  font-size: 100%;
+  background: var(--bg);
+  height: 100%;
+  display: table-cell;
+  vertical-align: middle;
+}
+body #clock {
+  float: right;
+  pointer-events: none;
+}
+body p {
+  color: var(--acc1);
+  margin: 10;
+  pointer-events: none;
+}
+body a {
   color: var(--acc2);
   text-decoration: none;
   margin: 8px;
   pointer-events: auto;
-  font-family: "JetBrains Mono", monospace;
 }
-
-a:focus,
-a:hover {
+body a:focus, body a:hover {
   font-weight: bold;
-  font-family: "JetBrains Mono", monospace;
 }
-
-.prompt {
+body .prompt {
   color: var(--fg);
   pointer-events: none;
-  font-family: "JetBrains Mono", monospace;
+}
+body #promptContainer {
+  display: flex;
+}
+body #promptContainer input, body #promptContainer input:focus {
+  background-color: var(--bg);
+  font: inherit;
+  margin: 0;
+  border: none;
+  color: var(--fg);
+  outline: none;
+  pointer-events: none;
+}
+body #links .title {
+  font-size: 20px;
+  margin: 8px;
+}
+body #links .padding {
+  padding-left: 45px;
+}
+body #links ul {
+  list-style: none;
+}
+body #links ul .item {
+  color: var(--acc2);
+  font-size: 14px;
+  padding-left: 8px;
+  margin: 8px;
+}
+body #links ul .item span {
+  padding-right: 5px;
+}
+body .material-icons.md-36 {
+  font-size: 36px;
+  vertical-align: middle;
 }
 
 .purple {
   color: var(--acc1);
   font: inherit;
   pointer-events: none;
-}
-
-#terminal-content {
-  background-color: var(--bg);
-  border-radius: 20px;
-  padding: 100px;
-}
-
-input,
-input:focus {
-  background-color: var(--bg);
-  font: inherit;
-  margin: 0;
-  font-family: "JetBrains Mono", monospace;
-  border: none;
-  color: var(--fg);
-  pointer-events: none;
-  outline: none;
-}
-
-li {
-  list-style: none;
-  color: var(--acc2);
-  font-family: "JetBrains Mono", monospace;
-}
-
-.ls-item {
-  color: var(--acc2);
-  font-family: "JetBrains Mono", monospace;
-  padding-left: 8px;
-  margin: 8px;
-}
-
-.material-icons.md-36 {
-  font-size: 36px;
-  vertical-align: middle;
-}
-
-.ls-item-padd {
-  padding-left: 45px;
 }

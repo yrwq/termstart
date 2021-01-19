@@ -1,112 +1,72 @@
-const COMMANDS = {
-  // List links
-  ls: {
-    func: join_writer(list, list_writer),
-  },
-  // Open a link
-  open: {
-    func: join_writer(open_link, writer),
-  },
-  // Add a link
-  add: {
-    func: join_writer(add, writer),
-  },
-  // Delete a link
-  del: {
-    func: join_writer(del, writer),
-  },
-  // search with ddg or google
-  search: {
-    func: join_writer(search, writer),
-  },
-  // change theme
-  theme: {
-    func: join_writer(theme, writer),
-  },
-  // list themes
-  themes: {
-    func: join_writer(themes, theme_writer),
-  },
-  // help
-  help: {
-    func: join_writer(command, error_writer),
-  },
-  // clear
-  clear: {
-    func: join_writer(command, clear_writer),
-  },
-};
+/**
+ * Variables.
+ */
+const currentTheme = localStorage.getItem('theme')
+const searchEngine = localStorage.getItem('engine') || Engines.ddg
+const linksDiv = document.getElementById('links')
+const input = document.getElementById('input')
+const last = document.getElementById('last')
+const result = bowser.getParser(window.navigator.userAgent);
+const userAgent = window.navigator.userAgent,
+    platform = window.navigator.platform,
+    macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+    windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+    iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+    os = null;
 
-let searchUrl = ENGINES.ddg; // default search engine
-let links = {};
-let position = []; // Determines where in the link tree we are currently
 
-function handle_key_presses(e) {
-  if (e.keyCode === 13) {
-    // Enter
-    const input = document.getElementById("prompt-input");
-    return run_command(input.value);
-  }
-}
+/**
+ * Supported Browsers
+ */
+if (macosPlatforms.indexOf(platform) !== -1) os = 'ac'
+else if (iosPlatforms.indexOf(platform) !== -1) os = 'ios'
+else if (windowsPlatforms.indexOf(platform) !== -1) os = 'windows'
+else if (/Android/.test(userAgent)) os = 'android'
+else if (!os && /Linux/.test(platform)) os = 'linux'
+if (os == 'mac') supported = ['Firefox', 'Chrome', 'Opera', 'Safari', 'Seamonkey']
+else supported = ['Firefox', 'Chrome', 'Opera', 'Edge', 'Chromium', 'Seamonkey']
 
-function run_command(cmd) {
-  const parsedCmd = parse_command(cmd);
-  let response;
-  let prompt = document.getElementById("prompt");
+/**
+ * Update body theme.
+ */
+if (currentTheme != null || undefined) document.body.classList.add(currentTheme)
 
-  try {
-    response = COMMANDS[parsedCmd[0]].func(
-      parsedCmd.slice(1, parsedCmd.length)
-    );
-  }
+/**
+ * Handle input.
+ */
+addEventListener('keydown', e => {
+    if (e.code == 'Space' || 'Enter') input.focus()
+    if (e.code == 'Enter' && input.value.length > 0) {
+        const string = input.value
+        const parsed = string.split(' ')
+        const name = parsed[0]
+        const cmd = Commands.find(cmd => cmd.data.name == name)
+        const args = string.replace(name, '').split(' ')
+        args.splice(0, 1)
 
-  // Handling errors
+        /**
+         * @TODO add "" support.
+         */
+        if (cmd) cmd.exec(...args)
 
-  catch (err) {
-
-    const terminal = document.getElementById("links");
-    const outputNode = document.createElement("div");
-    outputNode.classList.add("ls");
-    let inner = "<ul class='ls-links'>";
-
-    inner += `<h3 class='purple'> Unknown command: ${parsedCmd[0]}</h3>`;
-    COMM.forEach(add);
-
-    function add(item) {
-      inner += `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>${item.name} - ${item.description}</li>`;
+        input.value = ''
+        last.innerText = name
     }
+})
 
-    inner = inner + "</ul>";
-    outputNode.innerHTML = inner;
-    document.getElementById("links").innerHTML = "";
-    terminal.appendChild(outputNode);
+/**
+ * Update clock.
+ */
+setInterval(() => {
+    updateClock()
+}, 100);
 
-  }
-
-  clear_prompt();
-
-  prompt.innerHTML =
-    `<span class="purple material-icons md-36">chevron_right</span>
-    ${parsedCmd[0]}
-    <span id=clock></span>`;
+/**
+ * Onload
+ */
+window.onload = () => {
+    input.value = ''
+    last.innerText = 'ls'
+    ls()
+    input.focus()
 }
-
-(() => {
-
-  const lsLinks = read_links();
-  if (lsLinks) {
-    links = lsLinks;
-  }
-
-  const savedEngine = read_engine();
-  if (savedEngine) {
-    searchUrl = savedEngine;
-  }
-
-  const currentTheme = read_theme();
-  theme([currentTheme]);
-
-  document.addEventListener("keydown", handle_key_presses);
-  fast_list();
-
-})();
