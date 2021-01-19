@@ -45,7 +45,7 @@ If you use a browser which doesn't support adding 3rd party extensions, you can 
 | `search`      | search for a term on ddg/google | `search "github"`         |
 | `search -c`   | change search engine            | `search -c ddg or google` |
 | `del`         | deletes added site              | `del github`              |
-| `add`         | add a site                      | `add github github.com`   |
+| `add`         | add a site                      | `add github.com github`   |
 | `theme`       | change theme                    | `theme gruvbox-dark`      |
 | `themes`      | list all themes                 |                           |
 
