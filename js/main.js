@@ -7,7 +7,7 @@ const linksDiv = document.getElementById('links')
 const input = document.getElementById('input')
 const last = document.getElementById('last')
 const result = bowser.getParser(window.navigator.userAgent);
-const userAgent = window.navigator.userAgent,
+let userAgent = window.navigator.userAgent,
     platform = window.navigator.platform,
     macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
     windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
@@ -26,10 +26,12 @@ else if (!os && /Linux/.test(platform)) os = 'linux'
 if (os == 'mac') supported = ['Firefox', 'Chrome', 'Opera', 'Safari', 'Seamonkey']
 else supported = ['Firefox', 'Chrome', 'Opera', 'Edge', 'Chromium', 'Seamonkey']
 
+
 /**
  * Update body theme.
  */
 if (currentTheme != null || undefined) document.body.classList.add(currentTheme)
+
 
 /**
  * Handle input.
@@ -54,12 +56,14 @@ addEventListener('keydown', e => {
     }
 })
 
+
 /**
  * Update clock.
  */
 setInterval(() => {
     updateClock()
 }, 100);
+
 
 /**
  * Onload

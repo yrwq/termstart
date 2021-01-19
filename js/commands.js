@@ -1,7 +1,6 @@
 const ls = () => {
     const links = getLinks() || []
     let temp = []
-    console.log(links)
     links.forEach(link => temp.push({ type: 'a', href: !link.url.startsWith('https://') ? `https://${link.url}` : link.url, text: link.name }))
 
     writeList(temp)
