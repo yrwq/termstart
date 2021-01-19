@@ -1,40 +1,40 @@
 const ls = () => {
-    const links = getLinks()
+    const links = getLinks() || []
     let temp = []
-
-    links.forEach(link => temp.push({ type: 'a', href: link.href, text: link.name }))
+    console.log(links)
+    links.forEach(link => temp.push({ type: 'a', href: !link.url.startsWith('https://') ? `https://${link.url}` : link.url, text: link.name }))
 
     writeList(temp)
 }
 
-const add = (name, url) => {
-    addLink(name, url)
+const add = (...args) => {
+    if (args[0] && args[1]) addLink(args[0], args[1])
+    else return write('Invalid arguments.')
     clear()
 }
 
-const del = (name) => {
-    delLink(name)
+const del = (...args) => {
+    if (args[0]) delLink(args[0])
+    else return write('Invalid arguments.')
     clear()
 }
 
-const open = (url) => {
-    if (!url) return write('Invalid arguments.')
+const open = (...args) => {
+    if (!args[0]) return write('Invalid arguments.')
     window.open(url)
 }
 
-const search = (string) => {
-    if (!string) return write('Invalid arguments.')
-    const parsedArgs = string.split(' ')
-    console.log(parsedArgs)
-    if (parsedArgs[0] == '-c' && Object.keys(Engines).includes(parsedArgs[1])) {
-        localStorage.setItem('engine', parsedArgs[1])
+const search = (...args) => {
+    if (!args[0]) return write('Invalid arguments.')
+    if (args[0] == '-c' && Object.keys(Engines).includes(args[1])) {
+        localStorage.setItem('engine', args[1])
         location.reload()
     } else {
-        window.open(`${Engines[searchEngine]}${string.join(' ')}`)
+        window.open(`${Engines[searchEngine]}${args.join(' ')}`)
     }
 }
 
-const help = (name) => {
+const help = (...args) => {
     let temp = []
 
     Commands.forEach(cmd => temp.push({ text: `${cmd.data.name} - ${cmd.data.description}` }))
@@ -55,8 +55,8 @@ const themes = () => {
     writeList(temp)
 }
 
-const theme = (theme) => {
-    if (!Themes.includes(theme)) localStorage.setItem('theme', 'gruvbox-dark')
-    else localStorage.setItem('theme', theme)
+const theme = (...args) => {
+    if (!Themes.includes(args[0])) localStorage.setItem('theme', 'gruvbox-dark')
+    else localStorage.setItem('theme', args[0])
     location.reload()
 }

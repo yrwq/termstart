@@ -17,16 +17,18 @@ if (currentTheme != null || undefined) document.body.classList.add(currentTheme)
 addEventListener('keydown', e => {
     if (e.code == 'Space' || 'Enter') input.focus()
     if (e.code == 'Enter' && input.value.length > 0) {
-        const parsed = input.value.split(' ')
+        const string = input.value
+        const parsed = string.split(' ')
         const name = parsed[0]
         const cmd = Commands.find(cmd => cmd.data.name == name)
-        const argsTemp = input.value.replace(`${name}`, '').split(' ')
-        const args = argsTemp.join(' ').split(' ')
-        console.log(args)
+        const args = string.replace(name, '').split(' ')
+        args.splice(0, 1)
+
         /**
-         * @TODO add switch with commands.
+         * @TODO add "" support.
          */
-        //if (cmd && cmd.data.args == '' ? true : args[1] ? true : false) cmd.exec(args)
+        if (cmd) cmd.exec(...args)
+
         input.value = ''
         last.innerText = name
     }
@@ -42,4 +44,9 @@ setInterval(() => {
 /**
  * Onload
  */
-window.onload = () => input.focus()
+window.onload = () => {
+    input.value = ''
+    last.innerText = 'ls'
+    ls()
+    input.focus()
+}
