@@ -30,7 +30,11 @@ const search = (...args) => {
         localStorage.setItem('engine', args[1])
         location.reload()
     } else {
-        window.open(`${Engines[searchEngine]}${args.join(' ')}`)
+        if (supported.includes(result.parsedResult.browser.name)) {
+            window.open(`${Engines[searchEngine]}${args.join(' ')}`, '_blank')
+        } else {
+            window.open(`${Engines[searchEngine]}${args.join(' ')}`, '_self')
+        }
     }
 }
 

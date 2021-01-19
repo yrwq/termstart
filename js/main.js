@@ -6,6 +6,26 @@ const searchEngine = localStorage.getItem('engine') || Engines.ddg
 const input = document.getElementById('input')
 const last = document.getElementById('last')
 
+const result = bowser.getParser(window.navigator.userAgent);
+const userAgent = window.navigator.userAgent,
+    platform = window.navigator.platform,
+    macosPlatforms = ['Macintosh', 'MacIntel', 'MacPPC', 'Mac68K'],
+    windowsPlatforms = ['Win32', 'Win64', 'Windows', 'WinCE'],
+    iosPlatforms = ['iPhone', 'iPad', 'iPod'],
+    os = null;
+
+
+/**
+ * Supported Browsers
+ */
+if (macosPlatforms.indexOf(platform) !== -1) os = 'ac'
+else if (iosPlatforms.indexOf(platform) !== -1) os = 'ios'
+else if (windowsPlatforms.indexOf(platform) !== -1) os = 'windows'
+else if (/Android/.test(userAgent)) os = 'android'
+else if (!os && /Linux/.test(platform)) os = 'linux'
+if (os == 'mac') supported = ['Firefox', 'Chrome', 'Opera', 'Safari', 'Seamonkey']
+else supported = ['Firefox', 'Chrome', 'Opera', 'Edge', 'Chromium', 'Seamonkey']
+
 /**
  * Update body theme.
  */
