@@ -13,7 +13,7 @@ const add = (...args) => {
 }
 
 const del = (...args) => {
-    if (args[0]) delLink(args[0])
+    if (args[0]) delLink(args.join(' '))
     else return write('Invalid arguments.')
     clear()
 }
