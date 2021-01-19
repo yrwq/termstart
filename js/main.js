@@ -1,3 +1,11 @@
+/*
+ * Main
+*/
+
+/*
+ * Available commands
+*/
+
 const COMMANDS = {
   // List links
   ls: {
@@ -29,82 +37,60 @@ const COMMANDS = {
   },
   // help
   help: {
-    func: join_writer(command, error_writer),
+    func: join_writer(help, help_writer),
   },
   // clear
   clear: {
-    func: join_writer(command, clear_writer),
+    func: join_writer(clear, writer),
   },
 };
 
-let searchUrl = ENGINES.ddg; // default search engine
+let search_url = ENGINES.ddg; // default search engine
 let links = {};
-let position = []; // Determines where in the link tree we are currently
 
 function handle_key_presses(e) {
   if (e.keyCode === 13) {
-    // Enter
     const input = document.getElementById("prompt-input");
     return run_command(input.value);
   }
 }
 
 function run_command(cmd) {
-  const parsedCmd = parse_command(cmd);
+  const parsed_cmd = parse_command(cmd);
   let response;
   let prompt = document.getElementById("prompt");
 
   try {
-    response = COMMANDS[parsedCmd[0]].func(
-      parsedCmd.slice(1, parsedCmd.length)
+    response = COMMANDS[parsed_cmd[0]].func(
+      parsed_cmd.slice(1, parsed_cmd.length)
     );
   }
-
-  // Handling errors
-
-  catch (err) {
-
-    const terminal = document.getElementById("links");
-    const outputNode = document.createElement("div");
-    outputNode.classList.add("ls");
-    let inner = "<ul class='ls-links'>";
-
-    inner += `<h3 class='purple'> Unknown command: ${parsedCmd[0]}</h3>`;
-    COMM.forEach(add);
-
-    function add(item) {
-      inner += `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>${item.name} - ${item.description}</li>`;
-    }
-
-    inner = inner + "</ul>";
-    outputNode.innerHTML = inner;
-    document.getElementById("links").innerHTML = "";
-    terminal.appendChild(outputNode);
-
+  catch {
+    // error_writer();
   }
 
   clear_prompt();
 
   prompt.innerHTML =
     `<span class="purple material-icons md-36">chevron_right</span>
-    ${parsedCmd[0]}
+    ${parsed_cmd[0]}
     <span id=clock></span>`;
 }
 
 (() => {
 
-  const lsLinks = read_links();
-  if (lsLinks) {
-    links = lsLinks;
+  const ls_links = read_links();
+  if (ls_links) {
+    links = ls_links;
   }
 
-  const savedEngine = read_engine();
-  if (savedEngine) {
-    searchUrl = savedEngine;
+  const saved_engine = read_engine();
+  if (saved_engine) {
+    search_url = saved_engine;
   }
 
-  const currentTheme = read_theme();
-  theme([currentTheme]);
+  const current_theme = read_theme();
+  theme([current_theme]);
 
   document.addEventListener("keydown", handle_key_presses);
   fast_list();

@@ -16,7 +16,8 @@ function join_writer(command, writer) {
   };
 }
 
-function get_cursor(pos) {
+function get_links() {
+  let pos = [];
   let cursor = links;
   pos.forEach((p) => {
     cursor = cursor[p];
@@ -24,8 +25,22 @@ function get_cursor(pos) {
   return cursor;
 }
 
-function get_current_cursor() {
-  return get_cursor(position);
+function get_themes() {
+  let pos = [];
+  let cursor = THEMES;
+  pos.forEach((p) => {
+    cursor = cursor[p];
+  });
+  return cursor;
+}
+
+function get_commands() {
+  let pos = [];
+  let cursor = COMM;
+  pos => {
+    cursor = cursor[pos];
+  };
+  return cursor;
 }
 
 function push_command(cmd) {
@@ -34,54 +49,16 @@ function push_command(cmd) {
   focus_prompt();
 }
 
-function locate_path(path) {
-  let cursor = locate_parent_path(path);
-  if (path.length) {
-    const final = path[path.length - 1];
-    return cursor[final];
-  }
-  return cursor;
-}
-
-function locate_parent_path(fullPath) {
-  const path = fullPath.slice(0, fullPath.length - 1);
-  let cursor = get_current_cursor();
-  return cursor;
-}
-
 // Parse command input by keeping strings in "" together as an single item
 function parse_command(input) {
   const re = /"([^"]+)"|([^\s]+)/g;
-  const parsedCmd = [];
+  const parsed_cmd = [];
   let temp;
   while ((temp = re.exec(input)) !== null) {
     const val = temp[1] || temp[2]; // Get the correct capture group
-    parsedCmd.push(val);
+    parsed_cmd.push(val);
   }
-  return parsedCmd;
-}
-
-// Parse command array to extract flags
-function extract_flags(command, flagMap = {}) {
-  const finalCommand = [];
-  const flags = {};
-  for (let i = 0; i < command.length; i++) {
-    const arg = command[i];
-    const isFlag = /^(-|--)(\w+)/.exec(arg);
-    if (isFlag) {
-      const flag = isFlag[2];
-      // If flag marked boolean, don't capture input
-      if (flagMap[flag] !== "boolean") {
-        flags[flag] = command[i + 1];
-        i++;
-      } else {
-        flags[flag] = true;
-      }
-    } else {
-      finalCommand.push(arg);
-    }
-  }
-  return { command: finalCommand, flags };
+  return parsed_cmd;
 }
 
 function format_url(url) {

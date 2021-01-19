@@ -35,20 +35,46 @@ if (os == "mac") {
   supported = ["Firefox", "Chrome", "Opera", "Edge", "Chromium", "Seamonkey"];
 }
 
+/*
+ * Focus the prompt...
+*/
+
 function focus_prompt() {
   document.getElementById("prompt-input").focus();
 }
+
+/*
+ * Clear terminal's content
+ */
+
+function clear() {
+  document.getElementById("links").innerHTML = "";
+}
+
+/*
+ * Laziness kills me :(
+*/
 
 function fast_list() {
   return run_command("ls");
 }
 
+/*
+ * Clear the prompt
+ * Runs after every command
+*/
+
 function clear_prompt() {
   document.getElementById("prompt-input").value = "";
 }
 
+/*
+ * List added links
+*/
+
 function list(input) {
-  const cursor = get_cursor(position);
+  const cursor = get_links();
+  const links = read_links();
   return Object.entries(cursor).map(([key, value]) => {
     return {
       key, value
@@ -56,19 +82,40 @@ function list(input) {
   });
 }
 
+
 function themes(input) {
-  // TODO
+  const cursor = get_themes();
+  return Object.entries(cursor).map(([key, value]) => {
+    return {
+      key, value
+    };
+  });
+}
+
+function help(input) {
+  if (input.length) {
+    const final = input[input.length - 1];
+    return COMM[final]
+  } else {
+    return COMM["help"]
+  }
 }
 
 function command(input) {
   // TODO
 }
 
-// Open a link in a new tab
+
+/*
+ * Open added link
+*/
+
 function open_link(input) {
   if (input.length) {
 
-    const target = locate_path(input);
+    let cursor = get_links();
+    const final = input[input.length - 1];
+    const target = cursor[final];
 
     if (supported.includes(result.parsedResult.browser.name)) {
       window.open(target, "_blank");
@@ -78,34 +125,45 @@ function open_link(input) {
   }
 }
 
+/*
+ * Add a link
+*/
+
 function add(input) {
   if (input.length == 2) {
-      const path = input[0].split(" ");
-      const url = format_url(input[1]);
-      const parent = locate_parent_path(path);
-      const target = path[path.length - 1];
-      parent[target] = url;
-      write_links();
-  }
-  fast_list();
-}
-
-function del(input) {
-  if (input.length) {
     const path = input[0].split(" ");
-    const parent = locate_parent_path(path);
-    const target = path[path.length - 1];
-    delete parent[target];
+    const url = format_url(input[1]);
+    const parent = get_links();
+    parent[path] = url;
     write_links();
   }
   fast_list();
 }
 
-function search(input) {
-  let currentSearchUrl = searchUrl;
-  const searchString = input.join(' ');
+/*
+ * Delete an added link
+*/
 
-  let target = currentSearchUrl + searchString;
+function del(input) {
+  if (input.length) {
+
+    const path = input[0].split(" ");
+    const parent = get_links();
+
+    delete parent[path];
+    write_links();
+  }
+  fast_list();
+}
+
+/*
+ * Search on the interweb.
+*/
+
+function search(input) {
+
+  const search_string = input.join(' ');
+  let target = search_url + search_string; // search_url is the default search engine
 
   if (supported.includes(result.parsedResult.browser.name)) {
     window.open(target, "_blank");
@@ -114,6 +172,9 @@ function search(input) {
   }
 }
 
+/*
+ * Change theme
+*/
 
 function theme(input) {
   if (input.length) {

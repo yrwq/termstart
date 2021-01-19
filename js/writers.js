@@ -7,41 +7,46 @@ function list_writer(output) {
     const terminal = document.getElementById("links");
     const outputNode = document.createElement("div");
     outputNode.classList.add("ls");
-    let inner = "<ul class='ls-links'>";
+    let inner = "<div class='ls-links'>";
 
     inner =
       inner +
       output
         .map(
           (item) =>
-            `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span><a target='_blank' href='${links[item.key]}'>${
-              item.key
-            }</a></li>`
+            `<p class="ls-item"><a target='_blank' href='${links[item.key]}'>${item.key}</p>`
         )
         .join("");
 
-    inner = inner + "</ul>";
+
+    inner = inner + "</div>";
     outputNode.innerHTML = inner;
-    document.getElementById("links").innerHTML = "";
+
+    run_command("clear");
     terminal.appendChild(outputNode);
   }
 }
 
-function theme_writer() {
+function theme_writer(item) {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");
-  let inner = "<ul class='ls-links'>";
+  let inner = "<div class='ls-links'>";
 
-  THEMES.forEach(add);
-
-  function add(item) {
-    inner += `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>${item}</li>`;
-  }
+  inner =
+    inner +
+    item
+      .map(
+        (item) =>
+          `<p class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>
+          <a href="javascript:run_command('theme ${item.value}');">
+        ${item.value}</a></p>`
+      )
+      .join("");
 
   inner = inner + "</ul>";
   outputNode.innerHTML = inner;
-  document.getElementById("links").innerHTML = "";
+  run_command("clear");
   terminal.appendChild(outputNode);
 }
 
@@ -51,33 +56,19 @@ function writer(output = "") {
   }
 }
 
-function error_writer(error_cmd) {
+function help_writer(command) {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");
-  let inner = "<ul class='ls-links'>";
+  let inner = "<div class='ls-links' align='center' style='margin: 20px;'>";
 
-  inner += "<h3 class='purple'>Available commands</h3>";
+  inner += `<br> <p class="ls-item">${command.name} - ${command.description}</p> <br>`
 
-  COMM.forEach(add);
+  inner += `<p class="ls-item">Usage: ${command.usage}</p><br>`
 
-  function add(item) {
-    inner += `<li class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>${item.name} - ${item.description}</li>`;
-  }
+  inner += `<p class="ls-item" >${command.longdesc}</li><br>`
 
-  inner = inner + "</ul>";
-  outputNode.innerHTML = inner;
-  document.getElementById("links").innerHTML = "";
-  terminal.appendChild(outputNode);
-}
-
-function clear_writer() {
-  const terminal = document.getElementById("links");
-  const outputNode = document.createElement("div");
-  outputNode.classList.add("ls");
-  let inner = "<ul class='ls-links'>";
-
-  inner = inner + "</ul>";
+  inner = inner + "</div>";
   outputNode.innerHTML = inner;
   document.getElementById("links").innerHTML = "";
   terminal.appendChild(outputNode);

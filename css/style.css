@@ -9,8 +9,13 @@ body {
 p {
   margin: 10;
   pointer-events: none;
-  color: var(--acc1);
+  color: var(--fg);
   font-family: "JetBrains Mono", monospace;
+}
+
+span {
+  pointer-events: none;
+  color: var(--acc2);
 }
 
 #clock {
@@ -77,7 +82,7 @@ li {
 }
 
 .ls-item {
-  color: var(--acc2);
+  color: var(--acc1);
   font-family: "JetBrains Mono", monospace;
   padding-left: 8px;
   margin: 8px;
