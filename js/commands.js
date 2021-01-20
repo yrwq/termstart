@@ -20,7 +20,7 @@ const del = (...args) => {
 
 const open = (...args) => {
     if (!args[0]) return write('Invalid arguments.')
-    window.open(args[0])
+    window.open(!args[0].startsWith('https://') ? `https://${args[0]}` : args[0], '_blank')
 }
 
 const search = (...args) => {
