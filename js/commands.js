@@ -20,7 +20,7 @@ const del = (...args) => {
 
 const open = (...args) => {
     if (!args[0]) return write('Invalid arguments.')
-    window.open(url)
+    window.open(args[0])
 }
 
 const search = (...args) => {
