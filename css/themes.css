@@ -65,3 +65,11 @@ body.pastel {
   --acc1: #db7464;
   --acc2: #a073d6;
 }
+
+body.solarized {
+  --bg: #002B36;
+  --bg-light: #1E3C43;
+  --fg: #93A1A1;
+  --acc1: #DC322F;
+  --acc2: #859900;
+}

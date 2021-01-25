@@ -43,17 +43,24 @@ const COMMANDS = {
   clear: {
     func: join_writer(clear, writer),
   },
+  commands: {
+    func: join_writer(commands, command_writer),
+  },
 };
 
 let search_url = ENGINES.ddg; // default search engine
 let links = {};
 
 function handle_key_presses(e) {
+  let prompt = document.getElementById("prompt");
+
   if (e.keyCode === 13) {
     const input = document.getElementById("prompt-input");
     return run_command(input.value);
   }
+
 }
+
 
 function run_command(cmd) {
   const parsed_cmd = parse_command(cmd);
@@ -93,6 +100,8 @@ function run_command(cmd) {
   theme([current_theme]);
 
   document.addEventListener("keydown", handle_key_presses);
+  document.body.addEventListener('keypress', focus_prompt);
+
   fast_list();
 
 })();

@@ -25,7 +25,7 @@ if (macosPlatforms.indexOf(platform) !== -1) {
 
 // Supported Browsers
 // This needs to be done because not every browser can open a link in a new tab, example: surf, vimb
-// Other mainstream browsers such as Vivaldi, Brave, etc. are Chrome or Firefox based,
+// Other mainstream browsers such as Vivaldi, Brave, etc. are Chrome(chromium) or Firefox based,
 // Qutebrowser, Vimb, Suckless Surf identifies as safari however safari support tabs on Mac OS
 // If i missed something please open an issue, or make a pull request, to add support for a browser.
 
@@ -74,7 +74,7 @@ function clear_prompt() {
 
 function list(input) {
   const cursor = get_links();
-  const links = read_links();
+
   return Object.entries(cursor).map(([key, value]) => {
     return {
       key, value
@@ -82,6 +82,9 @@ function list(input) {
   });
 }
 
+/*
+ * List available themes
+*/
 
 function themes(input) {
   const cursor = get_themes();
@@ -101,8 +104,8 @@ function help(input) {
   }
 }
 
-function command(input) {
-  // TODO
+function commands(input) {
+  return COMM["commands"]
 }
 
 

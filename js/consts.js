@@ -30,6 +30,7 @@ const THEMES = [
   "gruvbox-dark",
   "gruvbox-light",
   "nord",
+  "solarized",
   "dracula",
   "vice",
   "decaf",
@@ -104,6 +105,8 @@ const COMM_help = {
   longdesc: 'To get a list of all available<br> commands, type: "commands"'
 }
 
+const COMM_commands = [ "help", "clear", "add", "del", "ls", "open", "search", "theme", "themes"]
+
 const COMM = {
   ls: COMM_ls,
   add: COMM_add,
@@ -114,5 +117,6 @@ const COMM = {
   themes: COMM_themes,
   clear: COMM_clear,
   help: COMM_help,
+  commands: COMM_commands,
 }
 

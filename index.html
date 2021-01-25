@@ -4,33 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Import stlyesheets -->
+  <!-- Stlyesheets -->
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/themes.css">
 
   <link rel="icon" href="./favicons/favicon.ico" type="image/x-icon">
 
-  <!-- Import fonts -->
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.gstatic.com">
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
-  <title>~</title>
+  <title>root@termstart ~</title>
 </head>
 
 <body>
+  <div id="titlebar">
+    <span id="clock"> </span>
+    <span class="dot themes"></span>
+    <span class="dot list"></span>
+  </div>
   <div id="terminal-content">
 
-      <p id="prompt" class="prompt"><span class="purple material-icons md-36">chevron_right</span> <span id="clock"></span></p>
+    <p id="prompt" class="prompt"><span class="purple material-icons md-36">chevron_right</span></p>
 
     <div id="links">
       <!-- Added sites goes here -->
     </div>
+
     <div style="display:flex;" id="shit">
+
       <div id="input-prompt">
-          <p class="prompt"><span class="purple material-icons md-36">chevron_right</span></p>
+          <p id="prompt" class="prompt"><span class="purple material-icons md-36">chevron_right</span></p>
       </div>
+
       <input type="text" placeholder="..." id="prompt-input" autofocus class="prompt-input" onkeydown="" spellcheck="false" />
+
     </div>
   </div>
 

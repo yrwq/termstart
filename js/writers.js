@@ -7,44 +7,67 @@ function list_writer(output) {
     const terminal = document.getElementById("links");
     const outputNode = document.createElement("div");
     outputNode.classList.add("ls");
-    let inner = "<div class='ls-links'>";
+    let inner = "<table class='ls-links'>";
 
-    inner =
-      inner +
-      output
-        .map(
-          (item) =>
-            `<p class="ls-item"><a target='_blank' href='${links[item.key]}'>${item.key}</p>`
-        )
-        .join("");
+    half1 = output.slice(output.length / 2);
+    half2 = output.slice(0, output.length / 2);
 
+    if (output.length <= 6) {
+      inner =
+        inner +
+        output
+          .map(
+            (item) =>
+            `<th class="ls-item"><a target='_blank' href='${links[item.key]}'>${item.key}</a></th>`
+          )
+          .join("");
+    } else {
+      inner =
+        inner +
+        half1
+          .map(
+            (item) =>
+            `<th class="ls-item"><a target='_blank' href='${links[item.key]}'>${item.key}</a></th>`
+          )
+          .join("");
+      inner = inner + "<tr></tr>";
+      inner =
+        inner +
+        half2
+          .map(
+            (item) =>
+            `<th class="ls-item"><a target='_blank' href='${links[item.key]}'>${item.key}</a></th>`
+          )
+          .join(" ");
+    }
 
-    inner = inner + "</div>";
+    inner = inner + "</table>";
     outputNode.innerHTML = inner;
 
     run_command("clear");
     terminal.appendChild(outputNode);
+
   }
 }
+
 
 function theme_writer(item) {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");
-  let inner = "<div class='ls-links'>";
+  let inner = "<table class='ls-links'>";
 
   inner =
     inner +
     item
       .map(
         (item) =>
-          `<p class="ls-item"><span class="material-icons md-36">arrow_right_alt</span>
-          <a href="javascript:run_command('theme ${item.value}');">
-        ${item.value}</a></p>`
+          `<th class="ls-item"> <a href="javascript:run_command('theme ${item.value}');">
+        ${item.value}</a></th>`
       )
       .join("");
 
-  inner = inner + "</ul>";
+  inner = inner + "</table>";
   outputNode.innerHTML = inner;
   run_command("clear");
   terminal.appendChild(outputNode);
@@ -67,6 +90,20 @@ function help_writer(command) {
   inner += `<p class="ls-item">Usage: ${command.usage}</p><br>`
 
   inner += `<p class="ls-item" >${command.longdesc}</li><br>`
+
+  inner = inner + "</div>";
+  outputNode.innerHTML = inner;
+  document.getElementById("links").innerHTML = "";
+  terminal.appendChild(outputNode);
+}
+
+function command_writer(command) {
+  const terminal = document.getElementById("links");
+  const outputNode = document.createElement("div");
+  outputNode.classList.add("ls");
+  let inner = "<div class='ls-links' align='center' style='margin: 20px;'>";
+
+  inner += `<p class="ls-item">${command} </p>`
 
   inner = inner + "</div>";
   outputNode.innerHTML = inner;

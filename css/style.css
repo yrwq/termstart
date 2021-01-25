@@ -15,13 +15,38 @@ p {
 
 span {
   pointer-events: none;
-  color: var(--acc2);
+}
+
+#titlebar {
+  padding: 10px;
+  border-radius: 20px 20px 0px 0px;
+  background-color: var(--bg);
+  margin: auto;
+}
+
+.dot {
+  margin-right: 5px;
+  float: right;
+  height: 12px;
+  width: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.themes {
+  background-color: var(--acc1);
+}
+
+.list {
+  background-color: var(--acc2);
 }
 
 #clock {
-  float: right;
+  float: left;
   pointer-events: none;
   font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  color: var(--acc1);
 }
 
 html {
@@ -42,7 +67,10 @@ a {
 a:focus,
 a:hover {
   font-weight: bold;
-  font-family: "JetBrains Mono", monospace;
+}
+
+th {
+  font-weight: normal;
 }
 
 .prompt {
@@ -59,7 +87,7 @@ a:hover {
 
 #terminal-content {
   background-color: var(--bg);
-  border-radius: 20px;
+  border-radius: 0px 0px 20px 20px;
   padding: 100px;
 }
 
