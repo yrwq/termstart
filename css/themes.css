@@ -73,3 +73,11 @@ body.solarized {
   --acc1: #DC322F;
   --acc2: #859900;
 }
+
+body.tomorrow {
+  --bg: #1D1F21;
+  --bg-light: #2D3033;
+  --fg: #C5C8C6;
+  --acc1: #B5BD68;
+  --acc2: #81A2BE;
+}

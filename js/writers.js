@@ -55,19 +55,19 @@ function theme_writer(item) {
   const terminal = document.getElementById("links");
   const outputNode = document.createElement("div");
   outputNode.classList.add("ls");
-  let inner = "<table class='ls-links'>";
+  let inner = "<list class='ls-links'>";
 
   inner =
     inner +
     item
       .map(
         (item) =>
-          `<th class="ls-item"> <a href="javascript:run_command('theme ${item.value}');">
-        ${item.value}</a></th>`
+          `<li class="ls-item"> <a href="javascript:run_command('theme ${item.value}');">
+        ${item.value}</a></li>`
       )
       .join("");
 
-  inner = inner + "</table>";
+  inner = inner + "</list>";
   outputNode.innerHTML = inner;
   run_command("clear");
   terminal.appendChild(outputNode);

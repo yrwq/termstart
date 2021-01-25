@@ -31,6 +31,7 @@ const THEMES = [
   "gruvbox-light",
   "nord",
   "solarized",
+  "tomorrow",
   "dracula",
   "vice",
   "decaf",

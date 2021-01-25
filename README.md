@@ -59,6 +59,10 @@ If you use a browser which doesn't support adding 3rd party extensions, you can 
 | :-:                             | :-:                       | :-:                         |
 | dracula                         | vice                      | decaf                       |
 
+| ![material](.assets/material.png) | ![vice](.assets/pastel.png) | ![decaf](.assets/solarized.png) |
+| :-:                             | :-:                       | :-:                         |
+| material | pastel | solarized |
+
 ## Contributing
 
 Feel free to open issues, suggesting features or other things!
