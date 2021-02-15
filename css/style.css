@@ -1,5 +1,5 @@
 body {
-  background-color: var(--bg-light);
+  background-color: var(--bg-dark);
   font-family: "JetBrains Mono", monospace;
   height: 100%;
   display: table-cell;
