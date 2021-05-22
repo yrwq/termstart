@@ -138,6 +138,8 @@
                     return "Mojave";
                   case 15:
                     return "Catalina";
+                  case 16:
+                    return "BigSur";
                   default:
                     return;
                 }
