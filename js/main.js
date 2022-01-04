@@ -35,6 +35,14 @@ const COMMANDS = {
   themes: {
     func: join_writer(themes, theme_writer),
   },
+  // change search engine
+  engine: {
+    func: join_writer(engine, writer)
+  },
+  // list search engines
+  engines: {
+    func: join_writer(engines, writer)
+  },
   // help
   help: {
     func: join_writer(help, help_writer),
@@ -94,6 +102,8 @@ function run_command(cmd) {
   const saved_engine = read_engine();
   if (saved_engine) {
     search_url = saved_engine;
+  } else {
+    write_engine(search_url);
   }
 
   const current_theme = read_theme();

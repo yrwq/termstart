@@ -159,14 +159,28 @@ function del(input) {
   fast_list();
 }
 
+function engines(input) {
+  const cursor = get_engines();
+  return Object.entries(cursor).map(([key, value]) => {
+    return {
+      key, value
+    };
+  });
+}
+
+function engine(input) {
+  if (ENGINES[input[0]] === undefined) return;
+  search_url = ENGINES[input[0]]
+  write_engine(search_url)
+}
+
 /*
  * Search on the interweb.
 */
 
 function search(input) {
-
   const search_string = input.join(' ');
-  let target = search_url + search_string; // search_url is the default search engine
+  let target = read_engine() + search_string; // search_url is the default search engine
 
   if (supported.includes(result.parsedResult.browser.name)) {
     window.open(target, "_blank");

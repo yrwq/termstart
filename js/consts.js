@@ -17,8 +17,9 @@ const LS_THEME_KEY = "theme";
 
 const ENGINES = {
   google: "https://google.com/search?q=",
-  ddg: "https://duckduckgo.com/?q=",
+  ddg: "https://www.duckduckgo.com/?q=",
   bing: "https://www.bing.com/search?q=",
+  yahoo: "https://www.search.yahoo.com/search?p=",
 };
 
 /*
@@ -75,7 +76,21 @@ const COMM_search = {
   name: 'search',
   description: 'search on the interweb',
   usage: 'search "interesting topic"',
-  longdesc: 'Search for keywords or topics on duckduckgo.'
+  longdesc: `Search for keywords or topics on REPLACE.`
+}
+
+const COMM_engine = {
+  name: 'engine',
+  description: 'change search engine',
+  usage: 'engine "engine-name"',
+  longdesc: 'Change the default search engine of termstart, <br>you can list all available <br>search engines with the command engines'
+}
+
+const COMM_engines = {
+  name: 'engines',
+  description: 'list search engines',
+  usage: 'engines',
+  longdesc: 'Lists all available search engines, <br>you can apply one of them with<br> the command engine "engine-name"'
 }
 
 const COMM_theme = {
@@ -106,7 +121,7 @@ const COMM_help = {
   longdesc: 'To get a list of all available<br> commands, type: "commands"'
 }
 
-const COMM_commands = [ "help", "clear", "add", "del", "ls", "open", "search", "theme", "themes"]
+const COMM_commands = [ "help", "clear", "add", "del", "ls", "open", "search", "engine", "engines", "theme", "themes"]
 
 const COMM = {
   ls: COMM_ls,
@@ -114,6 +129,8 @@ const COMM = {
   del: COMM_del,
   open: COMM_open,
   search: COMM_search,
+  engine: COMM_engine,
+  engines: COMM_engines,
   theme: COMM_theme,
   themes: COMM_themes,
   clear: COMM_clear,

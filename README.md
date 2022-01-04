@@ -48,6 +48,8 @@ If you use a browser which doesn't support adding 3rd party extensions, you can 
 | `add`         | add a site                      | `add github github.com`   |
 | `theme`       | change theme                    | `theme gruvbox-dark`      |
 | `themes`      | list all themes                 |                           |
+| `engine`      | change search engine            | `engine google`           |
+| `engines`     | list all search engines         |                           |
 
 ## Themes
 
