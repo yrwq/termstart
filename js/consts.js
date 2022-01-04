@@ -76,7 +76,7 @@ const COMM_search = {
   name: 'search',
   description: 'search on the interweb',
   usage: 'search "interesting topic"',
-  longdesc: `Search for keywords or topics on REPLACE.`
+  longdesc: `Search for keywords or topics on the interweb`,
 }
 
 const COMM_engine = {

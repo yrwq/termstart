@@ -159,6 +159,10 @@ function del(input) {
   fast_list();
 }
 
+/*
+ * List available engines
+*/ 
+
 function engines(input) {
   const cursor = get_engines();
   return Object.entries(cursor).map(([key, value]) => {
@@ -168,9 +172,14 @@ function engines(input) {
   });
 }
 
+/*
+ * Change search engine 
+*/
+
 function engine(input) {
-  if (ENGINES[input[0]] === undefined) return;
-  search_url = ENGINES[input[0]]
+  input = input[0].toLowerCase()
+  if (ENGINES[input] === undefined) return;
+  search_url = ENGINES[input]
   write_engine(search_url)
 }
 
