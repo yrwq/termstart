@@ -98,7 +98,11 @@ function themes(input) {
 function help(input) {
   if (input.length) {
     const final = input[input.length - 1];
-    return COMM[final]
+        if (COMM.includes(final)) {
+            return COMM[final]
+        } else {
+            return COMM["help"]
+        }
   } else {
     return COMM["help"]
   }
