@@ -96,16 +96,18 @@ function themes(input) {
 }
 
 function help(input) {
-  if (input.length) {
-    const final = input[input.length - 1];
-        if (COMM_commands.includes(final)) {
+    const commands = [ "help", "clear", "add", "del", "ls", "open", "search", "theme", "themes"]
+
+    if (input.length) {
+        const final = input[input.length - 1];
+        if (commands.includes(final)) {
             return COMM[final]
         } else {
             return COMM["help"]
         }
-  } else {
-    return COMM["help"]
-  }
+    } else {
+        return COMM["help"]
+    }
 }
 
 function commands(input) {
