@@ -43,6 +43,15 @@ function get_commands() {
   return cursor;
 }
 
+function get_engines() {
+  let pos = [];
+  let cursor = ENGINES;
+  pos.forEach((p) => {
+    cursor = cursor[p]
+  })
+  return cursor;
+}
+
 function push_command(cmd) {
   const prompt = document.getElementById("prompt-input");
   prompt.value = cmd;

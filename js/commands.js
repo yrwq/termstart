@@ -166,13 +166,36 @@ function del(input) {
 }
 
 /*
+ * List available engines
+*/ 
+
+function engines(input) {
+  const cursor = get_engines();
+  return Object.entries(cursor).map(([key, value]) => {
+    return {
+      key, value
+    };
+  });
+}
+
+/*
+ * Change search engine 
+*/
+
+function engine(input) {
+  input = input[0].toLowerCase()
+  if (ENGINES[input] === undefined) return;
+  search_url = ENGINES[input]
+  write_engine(search_url)
+}
+
+/*
  * Search on the interweb.
 */
 
 function search(input) {
-
   const search_string = input.join(' ');
-  let target = search_url + search_string; // search_url is the default search engine
+  let target = read_engine() + search_string; // search_url is the default search engine
 
   if (supported.includes(result.parsedResult.browser.name)) {
     window.open(target, "_blank");
