@@ -48,7 +48,7 @@ const COMM_ls = {
   name: 'ls',
   description: 'list links',
   usage: 'ls',
-  longdesc: 'Lists all added "bookmarks"<br>you can open open added links if you<br> click them, or with open "name"'
+  longdesc: 'Lists all added "bookmarks"<br>you can open added links if you<br> click them, or with open "name"'
 }
 
 const COMM_add = {
