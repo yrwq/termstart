@@ -1,0 +1,9 @@
+[package]
+name = "termstart"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gloo = { version = "0.11.0", features = ["events", "utils"] }
+web-sys = { version = "0.3.72", features = ["Navigator", "MediaQueryList"] }
+yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
