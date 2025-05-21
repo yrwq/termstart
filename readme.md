@@ -2,6 +2,10 @@
 
 terminal themed startpage for web browser
 
+## Docker setup (recommended)
+
+A simple `docker compose up --build` should work.
+
 ## Setup
 
 ### install trunk
