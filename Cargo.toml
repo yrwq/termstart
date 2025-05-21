@@ -5,5 +5,7 @@ edition = "2021"
 
 [dependencies]
 gloo = { version = "0.11.0", features = ["events", "utils"] }
-web-sys = { version = "0.3.72", features = ["Navigator", "MediaQueryList"] }
+web-sys = { version = "0.3.72", features = ["Navigator", "MediaQueryList", "Element", "DomTokenList", "Window", "MediaQueryListEvent"] }
 yew = { git = "https://github.com/yewstack/yew/", features = ["csr"] }
+wasm-bindgen = "0.2"
+js-sys = "0.3"

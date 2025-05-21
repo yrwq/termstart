@@ -13,7 +13,7 @@ pub fn button(props: &ButtonProps) -> Html {
     html! {
         <button
             onclick={onclick}
-            class="px-4 py-2 rounded transition-colors"
+            class="px-4 py-2 rounded transition-colors bg-github-light-button dark:bg-github-dark-button text-github-light-text dark:text-github-dark-text hover:bg-github-light-button-hover dark:hover:bg-github-dark-button-hover"
         >
             { text }
         </button>

@@ -2,15 +2,13 @@ use gloo::dialogs::alert;
 use yew::prelude::*;
 mod components;
 use components::button::Button;
+use components::theme_switcher::ThemeSwitcher;
 
 #[function_component(App)]
 fn app() -> Html {
-    let onclick = Callback::from(|_| {
-    });
-
     html! {
-        <main class="m-10">
-                <Button text="click" {onclick} />
+        <main class="m-10 transition-colors duration-200 ease-in-out">
+            <ThemeSwitcher />
         </main>
     }
 }
