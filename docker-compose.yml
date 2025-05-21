@@ -14,7 +14,7 @@ services:
       - "3000:3000"  # Frontend port
     environment:
       - RUST_BACKTRACE=1
-      - RUST_LOG=debug
+      - RUST_LOG=info
     command: trunk serve --address 0.0.0.0 --port 3000
 
   backend:
