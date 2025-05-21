@@ -2,6 +2,8 @@
 
 terminal themed startpage for web browser
 
+## Setup
+
 ### install trunk
 
 ```bash
@@ -26,3 +28,27 @@ rustup target add wasm32-unknown-unknown
 ```bash
 trunk serve --open
 ```
+
+### Database Setup
+
+1. Install PostgreSQL if not already installed:
+
+```bash
+brew install postgresql
+```
+
+2. Start the PostgreSQL server:
+```bash
+brew services start postgresql
+```
+3. Create a database and user:
+```bash
+createdb termstart
+psql termstart < backend/migrations/init.sql
+```
+4. Run the backend server:  
+```bash
+cd backend && cargo run
+```
+
+TODO create a docker file

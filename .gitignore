@@ -1,2 +1,5 @@
 /target
 /dist
+/backend/target
+/frontend/dist
+*.env
