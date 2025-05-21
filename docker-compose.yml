@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/app/target
+      - node-modules:/app/node_modules
+    ports:
+      - "3000:3000"  # Frontend port
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=debug
+    command: trunk serve --address 0.0.0.0 --port 3000
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile
+    volumes:
+      - ./backend:/app
+      - cargo-cache:/usr/local/cargo/registry
+      - target-cache:/app/target
+    ports:
+      - "8080:8080"  # Backend port
+    environment:
+      - RUST_BACKTRACE=1
+      - RUST_LOG=debug
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/termstart
+    depends_on:
+      migrations:
+        condition: service_completed_successfully
+    command: cargo watch -x run
+
+  migrations:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/termstart
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        PGPASSWORD=postgres psql -h db -U postgres -d termstart -f migrations/init.sql
+      "
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=termstart
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cargo-cache:
+  target-cache:
+  node-modules:
+  postgres-data: 
