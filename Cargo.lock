@@ -54,6 +54,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "boolinator"
+version = "2.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cfa8873f51c92e232f9bac4065cddef41b714152812bfc5f7672ba16d6ef8cd9"
+
+[[package]]
 name = "bumpalo"
 version = "3.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -547,6 +553,12 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
+version = "0.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a9ee70c43aaf417c914396645a0fa852624801b24ebb7ae78fe8272889ac888"
+
+[[package]]
+name = "hashbrown"
 version = "0.15.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3a9bfc1af68b1726ea47d3d5109de126281def866b33970e10fbab11b5dafab3"
@@ -570,22 +582,21 @@ dependencies = [
 
 [[package]]
 name = "implicit-clone"
-version = "0.5.0"
+version = "0.3.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1bd41bf647018e1da0e32dac34d02135d61d7204cee650e4633eddbd0b23ec38"
+checksum = "92d6dc8dce3dddd0bc92f5741980eb67c04cb6967d90cb94482741b254ad7555"
 dependencies = [
- "implicit-clone-derive",
- "indexmap",
+ "indexmap 1.9.3",
 ]
 
 [[package]]
-name = "implicit-clone-derive"
-version = "0.1.1"
+name = "indexmap"
+version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9311685eb9a34808bbb0608ad2fcab9ae216266beca5848613e95553ac914e3b"
+checksum = "bd070e393353796e801d209ad339e89596eb4c8d430d18ede6a1cced8fafbd99"
 dependencies = [
- "quote",
- "syn 2.0.89",
+ "autocfg",
+ "hashbrown 0.12.3",
 ]
 
 [[package]]
@@ -595,7 +606,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "707907fe3c25f5424cce2cb7e1cbcafee6bdbe735ca90ef77c29e84591e5b9da"
 dependencies = [
  "equivalent",
- "hashbrown",
+ "hashbrown 0.15.1",
 ]
 
 [[package]]
@@ -716,12 +727,12 @@ dependencies = [
 
 [[package]]
 name = "prettyplease"
-version = "0.2.25"
+version = "0.1.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "64d1ec885c64d0457d564db4ec299b2dae3f9c02808b8ad9c3a089c591b18033"
+checksum = "6c8646e95016a7a6c4adea95bafa8a16baab64b583356217f2c85db4a39d9a86"
 dependencies = [
  "proc-macro2",
- "syn 2.0.89",
+ "syn 1.0.109",
 ]
 
 [[package]]
@@ -893,6 +904,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "72b64191b275b66ffe2469e8af2c1cfe3bafa67b529ead792a6d0160888b4237"
 dependencies = [
  "proc-macro2",
+ "quote",
  "unicode-ident",
 ]
 
@@ -949,18 +961,6 @@ checksum = "22cfb5bee7a6a52939ca9224d6ac897bb669134078daa8735560897f69de4d33"
 dependencies = [
  "backtrace",
  "pin-project-lite",
- "tokio-macros",
-]
-
-[[package]]
-name = "tokio-macros"
-version = "2.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "693d596312e88961bc67d7f1f97af8a70227d9f90c31bba5806eec004978d752"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 2.0.89",
 ]
 
 [[package]]
@@ -986,7 +986,7 @@ version = "0.19.15"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b5bb770da30e5cbfde35a2d7b9b8a2c4b8ef89548a7a6aeab5c9a576e3e7421"
 dependencies = [
- "indexmap",
+ "indexmap 2.6.0",
  "toml_datetime",
  "winnow",
 ]
@@ -1192,14 +1192,15 @@ dependencies = [
 
 [[package]]
 name = "yew"
-version = "0.21.0"
-source = "git+https://github.com/yewstack/yew/#84b7548bf7b7640c92d2f73282a4df16cde6ca36"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5dbecfe44343b70cc2932c3eb445425969ae21754a8ab3a0966981c1cf7af1cc"
 dependencies = [
  "console_error_panic_hook",
  "futures",
- "gloo 0.11.0",
+ "gloo 0.8.1",
  "implicit-clone",
- "indexmap",
+ "indexmap 1.9.3",
  "js-sys",
  "prokio",
  "rustversion",
@@ -1216,13 +1217,15 @@ dependencies = [
 
 [[package]]
 name = "yew-macro"
-version = "0.21.0"
-source = "git+https://github.com/yewstack/yew/#84b7548bf7b7640c92d2f73282a4df16cde6ca36"
+version = "0.20.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b64c253c1d401f1ea868ca9988db63958cfa15a69f739101f338d6f05eea8301"
 dependencies = [
+ "boolinator",
  "once_cell",
  "prettyplease",
  "proc-macro-error",
  "proc-macro2",
  "quote",
- "syn 2.0.89",
+ "syn 1.0.109",
 ]

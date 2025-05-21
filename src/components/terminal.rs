@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen_futures::spawn_local;
 use gloo::net::http::Request;
 
-#[derive(Default, Clone)]
+#[derive(Default, Clone, PartialEq)]
 struct TerminalHistory {
     commands: Vec<String>,
     outputs: Vec<String>,
@@ -117,9 +117,20 @@ pub fn terminal() -> Html {
                                                 }
                                             }
                                         } else {
-                                            let mut new_history = (*history).clone();
-                                            new_history.outputs.push("Registration failed".to_string());
-                                            history.set(new_history);
+                                            // Parse error message from backend
+                                            match response.json::<serde_json::Value>().await {
+                                                Ok(json) => {
+                                                    let error_msg = json.get("error").and_then(|e| e.as_str()).unwrap_or("Registration failed");
+                                                    let mut new_history = (*history).clone();
+                                                    new_history.outputs.push(format!("Registration failed: {}", error_msg));
+                                                    history.set(new_history);
+                                                }
+                                                Err(_) => {
+                                                    let mut new_history = (*history).clone();
+                                                    new_history.outputs.push("Registration failed".to_string());
+                                                    history.set(new_history);
+                                                }
+                                            }
                                         }
                                     }
                                     Err(_) => {
@@ -172,9 +183,20 @@ pub fn terminal() -> Html {
                                                 }
                                             }
                                         } else {
-                                            let mut new_history = (*history).clone();
-                                            new_history.outputs.push("Invalid credentials".to_string());
-                                            history.set(new_history);
+                                            // Parse error message from backend
+                                            match response.json::<serde_json::Value>().await {
+                                                Ok(json) => {
+                                                    let error_msg = json.get("error").and_then(|e| e.as_str()).unwrap_or("Login failed");
+                                                    let mut new_history = (*history).clone();
+                                                    new_history.outputs.push(format!("Login failed: {}", error_msg));
+                                                    history.set(new_history);
+                                                }
+                                                Err(_) => {
+                                                    let mut new_history = (*history).clone();
+                                                    new_history.outputs.push("Login failed".to_string());
+                                                    history.set(new_history);
+                                                }
+                                            }
                                         }
                                     }
                                     Err(_) => {
@@ -214,6 +236,23 @@ pub fn terminal() -> Html {
         })
     };
 
+    let scroll_ref = use_node_ref();
+
+    // Scroll to bottom when history changes
+    {
+        let history = history.clone();
+        let scroll_ref = scroll_ref.clone();
+        use_effect_with_deps(
+            move |_| {
+                if let Some(node) = scroll_ref.cast::<web_sys::HtmlElement>() {
+                    node.scroll_into_view();
+                }
+                || ()
+            },
+            history.clone(),
+        );
+    }
+
     html! {
         <div class="w-full max-w-3xl mx-auto mt-8 p-4 bg-github-light-button dark:bg-github-dark-button rounded-lg shadow-lg font-mono">
             <div class="mb-4 overflow-y-auto max-h-96 whitespace-pre-wrap">
@@ -235,6 +274,7 @@ pub fn terminal() -> Html {
                         }
                     }).collect::<Html>()
                 }
+                <div ref={scroll_ref}></div>
             </div>
             <div class="flex items-center text-github-light-text dark:text-github-dark-text border-t border-github-light-border dark:border-github-dark-border pt-4">
                 <span class="text-green-500 mr-2 select-none">{"$"}</span>
