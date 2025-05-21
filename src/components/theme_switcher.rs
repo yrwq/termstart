@@ -2,6 +2,7 @@ use yew::prelude::*;
 use gloo::utils::document_element;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
+use lucide_yew::{Sun, Moon};
 
 #[function_component(ThemeSwitcher)]
 pub fn theme_switcher() -> Html {
@@ -67,12 +68,13 @@ pub fn theme_switcher() -> Html {
     html! {
         <button
             onclick={onclick}
-            class="px-4 py-2 rounded transition-all duration-200 ease-in-out bg-github-light-button dark:bg-github-dark-button text-github-light-text dark:text-github-dark-text hover:bg-github-light-button-hover dark:hover:bg-github-dark-button-hover"
+            class="p-2 rounded-full transition-all duration-200 ease-in-out bg-github-light-button dark:bg-github-dark-button text-github-light-text dark:text-github-dark-text hover:bg-github-light-button-hover dark:hover:bg-github-dark-button-hover"
+            title={if *theme_state { "Switch to light mode" } else { "Switch to dark mode" }}
         >
             if *theme_state {
-                { "🌞 Light" }
+                <Sun class="w-5 h-5" />
             } else {
-                { "🌙 Dark" }
+                <Moon class="w-5 h-5" />
             }
         </button>
     }

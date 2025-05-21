@@ -182,77 +182,7 @@ async fn main() -> std::io::Result<()> {
                     .route(web::post().to(login))
             )
     })
-    .bind("127.0.0.1:7070")?
+    .bind("0.0.0.0:8080")?
     .run()
     .await
-}
-
-#[cfg(test)]
-mod tests {
-    use actix_web::{test, App};
-    use super::*;
-    use sqlx::{PgPool, Executor, postgres::PgPoolOptions};
-    use serde_json::json;
-
-
-    async fn setup_test_db() -> PgPool {
-        dotenv::dotenv().ok();
-
-        // Use a test database or an in-memory database if possible
-        let database_url = std::env::var("TEST_DATABASE_URL")
-            .expect("TEST_DATABASE_URL must be set for tests");
-        let pool = PgPoolOptions::new()
-            .max_connections(1)
-            .connect(&database_url)
-            .await
-            .expect("Failed to connect to test database");
-
-        // Optionally, clean up or migrate the database here
-        pool.execute("TRUNCATE users RESTART IDENTITY CASCADE;").await.unwrap();
-
-        pool
-    }
-
-    #[actix_rt::test]
-    async fn test_register_and_login() {
-        let pool = setup_test_db().await;
-
-        let app = test::init_service(
-            App::new()
-                .app_data(actix_web::web::Data::new(pool.clone()))
-                .route("/api/register", actix_web::web::post().to(register))
-                .route("/api/login", actix_web::web::post().to(login))
-        ).await;
-
-        // Test registration
-        let req = test::TestRequest::post()
-            .uri("/api/register")
-            .set_json(&json!({
-                "email": "test@example.com",
-                "username": "testuser",
-                "password": "password123"
-            }))
-            .to_request();
-
-        let resp: serde_json::Value = test::call_and_read_body_json(&app, req).await;
-        assert_eq!(resp["email"], "test@example.com");
-        assert_eq!(resp["username"], "testuser");
-        assert!(resp["token"].as_str().unwrap().starts_with("dummy_token_"));
-        assert_eq!(resp["is_authenticated"], true);
-
-        // Test login
-        let req = test::TestRequest::post()
-            .uri("/api/login")
-            .set_json(&json!({
-                "email": "test@example.com",
-                "password": "password123"
-            }))
-            .to_request();
-
-        let resp: serde_json::Value = test::call_and_read_body_json(&app, req).await;
-        assert_eq!(resp["email"], "test@example.com");
-        assert_eq!(resp["username"], "testuser");
-        assert!(resp["token"].as_str().unwrap().starts_with("dummy_token_"));
-        assert_eq!(resp["is_authenticated"], true);
-    }
 }

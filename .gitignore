@@ -3,3 +3,4 @@
 /backend/target
 /frontend/dist
 *.env
+/node_modules

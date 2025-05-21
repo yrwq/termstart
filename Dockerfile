@@ -1,4 +1,4 @@
-FROM rust:1.82-slim
+FROM rustlang/rust:nightly-slim
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
@@ -24,6 +24,7 @@ RUN cargo install wasm-bindgen-cli
 # Install cargo-watch for development
 RUN cargo install cargo-watch
 
+# Add wasm target
 RUN rustup target add wasm32-unknown-unknown
 
 # Set working directory
