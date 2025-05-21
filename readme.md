@@ -1,8 +1,28 @@
-## dev
+# termstart
+
+terminal themed startpage for web browser
+
+### install trunk
+
+```bash
+# source (recommended)
+cargo install --locked trunk
+# binary
+cargo binstall trunk
+# homebrew
+brew install trunk
+# for apple silicon install wasm-bindgen from source
+cargo install --locked wasm-bindgen-cli
+```
+
+### install wasm target
 
 ```bash
 rustup target add wasm32-unknown-unknown
-# See https://trunkrs.dev/#install for further details
-cargo install --locked trunk
+```
+
+### run the dev server
+
+```bash
 trunk serve --open
 ```
