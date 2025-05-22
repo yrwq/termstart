@@ -1,5 +1,5 @@
 use actix_cors::Cors;
-use actix_web::{web, App, HttpServer, HttpResponse, Responder};
+use actix_web::{web, App, HttpServer, HttpResponse, HttpRequest, Responder, middleware};
 use serde::{Deserialize, Serialize};
 use sqlx::postgres::PgPoolOptions;
 use dotenv::dotenv;
@@ -36,6 +36,14 @@ struct LoginResponse {
     email: String,
     token: String,
     is_authenticated: bool,
+    is_admin: bool,
+}
+
+#[derive(Serialize)]
+struct User {
+    username: String,
+    email: String,
+    is_admin: bool,
 }
 
 async fn register(
@@ -96,7 +104,8 @@ async fn register(
                 username: register.username.clone(),
                 email: register.email.clone(),
                 token,
-                is_authenticated: true,  // Add this field
+                is_authenticated: true,
+                is_admin: false,
             })
         }
         Err(_) => {
@@ -113,7 +122,7 @@ async fn login(
 ) -> impl Responder {
     // Find user by email
     let user = sqlx::query!(
-        "SELECT id, email, username, password_hash FROM users WHERE email = $1",
+        "SELECT id, email, username, password_hash, is_admin FROM users WHERE email = $1",
         login.email
     )
     .fetch_optional(&**pool)
@@ -128,7 +137,8 @@ async fn login(
                         username: user.username,
                         email: user.email,
                         token,
-                        is_authenticated: true,  // Add this field
+                        is_authenticated: true,
+                        is_admin: user.is_admin.unwrap_or(false),
                     };
                     HttpResponse::Ok().json(response)
                 }
@@ -142,6 +152,97 @@ async fn login(
         })),
         Err(_) => HttpResponse::InternalServerError().json(serde_json::json!({
             "error": "Database error"
+        }))
+    }
+}
+
+async fn list_users(
+    pool: web::Data<sqlx::PgPool>,
+    req: HttpRequest,
+) -> impl Responder {
+    let token = req.headers().get("Authorization").and_then(|h| h.to_str().ok()).unwrap_or("");
+    
+    // Validate admin token
+    let admin = sqlx::query!(
+        "SELECT is_admin FROM users WHERE email = $1",
+        token.replace("dummy_token_", "")
+    )
+    .fetch_optional(&**pool)
+    .await;
+
+    match admin {
+        Ok(Some(user)) if user.is_admin.unwrap_or(false) => {
+            let users = sqlx::query!(
+                "SELECT username, email, is_admin FROM users"
+            )
+            .fetch_all(&**pool)
+            .await;
+
+            match users {
+                Ok(users) => {
+                    let users: Vec<User> = users.into_iter()
+                        .map(|u| User {
+                            username: u.username,
+                            email: u.email,
+                            is_admin: u.is_admin.unwrap_or(false),
+                        })
+                        .collect();
+                    HttpResponse::Ok().json(users)
+                }
+                Err(_) => HttpResponse::InternalServerError().json(serde_json::json!({
+                    "error": "Failed to fetch users"
+                }))
+            }
+        }
+        _ => HttpResponse::Unauthorized().json(serde_json::json!({
+            "error": "Unauthorized: Admin access required"
+        }))
+    }
+}
+
+async fn debug_info(
+    pool: web::Data<sqlx::PgPool>,
+    req: HttpRequest,
+) -> impl Responder {
+    let token = req.headers().get("Authorization").and_then(|h| h.to_str().ok()).unwrap_or("");
+    
+    // Validate admin token
+    let admin = sqlx::query!(
+        "SELECT is_admin FROM users WHERE email = $1",
+        token.replace("dummy_token_", "")
+    )
+    .fetch_optional(&**pool)
+    .await;
+
+    match admin {
+        Ok(Some(user)) if user.is_admin.unwrap_or(false) => {
+            let stats = sqlx::query!(
+                "SELECT 
+                    COUNT(*) as total_users,
+                    COUNT(*) FILTER (WHERE is_admin = true) as admin_users,
+                    COUNT(*) FILTER (WHERE created_at > NOW() - INTERVAL '24 hours') as new_users_24h
+                FROM users"
+            )
+            .fetch_one(&**pool)
+            .await;
+
+            match stats {
+                Ok(stats) => {
+                    HttpResponse::Ok().json(serde_json::json!({
+                        "total_users": stats.total_users,
+                        "admin_users": stats.admin_users,
+                        "new_users_24h": stats.new_users_24h,
+                        "database_url": env::var("DATABASE_URL").unwrap_or_default(),
+                        "server_time": chrono::Utc::now().to_rfc3339(),
+                    }))
+                }
+                Err(_) => HttpResponse::InternalServerError().json(serde_json::json!({
+                    "error": "Failed to fetch debug info"
+                }))
+            }
+        }
+        _ => HttpResponse::Unauthorized().json(serde_json::json!({
+            "error": "Unauthorized: Admin access required"
         }))
     }
 }
@@ -172,6 +273,7 @@ async fn main() -> std::io::Result<()> {
             
         App::new()
             .wrap(cors)
+            .wrap(middleware::Logger::default())
             .app_data(web::Data::new(pool.clone()))
             .service(
                 web::resource("/api/register")
@@ -180,6 +282,14 @@ async fn main() -> std::io::Result<()> {
             .service(
                 web::resource("/api/login")
                     .route(web::post().to(login))
+            )
+            .service(
+                web::resource("/api/admin/users")
+                    .route(web::get().to(list_users))
+            )
+            .service(
+                web::resource("/api/admin/debug")
+                    .route(web::get().to(debug_info))
             )
     })
     .bind("0.0.0.0:8080")?

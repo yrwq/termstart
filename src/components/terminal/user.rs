@@ -6,6 +6,7 @@ pub struct User {
     pub email: String,
     pub token: String,
     pub is_authenticated: bool,
+    pub is_admin: bool,
 }
 
 pub const STORAGE_KEY: &str = "termstart_user";

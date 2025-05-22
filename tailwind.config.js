@@ -4,6 +4,7 @@ module.exports = {
         "./src/**/*.{html,rs}",
         "./index.html"
     ],
+    darkMode: "class",
     theme: {
         extend: {
             colors: {
@@ -47,7 +48,6 @@ module.exports = {
             },
         },
     },
-    darkMode: "class",
-    plugins: [],
+    plugins: []
 }
 

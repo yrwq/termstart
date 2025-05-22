@@ -14,6 +14,17 @@ pub fn terminal() -> Html {
         LocalStorage::get(STORAGE_KEY).unwrap_or_default()
     });
 
+    // Callback to append output to terminal history
+    let handle_output = {
+        let history = history.clone();
+        move |output: String| {
+            let mut new_history = (*history).clone();
+            new_history.commands.push("(async result)".to_string());
+            new_history.outputs.push(output);
+            history.set(new_history);
+        }
+    };
+
     // Handle command input
     let onkeydown = {
         let input_ref = input_ref.clone();
@@ -40,7 +51,7 @@ pub fn terminal() -> Html {
                             history.set(TerminalHistory::default());
                         } else {
                             // Handle other commands
-                            let output = handle_command(parts, &user);
+                            let output = handle_command(parts, &user, handle_output.clone());
                             
                             // Update history with both command and output
                             let mut new_history = TerminalHistory {
@@ -74,7 +85,7 @@ pub fn terminal() -> Html {
     }
 
     html! {
-        <div class="w-full max-w-3xl m-auto mt-8 p-4 bg-github-light-button dark:bg-github-dark-button rounded-lg shadow-lg font-mono">
+        <div class="w-full max-w-3xl mt-8 p-4 bg-github-light-button dark:bg-github-dark-button rounded-lg shadow-lg font-mono">
             <div class="overflow-y-auto h-96 whitespace-pre-wrap">
                 <div class="text-github-light-text dark:text-github-dark-text mb-4">
                     {"Welcome to termstart v0.1.0\nType 'help' for available commands.\n"}

@@ -5,3 +5,9 @@
 html {
   margin: 0;
 }
+
+@layer base {
+  html {
+  }
+
+}

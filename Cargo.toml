@@ -1,15 +1,28 @@
 [package]
 name = "termstart"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-gloo = { version = "0.11.0", features = ["events", "utils", "storage"] }
-web-sys = { version = "0.3.72", features = ["Navigator", "MediaQueryList", "Element", "DomTokenList", "Window", "MediaQueryListEvent"] }
-yew = { version = "0.21", features = [ "csr" ]}
-wasm-bindgen = "0.2"
-js-sys = "0.3"
+yew = { version = "0.21", features = ["csr"] }
+wasm-bindgen = "0.2.92"
+wasm-bindgen-futures = "0.4.42"
+gloo = { version = "0.10", features = ["futures", "net", "storage", "utils"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-wasm-bindgen-futures = "0.4"
-lucide-yew = { version = "2.1.0", features = ["all-icons" ] }
+web-sys = { version = "0.3.72", features = [
+    "HtmlInputElement",
+    "Window",
+    "MediaQueryList",
+    "MediaQueryListEvent",
+    "Element",
+    "DomTokenList",
+    "Event",
+    "EventTarget",
+    "HtmlElement"
+]}
+gloo-net = "0.5"
+log = "0.4"
+lucide-yew = { version = "2.1.0", features = ["all-icons"] }
+js-sys = "0.3.72"
+console_error_panic_hook = "0.1.7"

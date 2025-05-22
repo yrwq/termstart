@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth transition-colors duration-200 ease-in-out">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>
+    termstart
+  </title>
+  <meta name="description" content="terminal themed bookmark manager">
+  
+  <link rel="stylesheet" href="termstart/style-e4e44af920f189e6.css" integrity="sha384-1MEHNqds0tySrWjFP5ZVjGRmlHHhxx4D96+dhP51ugt9oUJU4Iqrzc8lI4L3i3hn"/>
+<link rel="modulepreload" href="termstart/termstart-48072903d0bb5b5c.js" crossorigin="anonymous" integrity="sha384-WcYs29zkL2pfdA1st7vyBR9tL+fyyj+7qHJokgiLTJRI4YwUIaDSCQuX6/GKk7X/"><link rel="preload" href="termstart/termstart-48072903d0bb5b5c_bg.wasm" crossorigin="anonymous" integrity="sha384-KQiyYYYr/zYMpuQnD5L5oFoi+W5iIu2UaOzsQy2Q4JLqDIm0JTsGERld7+7h4PRv" as="fetch" type="application/wasm"></head>
+<base data-trunk-public-url />
+<body class="transition-colors duration-200 ease-in-out bg-github-light-bg dark:bg-github-dark-bg">
+<script type="module">
+import init, * as bindings from 'termstart/termstart-48072903d0bb5b5c.js';
+const wasm = await init({ module_or_path: 'termstart/termstart-48072903d0bb5b5c_bg.wasm' });
+
+
+window.wasmBindings = bindings;
+
+
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
+
+</script></body>
+
+</html>
