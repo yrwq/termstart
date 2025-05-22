@@ -20,6 +20,10 @@ web-sys = { version = "0.3", features = [
     "EventTarget",
     "Storage",
     "Location",
+    "Navigator",
+    "Document",
+    "HtmlDocument",
+    "Window",
 ] }
 gloo = { version = "0.10", features = ["storage", "net"] }
 serde = { version = "1.0", features = ["derive"] }

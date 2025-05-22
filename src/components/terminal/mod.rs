@@ -108,7 +108,7 @@ pub fn terminal() -> Html {
     }
 
     html! {
-        <div class="w-full max-w-3xl mt-8 p-4 bg-github-light-button dark:bg-github-dark-button rounded-lg shadow-lg font-mono">
+        <div class="w-full max-w-3xl p-4 bg-github-light-button dark:bg-github-dark-button rounded-lg shadow-lg font-mono">
             <div class="overflow-y-auto h-96 whitespace-pre-wrap">
                 <div class="text-github-light-text dark:text-github-dark-text mb-4">
                     {"Welcome to termstart v0.1.0\nType 'help' for available commands.\n"}
