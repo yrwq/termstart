@@ -20,7 +20,7 @@ pub fn handle_command(
                 help_text.push_str("  logout   - Logout from your account\n  whoami   - Show current user information\n");
             }
             
-            help_text
+            help_text       
         },
         Some(&"fetch") => {
             let window = window().unwrap();
@@ -66,7 +66,7 @@ pub fn handle_command(
 
             // Format the output
             format!(
-                "\n{}@{} in {}\n{}\n\n\
+                "\n{}:{} in {}\n{}\n\n\
                 OS: {}\n\
                 Browser: {}\n\
                 Resolution: {}x{}\n\
@@ -85,7 +85,7 @@ pub fn handle_command(
                 screen_width,
                 screen_height,
                 theme,
-                browser // Simplified to just show browser name instead of full user agent
+                browser
             )
         },
         Some(&"theme") => {
