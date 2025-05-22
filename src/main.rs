@@ -1,4 +1,5 @@
 use yew::prelude::*;
+use log::{info, Level};
 
 mod components;
 use components::theme_switcher::ThemeSwitcher;
@@ -19,5 +20,7 @@ fn app() -> Html {
 }
 
 fn main() {
+    wasm_logger::init(wasm_logger::Config::new(Level::Debug));
+    info!("Application starting...");
     yew::Renderer::<App>::new().render();
 }

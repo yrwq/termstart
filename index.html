@@ -10,8 +10,17 @@
   <meta name="description" content="terminal themed bookmark manager">
   <link data-trunk rel="copy-dir" href="/src/assets/" />
   <link data-trunk rel="tailwind-css" href="/src/style.css" />
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script>
+    // Ensure Supabase is loaded before the application starts
+    window.addEventListener('load', () => {
+      console.log('Supabase client loaded:', window.supabase);
+    });
+  </script>
 </head>
 <base data-trunk-public-url />
-<body class="transition-colors duration-200 ease-in-out bg-github-light-bg dark:bg-github-dark-bg"></body>
+<body class="transition-colors duration-200 ease-in-out bg-github-light-bg dark:bg-github-dark-bg">
+  <div id="app"></div>
+</body>
 
 </html>

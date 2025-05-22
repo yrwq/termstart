@@ -5,13 +5,12 @@ edition = "2021"
 
 [dependencies]
 yew = { version = "0.21", features = ["csr"] }
-wasm-bindgen = "0.2.92"
-wasm-bindgen-futures = "0.4.42"
-gloo = { version = "0.10", features = ["futures", "net", "storage", "utils"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-web-sys = { version = "0.3.72", features = [
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+web-sys = { version = "0.3", features = [
     "HtmlInputElement",
+    "KeyboardEvent",
+    "HtmlElement",
     "Window",
     "MediaQueryList",
     "MediaQueryListEvent",
@@ -19,10 +18,17 @@ web-sys = { version = "0.3.72", features = [
     "DomTokenList",
     "Event",
     "EventTarget",
-    "HtmlElement"
-]}
+    "Storage",
+    "Location",
+] }
+gloo = { version = "0.10", features = ["storage", "net"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
 gloo-net = "0.5"
 log = "0.4"
 lucide-yew = { version = "2.1.0", features = ["all-icons"] }
-js-sys = "0.3.72"
-console_error_panic_hook = "0.1.7"
+js-sys = "0.3"
+lazy_static = "1.4"
+dotenv = "0.15"
+wasm-logger = "0.2"
+serde-wasm-bindgen = "0.6"

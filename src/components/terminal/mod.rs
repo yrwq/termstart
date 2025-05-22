@@ -1,25 +1,9 @@
 pub mod commands;
 
-
 use yew::prelude::*;
 use web_sys::HtmlInputElement;
-use gloo::storage::{LocalStorage, Storage};
 
 use crate::components::terminal::commands::handle_command;
-
-
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Clone, Default)]
-pub struct User {
-    pub username: String,
-    pub email: String,
-    pub token: String,
-    pub is_authenticated: bool,
-    pub is_admin: bool,
-}
-
-pub const STORAGE_KEY: &str = "termstart_user";
 
 #[derive(Default, Clone, PartialEq)]
 pub struct TerminalHistory {
@@ -31,17 +15,14 @@ pub struct TerminalHistory {
 pub fn terminal() -> Html {
     let input_ref = use_node_ref();
     let history = use_state(TerminalHistory::default);
-    let user: UseStateHandle<User> = use_state(|| {
-        LocalStorage::get(STORAGE_KEY).unwrap_or_default()
-    });
 
     // Callback to append output to terminal history
     let handle_output = {
         let history = history.clone();
         move |output: String| {
             let mut new_history = (*history).clone();
-            new_history.commands.push("(async result)".to_string());
-            new_history.outputs.push(output);
+            new_history.commands.push(output);
+            new_history.outputs.push("".to_string());
             history.set(new_history);
         }
     };
@@ -50,7 +31,6 @@ pub fn terminal() -> Html {
     let onkeydown = {
         let input_ref = input_ref.clone();
         let history = history.clone();
-        let user = user.clone();
         
         Callback::from(move |e: KeyboardEvent| {
             if e.key() == "Enter" {
@@ -72,7 +52,7 @@ pub fn terminal() -> Html {
                             history.set(TerminalHistory::default());
                         } else {
                             // Handle other commands
-                            let output = handle_command(parts, &user, handle_output.clone());
+                            let output = handle_command(parts, handle_output.clone());
                             
                             // Update history with both command and output
                             let mut new_history = TerminalHistory {
@@ -120,9 +100,11 @@ pub fn terminal() -> Html {
                                     <span class="font-bold">{cmd}</span>
                                 </div>
                                 if let Some(output) = history.outputs.get(i) {
-                                    <div class="text-github-light-text dark:text-github-dark-text ml-4 opacity-90 font-light">
-                                        {output}
-                                    </div>
+                                    if !output.is_empty() {
+                                        <div class="text-github-light-text dark:text-github-dark-text ml-4 opacity-90 font-light">
+                                            {output}
+                                        </div>
+                                    }
                                 }
                             </div>
                         }
@@ -131,7 +113,7 @@ pub fn terminal() -> Html {
                 <div ref={scroll_ref}></div>
             </div>
             <div class="flex items-center text-github-light-text dark:text-github-dark-text border-t border-github-light-border dark:border-github-dark-border pt-4">
-                <span class="text-orange-500 mr-2 select-none">{"::"}</span>
+                <span class="text-green-500 mr-2 select-none">{"::"}</span>
                 <input
                     type="text"
                     ref={input_ref}
