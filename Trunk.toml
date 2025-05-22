@@ -1,0 +1,10 @@
+[build]
+target = "index.html"
+release = true
+dist = "docs"
+public_url = "/"
+minify = "on_release"
+
+[serve]
+port = 8080
+open = true

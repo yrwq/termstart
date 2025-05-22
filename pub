@@ -1,9 +1,0 @@
-#!/bin/sh
-
-#
-# publish frontend to github pages
-#
-
-trunk build --release --public-url "/termstart/"
-
-rm -rf docs && mkdir docs && cp -r dist/* docs

@@ -1,28 +1,10 @@
-<!DOCTYPE html>
-<html lang="en" class="scroll-smooth transition-colors duration-200 ease-in-out">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>
+<!doctype html><html class="scroll-smooth transition-colors duration-200 ease-in-out" lang=en><meta charset=utf-8><meta content="width=device-width,initial-scale=1" name=viewport><title>
     termstart
-  </title>
-  <meta name="description" content="terminal themed bookmark manager">
-  
-  <link rel="stylesheet" href="/termstart/style-e4e44af920f189e6.css" integrity="sha384-1MEHNqds0tySrWjFP5ZVjGRmlHHhxx4D96+dhP51ugt9oUJU4Iqrzc8lI4L3i3hn"/>
-<link rel="modulepreload" href="/termstart/termstart-7cfe68077ee810c2.js" crossorigin="anonymous" integrity="sha384-WcYs29zkL2pfdA1st7vyBR9tL+fyyj+7qHJokgiLTJRI4YwUIaDSCQuX6/GKk7X/"><link rel="preload" href="/termstart/termstart-7cfe68077ee810c2_bg.wasm" crossorigin="anonymous" integrity="sha384-MISsHwnfeqByBRwtGYqtf2dmiPTtCBojEzg7XW4uYfc0GXv5eS22AKoCqIR9dsTm" as="fetch" type="application/wasm"></head>
-<base data-trunk-public-url />
-<body class="transition-colors duration-200 ease-in-out bg-github-light-bg dark:bg-github-dark-bg">
-<script type="module">
-import init, * as bindings from '/termstart/termstart-7cfe68077ee810c2.js';
-const wasm = await init({ module_or_path: '/termstart/termstart-7cfe68077ee810c2_bg.wasm' });
+  </title><meta content="terminal themed bookmark manager" name=description><link href=/style-9d7a5423478da957.css integrity=sha384-0q/rOQW2CjWVexYDCBaSkZP0skcC3axXys3W/EggJLBDUrCZXPN29+Six5NNKqfB rel=stylesheet><link crossorigin href=/termstart-7cfe68077ee810c2.js integrity=sha384-0BDoOmuo8wqCKVkxh5k0PizsJSsskrLo3u6Ej5o87EydR+iMF6UZz5WHzOKQjyQn rel=modulepreload><link as=fetch crossorigin href=/termstart-7cfe68077ee810c2_bg.wasm integrity=sha384-MISsHwnfeqByBRwtGYqtf2dmiPTtCBojEzg7XW4uYfc0GXv5eS22AKoCqIR9dsTm rel=preload type=application/wasm></head><base data-trunk-public-url><body class="transition-colors duration-200 ease-in-out bg-github-light-bg dark:bg-github-dark-bg"><script type=module>import init, * as bindings from '/termstart-7cfe68077ee810c2.js';
+const wasm = await init({ module_or_path: '/termstart-7cfe68077ee810c2_bg.wasm' });
 
 
 window.wasmBindings = bindings;
 
 
-dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));
-
-</script></body>
-
-</html>
+dispatchEvent(new CustomEvent("TrunkApplicationStarted", {detail: {wasm}}));</script></body></html>

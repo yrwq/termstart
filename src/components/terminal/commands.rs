@@ -4,7 +4,7 @@ use gloo::net::http::Request;
 use gloo::storage::{LocalStorage, Storage};
 use serde_json::json;
 
-use crate::components::terminal::user::{User, STORAGE_KEY};
+use crate::components::terminal::{User, STORAGE_KEY};
 
 pub fn handle_command(
     parts: Vec<&str>,
