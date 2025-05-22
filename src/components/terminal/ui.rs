@@ -95,7 +95,7 @@ pub fn terminal() -> Html {
                         html! {
                             <div key={i} class="mb-2">
                                 <div class="flex items-start text-github-light-text dark:text-github-dark-text">
-                                    <span class="text-green-500 mr-2 select-none">{"$"}</span>
+                                    <span class="text-green-500 mr-2 select-none">{"::"}</span>
                                     <span class="font-bold">{cmd}</span>
                                 </div>
                                 if let Some(output) = history.outputs.get(i) {
@@ -110,7 +110,7 @@ pub fn terminal() -> Html {
                 <div ref={scroll_ref}></div>
             </div>
             <div class="flex items-center text-github-light-text dark:text-github-dark-text border-t border-github-light-border dark:border-github-dark-border pt-4">
-                <span class="text-green-500 mr-2 select-none">{"$"}</span>
+                <span class="text-green-500 mr-2 select-none">{"::"}</span>
                 <input
                     type="text"
                     ref={input_ref}
