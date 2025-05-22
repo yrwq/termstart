@@ -14,7 +14,7 @@ pub fn handle_command(
             let mut help_text = "Available commands:\n  help     - Show this help message\n  clear    - Clear the terminal\n  version  - Show version information\n".to_string();
             
             if !is_logged_in {
-                help_text.push_str("  login    - Login to your account\n");
+                help_text.push_str("  login    - Login to your account\n  register - Create a new account\n");
             } else {
                 help_text.push_str("  logout   - Logout from your account\n  whoami   - Show current user information\n");
             }
@@ -28,6 +28,39 @@ pub fn handle_command(
             match AuthService::get_current_user() {
                 Some(user) => format!("Logged in as: {}", user.email),
                 None => "Not logged in".to_string(),
+            }
+        },
+        Some(&"register") => {
+            if AuthService::get_current_user().is_some() {
+                "You are already logged in. Use 'logout' to sign out first.".to_string()
+            } else if parts.len() < 3 {
+                "Usage: register <email> <password>".to_string()
+            } else {
+                let email = parts[1].to_string();
+                let password = parts[2].to_string();
+                let handle_output = handle_output.clone();
+                let command = command.clone();
+                
+                let config = Config::load();
+                let auth_service = AuthService::new(
+                    config.supabase_url.clone(),
+                    config.supabase_key.clone(),
+                );
+                
+                spawn_local(async move {
+                    match auth_service.sign_up(&email, &password).await {
+                        Ok(user) => {
+                            handle_output(format!("{}", command));
+                            handle_output(format!("Successfully registered and logged in as: {}", user.email));
+                        }
+                        Err(e) => {
+                            handle_output(format!("{}", command));
+                            handle_output(format!("Registration failed: {}", e));
+                        }
+                    }
+                });
+                
+                "".to_string()
             }
         },
         Some(&"login") => {
