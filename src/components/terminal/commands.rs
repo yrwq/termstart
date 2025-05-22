@@ -1,7 +1,7 @@
 use wasm_bindgen_futures::spawn_local;
 use termstart::services::auth::AuthService;
 use termstart::config::Config;
-use web_sys::{window, Navigator, Location};
+use web_sys::window;
 
 pub fn handle_command(
     parts: Vec<&str>,
@@ -66,7 +66,7 @@ pub fn handle_command(
 
             // Format the output
             format!(
-                "\n{}:{} in {}\n{}\n\n\
+                "{}\n\
                 OS: {}\n\
                 Browser: {}\n\
                 Resolution: {}x{}\n\
@@ -77,9 +77,6 @@ pub fn handle_command(
                 } else {
                     "guest".to_string()
                 },
-                "termstart",
-                host,
-                "─".repeat(50),
                 os,
                 browser,
                 screen_width,
