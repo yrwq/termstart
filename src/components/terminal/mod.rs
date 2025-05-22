@@ -131,7 +131,7 @@ pub fn terminal() -> Html {
                 <div ref={scroll_ref}></div>
             </div>
             <div class="flex items-center text-github-light-text dark:text-github-dark-text border-t border-github-light-border dark:border-github-dark-border pt-4">
-                <span class="text-green-500 mr-2 select-none">{"::"}</span>
+                <span class="text-orange-500 mr-2 select-none">{"::"}</span>
                 <input
                     type="text"
                     ref={input_ref}
