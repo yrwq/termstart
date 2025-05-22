@@ -2,7 +2,7 @@
 target = "index.html"
 release = true
 dist = "docs"
-public_url = "/"
+public_url = "/termstart"
 minify = "on_release"
 
 [serve]
