@@ -16,14 +16,31 @@ pub fn terminal() -> Html {
     let input_ref = use_node_ref();
     let history = use_state(TerminalHistory::default);
 
+    // Focus effect when component mounts
+    {
+        let input_ref = input_ref.clone();
+        use_effect(move || {
+            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                input.focus().ok();
+            }
+            || ()
+        });
+    }
+
     // Callback to append output to terminal history
     let handle_output = {
         let history = history.clone();
+        let input_ref = input_ref.clone();
         move |output: String| {
             let mut new_history = (*history).clone();
             new_history.commands.push(output);
             new_history.outputs.push("".to_string());
             history.set(new_history);
+            
+            // Focus input after command execution
+            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                input.focus().ok();
+            }
         }
     };
 
@@ -50,6 +67,8 @@ pub fn terminal() -> Html {
                         if cmd == "clear" {
                             // Handle clear command directly
                             history.set(TerminalHistory::default());
+                            // Focus input after clear
+                            input.focus().ok();
                         } else {
                             // Handle other commands
                             let output = handle_command(parts, handle_output.clone());
@@ -62,6 +81,9 @@ pub fn terminal() -> Html {
                             new_history.commands.push(command);
                             new_history.outputs.push(output);
                             history.set(new_history);
+                            
+                            // Focus input after command
+                            input.focus().ok();
                         }
                     }
                 }
@@ -112,7 +134,7 @@ pub fn terminal() -> Html {
                 }
                 <div ref={scroll_ref}></div>
             </div>
-            <div class="flex items-center text-github-light-text dark:text-github-dark-text border-t border-github-light-border dark:border-github-dark-border pt-4">
+            <div class="flex items-center mt-2">
                 <span class="text-green-500 mr-2 select-none">{"::"}</span>
                 <input
                     type="text"
