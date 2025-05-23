@@ -164,11 +164,36 @@ impl AuthService {
         info!("Successfully parsed user data");
 
         let storage = window.local_storage().unwrap().unwrap();
-        storage
-            .set_item("supabase.auth.token", &serde_json::to_string(&user).unwrap())
+        let session = js_sys::Reflect::get(&user_data, &JsValue::from_str("session"))
             .map_err(|e| {
-                error!("Failed to store session: {:?}", e);
-                format!("Failed to store session: {:?}", e)
+                error!("Failed to get session: {:?}", e);
+                format!("Failed to get session: {:?}", e)
+            })?;
+
+        let access_token = js_sys::Reflect::get(&session, &JsValue::from_str("access_token"))
+            .map_err(|e| {
+                error!("Failed to get access token: {:?}", e);
+                format!("Failed to get access token: {:?}", e)
+            })?
+            .as_string()
+            .ok_or_else(|| {
+                error!("Access token is not a string");
+                "Access token is not a string".to_string()
+            })?;
+
+        // Store both the user object and the token
+        storage
+            .set_item("supabase.auth.user", &serde_json::to_string(&user).unwrap())
+            .map_err(|e| {
+                error!("Failed to store user: {:?}", e);
+                format!("Failed to store user: {:?}", e)
+            })?;
+
+        storage
+            .set_item("supabase.auth.token", &access_token)
+            .map_err(|e| {
+                error!("Failed to store token: {:?}", e);
+                format!("Failed to store token: {:?}", e)
             })?;
 
         info!("Successfully stored session");
@@ -310,11 +335,36 @@ impl AuthService {
         info!("Successfully parsed user data");
 
         let storage = window.local_storage().unwrap().unwrap();
-        storage
-            .set_item("supabase.auth.token", &serde_json::to_string(&user).unwrap())
+        let session = js_sys::Reflect::get(&user_data, &JsValue::from_str("session"))
             .map_err(|e| {
-                error!("Failed to store session: {:?}", e);
-                format!("Failed to store session: {:?}", e)
+                error!("Failed to get session: {:?}", e);
+                format!("Failed to get session: {:?}", e)
+            })?;
+
+        let access_token = js_sys::Reflect::get(&session, &JsValue::from_str("access_token"))
+            .map_err(|e| {
+                error!("Failed to get access token: {:?}", e);
+                format!("Failed to get access token: {:?}", e)
+            })?
+            .as_string()
+            .ok_or_else(|| {
+                error!("Access token is not a string");
+                "Access token is not a string".to_string()
+            })?;
+
+        // Store both the user object and the token
+        storage
+            .set_item("supabase.auth.user", &serde_json::to_string(&user).unwrap())
+            .map_err(|e| {
+                error!("Failed to store user: {:?}", e);
+                format!("Failed to store user: {:?}", e)
+            })?;
+
+        storage
+            .set_item("supabase.auth.token", &access_token)
+            .map_err(|e| {
+                error!("Failed to store token: {:?}", e);
+                format!("Failed to store token: {:?}", e)
             })?;
 
         info!("Successfully stored session");
@@ -393,8 +443,8 @@ impl AuthService {
         let window = web_sys::window().unwrap();
         let storage = window.local_storage().unwrap().unwrap();
         storage
-            .get_item("supabase.auth.token")
+            .get_item("supabase.auth.user")
             .unwrap()
-            .and_then(|token| serde_json::from_str(&token).ok())
+            .and_then(|user| serde_json::from_str(&user).ok())
     }
 } 
