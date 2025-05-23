@@ -18,7 +18,7 @@ pub fn handle_command(
             if !is_logged_in {
                 help_text.push_str("  login    - Login to your account\n  register - Create a new account\n");
             } else {
-                help_text.push_str("  logout   - Logout from your account\n  whoami   - Show current user information\n  ls       - List your bookmarks\n  cat      - Show bookmark URL (usage: cat <bookmark_name>)\n  touch    - Create a bookmark (usage: touch <name> <url> [tags])\n  open     - Open bookmark in new tab (usage: open <bookmark_name>)\n  rm       - Remove a bookmark (usage: rm <bookmark_name>)\n  tag      - Add/remove tags (usage: tag <bookmark_name> <add|remove> <tag1> [tag2...])\n  search   - Search bookmarks (usage: search <query>)\n");
+                help_text.push_str("  logout   - Logout from your account\n  whoami   - Show current user information\n  ls       - List your bookmarks\n  cat      - Show bookmark URL (usage: cat <bookmark_name>)\n  touch    - Create a bookmark (usage: touch <name> <url> [tags])\n  open     - Open bookmark in new tab (usage: open <bookmark_name>)\n  rm       - Remove a bookmark (usage: rm <bookmark_name>)\n  tag      - Add/remove tags (usage: tag <bookmark_name> <add|remove> <tag1> [tag2...])\n  search   - Search bookmarks (usage: search <query>)\n  tree     - Show a hierarchical view of bookmarks organized by tags\n");
             }
             
             help_text       
@@ -540,6 +540,84 @@ pub fn handle_command(
                         }
                         Err(e) => {
                             handle_output(format!("{}\nFailed to search bookmarks: {}", command, e));
+                        }
+                    }
+                });
+                
+                "".to_string()
+            }
+        },
+        Some(&"tree") => {
+            if AuthService::get_current_user().is_none() {
+                "You must be logged in to use this command.".to_string()
+            } else {
+                let handle_output = handle_output.clone();
+                let command = command.clone();
+                
+                let config = Config::load();
+                let bookmark_service = BookmarkService::new(
+                    config.supabase_url.clone(),
+                    config.supabase_key.clone(),
+                );
+                
+                spawn_local(async move {
+                    match bookmark_service.get_bookmarks(None).await {
+                        Ok(bookmarks) => {
+                            if bookmarks.is_empty() {
+                                handle_output(format!("{}\nNo bookmarks found.", command));
+                            } else {
+                                let mut output = String::new();
+                                
+                                // Group bookmarks by tags
+                                let mut tag_groups: std::collections::HashMap<String, Vec<&termstart::services::bookmark::Bookmark>> = std::collections::HashMap::new();
+                                let mut untagged_bookmarks = Vec::new();
+                                
+                                for bookmark in &bookmarks {
+                                    if bookmark.tags.is_empty() {
+                                        untagged_bookmarks.push(bookmark);
+                                    } else {
+                                        for tag in &bookmark.tags {
+                                            tag_groups.entry(tag.clone())
+                                                .or_insert_with(Vec::new)
+                                                .push(bookmark);
+                                        }
+                                    }
+                                }
+                                
+                                // Sort tags alphabetically
+                                let mut sorted_tags: Vec<_> = tag_groups.keys().cloned().collect();
+                                sorted_tags.sort();
+                                
+                                // Build tree structure
+                                output.push_str(".\n");
+                                
+                                // Add untagged bookmarks at root level
+                                if !untagged_bookmarks.is_empty() {
+                                    for bookmark in untagged_bookmarks {
+                                        output.push_str(&format!("├── {}\n", bookmark.name));
+                                    }
+                                }
+                                
+                                // Add tagged bookmarks under their tags
+                                for (i, tag) in sorted_tags.iter().enumerate() {
+                                    let is_last = i == sorted_tags.len() - 1;
+                                    let prefix = if is_last { "└── " } else { "├── " };
+                                    output.push_str(&format!("{} {}/\n", prefix, tag));
+                                    
+                                    let bookmarks = &tag_groups[tag];
+                                    for (j, bookmark) in bookmarks.iter().enumerate() {
+                                        let is_last_bookmark = j == bookmarks.len() - 1;
+                                        let sub_prefix = if is_last { "    " } else { "│   " };
+                                        let bookmark_prefix = if is_last_bookmark { "└── " } else { "├── " };
+                                        output.push_str(&format!("{}{}{}\n", sub_prefix, bookmark_prefix, bookmark.name));
+                                    }
+                                }
+                                
+                                handle_output(format!("{}\n{}", command, output));
+                            }
+                        }
+                        Err(e) => {
+                            handle_output(format!("{}\nFailed to list bookmarks: {}", command, e));
                         }
                     }
                 });

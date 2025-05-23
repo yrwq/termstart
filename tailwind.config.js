@@ -21,7 +21,11 @@ module.exports = {
                     border: '#d0d7de',
                     button: '#f6f8fa',
                     'button-hover': '#f3f4f6'
-                }
+                },
+                'gradient-light-start': '#ffcc99',
+                'gradient-light-end': '#abcdef',
+                'gradient-dark-start': '#80604d',
+                'gradient-dark-end': '#40506f',
             },
             animation: {
                 "fadein": "fadein 0.1s linear",
@@ -41,7 +45,7 @@ module.exports = {
                 'colors': 'color, background-color, border-color, text-decoration-color, fill, stroke',
             },
             transitionDuration: {
-                'default': '200ms',
+                'default': '700ms',
             },
             transitionTimingFunction: {
                 'default': 'ease-in-out',

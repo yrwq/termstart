@@ -4,7 +4,7 @@
 
 @layer utilities {
     .animate-blink {
-        animation: blink 1s step-end infinite;
+        animation: blink 2s step-end infinite;
     }
 }
 
@@ -39,12 +39,48 @@
     @apply bg-github-light-button-hover dark:bg-github-dark-button-hover;
 }
 
-html {
-    @apply m-0 min-h-screen bg-gradient-to-br from-github-light-bg to-github-light-button dark:from-github-dark-bg dark:to-github-dark-button transition-colors duration-default ease-default;
+:root {
+    --gradient-light-start: #ffcc99;
+    --gradient-light-end: #abcdef;
+    --gradient-dark-start: #80604d;
+    --gradient-dark-end: #40506f;
+    --gradient-start: var(--gradient-light-start);
+    --gradient-end: var(--gradient-light-end);
+}
+
+:root.dark {
+    --gradient-start: var(--gradient-dark-start);
+    --gradient-end: var(--gradient-dark-end);
+}
+
+html,
+main {
+    @apply m-0 min-h-screen;
 }
 
 body {
-    @apply m-0 min-h-screen bg-gradient-to-br from-github-light-bg to-github-light-button dark:from-github-dark-bg dark:to-github-dark-button transition-colors duration-default ease-default;
+    @apply m-0 min-h-screen;
+    position: relative;
+    /* Light theme gradient as base */
+    background-image: linear-gradient(to bottom right, var(--gradient-light-start), var(--gradient-light-end));
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    /* Dark theme gradient */
+    background-image: linear-gradient(to bottom right, var(--gradient-dark-start), var(--gradient-dark-end));
+    opacity: 0; /* Initially hidden */
+    transition: opacity 0.5s ease-in-out; /* Transition opacity */
+    z-index: -1; /* Ensure it's behind content */
+}
+
+:root.dark body::before {
+    opacity: 1; /* Fully visible in dark mode */
 }
 
 @layer base {
