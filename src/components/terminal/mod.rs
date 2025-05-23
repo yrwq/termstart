@@ -1,25 +1,26 @@
 pub mod commands;
 
 use yew::prelude::*;
-use web_sys::HtmlInputElement;
+use web_sys::{HtmlInputElement, KeyboardEvent, InputEvent};
 use std::collections::VecDeque;
 
 use crate::components::terminal::commands::handle_command;
 
 #[derive(Default, Clone, PartialEq)]
 pub struct TerminalHistory {
-    pub commands: Vec<String>,
+    pub lines: Vec<String>,
     pub outputs: Vec<String>,
 }
 
 #[function_component(Terminal)]
 pub fn terminal() -> Html {
     let input_ref = use_node_ref();
-    let history = use_state(TerminalHistory::default);
-    let command_history = use_state(VecDeque::<String>::new);
-    let history_index = use_state(|| -1);
-    let current_input = use_state(String::new);
+    let completed_lines = use_state(|| Vec::<String>::new());
+    let outputs = use_state(|| Vec::<String>::new());
+    let current_line = use_state(|| "~ > ".to_string()); // Restore root prompt
+    let history_nav_index = use_state(|| -1);
     let is_dark = use_state(|| false);
+    let current_tag = use_state(|| None::<String>);
 
     // Focus effect when component mounts
     {
@@ -46,154 +47,234 @@ pub fn terminal() -> Html {
         }
     });
 
-    // Callback to append output to terminal history
+    // Callback to append output to history
     let handle_output = {
-        let history = history.clone();
-        let input_ref = input_ref.clone();
-        let command_history = command_history.clone();
-        let history_index = history_index.clone();
-        let current_input = current_input.clone();
+        let outputs = outputs.clone();
         move |output: String| {
-            let mut new_history = (*history).clone();
-            new_history.commands.push(output.clone());
-            new_history.outputs.push("".to_string());
-            history.set(new_history);
-            
-            // Add command to history
-            let mut new_command_history = (*command_history).clone();
-            new_command_history.push_front(output);
-            if new_command_history.len() > 100 {
-                new_command_history.pop_back();
-            }
-            command_history.set(new_command_history);
-            history_index.set(-1);
-            current_input.set(String::new());
-            
-            // Focus input after command execution
-            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
-                input.focus().ok();
-            }
+            let mut current_outputs = (*outputs).clone();
+            current_outputs.push(output);
+            outputs.set(current_outputs);
         }
     };
 
     // Handle command input
     let onkeydown = {
         let input_ref = input_ref.clone();
-        let history = history.clone();
-        let command_history = command_history.clone();
-        let history_index = history_index.clone();
-        let current_input = current_input.clone();
+        let completed_lines = completed_lines.clone();
+        let outputs = outputs.clone();
+        let current_line = current_line.clone();
+        let history_nav_index = history_nav_index.clone();
         let is_dark = is_dark.clone();
-        
+        let current_tag = current_tag.clone();
+
         Callback::from(move |e: KeyboardEvent| {
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
-                match e.key().as_str() {
+                let key = e.key();
+
+                match key.as_str() {
                     "Enter" => {
                         e.prevent_default();
-                        let command = input.value().trim().to_string();
-                        
-                        // Clear input immediately
-                        input.set_value("");
-                        current_input.set(String::new());
-                        
+                        let command_line = (*current_line).clone();
+                        let command = command_line.strip_prefix(&format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() }))
+                                                .unwrap_or(&command_line).trim().to_string();
+
                         if !command.is_empty() {
-                            // Process command first to get output
+                            // Add command line to completed history
+                            let mut new_completed_lines = (*completed_lines).clone();
+                            new_completed_lines.push(command_line);
+                            completed_lines.set(new_completed_lines);
+
+                            // Process command
                             let parts: Vec<&str> = command.split_whitespace().collect();
-                            let cmd = parts.get(0).map(|s| *s).unwrap_or("");
-                            
-                            if cmd == "clear" {
-                                // Handle clear command directly
-                                history.set(TerminalHistory::default());
-                                // Focus input after clear
-                                input.focus().ok();
-                            } else if cmd == "theme" {
-                                // Handle theme toggle
-                                is_dark.set(!*is_dark);
-                                let output = if *is_dark { "Switched to dark theme" } else { "Switched to light theme" }.to_string();
-                                
-                                // Update history with both command and output
-                                let mut new_history = TerminalHistory {
-                                    commands: history.commands.clone(),
-                                    outputs: history.outputs.clone(),
-                                };
-                                new_history.commands.push(command);
-                                new_history.outputs.push(output);
-                                history.set(new_history);
-                                
-                                // Focus input after command
-                                input.focus().ok();
-                            } else {
-                                // Handle other commands
-                                let output = handle_command(parts, handle_output.clone());
-                                
-                                // Update history with both command and output
-                                let mut new_history = TerminalHistory {
-                                    commands: history.commands.clone(),
-                                    outputs: history.outputs.clone(),
-                                };
-                                new_history.commands.push(command);
-                                new_history.outputs.push(output);
-                                history.set(new_history);
-                                
-                                // Focus input after command
-                                input.focus().ok();
+                            let cmd_name = parts.get(0).map(|s| *s).unwrap_or("");
+
+                            // Handle internal commands (clear, theme, cd)
+                            match cmd_name {
+                                "clear" => {
+                                    completed_lines.set(Vec::new());
+                                    outputs.set(Vec::new());
+                                    // Add empty output for clear command's position in output history
+                                    let mut current_outputs = (*outputs).clone();
+                                    current_outputs.push("".to_string());
+                                    outputs.set(current_outputs);
+                                },
+                                "theme" => {
+                                    is_dark.set(!*is_dark);
+                                    let output = if *is_dark { "Switched to dark theme" } else { "Switched to light theme" }.to_string();
+                                     // Add output for theme command
+                                    let mut current_outputs = (*outputs).clone();
+                                    current_outputs.push(output);
+                                    outputs.set(current_outputs);
+                                },
+                                "cd" => {
+                                    let args: Vec<&str> = parts.get(1..).unwrap_or(&[]).to_vec();
+                                    let output = if args.is_empty() {
+                                        // cd to root
+                                        current_tag.set(None);
+                                        "cd to /".to_string()
+                                    } else if args.len() == 1 {
+                                        let tag = args[0].to_string();
+                                        // In a real scenario, you might want to validate if the tag exists
+                                        current_tag.set(Some(tag.clone()));
+                                        format!("cd to tag '{}'", tag)
+                                    } else {
+                                        "Usage: cd <tag_name> or cd".to_string()
+                                    };
+                                    // Add output for cd command
+                                    let mut current_outputs = (*outputs).clone();
+                                    current_outputs.push(output);
+                                    outputs.set(current_outputs);
+                                },
+                                _ => {
+                                    // Handle other commands using handle_command
+                                    // Pass the current tag for 'ls' command if applicable
+                                    let command_parts_for_handler: Vec<String> = {
+                                        let mut owned_parts: Vec<String> = parts.iter().map(|&s| s.to_string()).collect();
+                                        if cmd_name == "ls" {
+                                             if let Some(tag) = (*current_tag).clone() {
+                                                // If ls is used in a tagged directory, add the tag as an argument
+                                                if owned_parts.len() == 1 {
+                                                    owned_parts.push(tag);
+                                                } else if owned_parts.len() > 1 && !owned_parts[1].starts_with("-") {
+                                                    // Only insert if there isn't already an argument that looks like an option
+                                                    owned_parts.insert(1, tag);
+                                                } else if owned_parts.len() > 1 && owned_parts[1].starts_with("-") {
+                                                    // If there's an option, try to insert after it
+                                                     if owned_parts.len() > 2 {
+                                                        owned_parts.insert(2, tag);
+                                                    } else {
+                                                        owned_parts.push(tag);
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        owned_parts
+                                    };
+
+                                    let command_parts_str_refs: Vec<&str> = command_parts_for_handler.iter().map(|s| s.as_str()).collect();
+
+                                    // handle_command uses handle_output internally, so its output will be added to the outputs state
+                                    handle_command(command_parts_str_refs, handle_output.clone());
+                                }
                             }
                         }
+
+                        // Reset current line with new prompt and clear input field
+                        let new_prompt = format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() });
+                        current_line.set(new_prompt);
+                        input.set_value(&*current_line);
+                        history_nav_index.set(-1); // Reset history navigation
+                        // Focus input after command execution
+                        input.focus().ok();
+
                     },
-                    "ArrowUp" => {
+                     // Handle history navigation
+                     "ArrowUp" => {
                         e.prevent_default();
-                        let mut new_index = *history_index;
-                        if new_index < (command_history.len() as i32 - 1) {
-                            new_index += 1;
-                            if let Some(cmd) = command_history.get(new_index as usize) {
-                                input.set_value(cmd);
-                                current_input.set(cmd.clone());
+                        let history_len = completed_lines.len();
+                        if history_len > 0 {
+                            let mut new_index = *history_nav_index;
+                            if new_index < (history_len as i32 - 1) {
+                                new_index += 1;
+                                history_nav_index.set(new_index);
+                                // Load command from history into current line
+                                if let Some(historical_line) = completed_lines.get((history_len as i32 - 1 - new_index) as usize) {
+                                     current_line.set(historical_line.clone());
+                                     input.set_value(historical_line);
+                                }
                             }
-                        }
-                        history_index.set(new_index);
+                         }
                     },
                     "ArrowDown" => {
                         e.prevent_default();
-                        let mut new_index = *history_index;
-                        if new_index > 0 {
-                            new_index -= 1;
-                            if let Some(cmd) = command_history.get(new_index as usize) {
-                                input.set_value(cmd);
-                                current_input.set(cmd.clone());
-                            } else {
-                                input.set_value("");
-                                current_input.set(String::new());
-                            }
-                        } else if new_index == 0 {
-                            input.set_value("");
-                            current_input.set(String::new());
-                            new_index = -1;
+                        let history_len = completed_lines.len();
+                        if history_len > 0 {
+                            let mut new_index = *history_nav_index;
+                            if new_index > 0 {
+                                new_index -= 1;
+                                history_nav_index.set(new_index);
+                                // Load command from history or clear input
+                                if let Some(historical_line) = completed_lines.get((history_len as i32 - 1 - new_index) as usize) {
+                                    current_line.set(historical_line.clone());
+                                    input.set_value(historical_line);
+                                } else { // Should not happen if new_index > 0, but as a safeguard
+                                    let new_prompt = format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() });
+                                    current_line.set(new_prompt.clone());
+                                    input.set_value(&new_prompt);
+                                }
+                             } else { // Already at the newest entry (or no history navigation yet)
+                                // Clear input field and reset current line to just the prompt
+                                let new_prompt = format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() });
+                                current_line.set(new_prompt.clone());
+                                input.set_value(&new_prompt);
+                                history_nav_index.set(-1);
+                             }
                         }
-                        history_index.set(new_index);
                     },
-                    _ => {}
+                    // Handle cursor movement and deletion within current line
+                    "ArrowLeft" | "ArrowRight" | "Backspace" | "Delete" | "Home" | "End" => {
+                        // Allow default browser behavior for now, oninput will sync state
+                         // TODO: Implement custom handling for more precise control if needed
+                    }
+                    _ => {
+                        // For other key presses, allow default browser behavior.
+                        // The oninput handler will keep current_line state in sync.
+                    }
                 }
             }
         })
     };
 
-    // Handle input changes
+    // Handle input changes - keep current_line state in sync with input field
     let oninput = {
-        let current_input = current_input.clone();
+        let current_line = current_line.clone();
+        let current_tag = current_tag.clone();
         Callback::from(move |e: InputEvent| {
             if let Some(input) = e.target_dyn_into::<HtmlInputElement>() {
-                current_input.set(input.value());
+                let value = input.value();
+                let prompt = if let Some(tag) = &*current_tag { 
+                    format!("/{}/ > ", tag)
+                } else { 
+                    "~ > ".to_string() 
+                };
+                
+                // Ensure the prompt is always present and can't be deleted
+                if !value.starts_with(&prompt) {
+                    input.set_value(&prompt);
+                    current_line.set(prompt);
+                } else {
+                    current_line.set(value);
+                }
             }
         })
     };
 
-    // Auto-scroll to bottom
+    // Add effect to update prompt when tag changes
+    {
+        let current_tag = current_tag.clone();
+        let current_line = current_line.clone();
+        let input_ref = input_ref.clone();
+        use_effect_with(current_tag, move |tag| {
+            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                let new_prompt = if let Some(tag) = &**tag {
+                    format!("/{}/ > ", tag)
+                } else {
+                    "~ > ".to_string()
+                };
+                current_line.set(new_prompt.clone());
+                input.set_value(&new_prompt);
+            }
+            || ()
+        });
+    }
+
+    // Auto-scroll to bottom effect
     let scroll_ref = use_node_ref();
     {
-        let history = history.clone();
+        let outputs = outputs.clone();
         let scroll_ref = scroll_ref.clone();
         use_effect_with(
-            history,
+            outputs,
             move |_| {
                 if let Some(node) = scroll_ref.cast::<web_sys::HtmlElement>() {
                     node.scroll_into_view();
@@ -216,32 +297,32 @@ pub fn terminal() -> Html {
                 </div>
                 <div class="overflow-y-auto h-[600px] whitespace-pre-wrap bg-github-light-bg dark:bg-github-dark-bg rounded p-4">
                     <div class="mb-4 text-github-light-text dark:text-github-dark-text opacity-70">
-                        {"Welcome to termstart v0.1.0\nType 'help' for available commands.\n"}
+                        {"Type 'help' for available commands.\n"}
                     </div>
                     {
-                        history.commands.iter().enumerate().map(|(i, cmd)| {
-                            html! {
-                                <div key={i} class="mb-2">
-                                    <div class="flex items-start group">
-                                        <span class="text-github-light-text dark:text-github-dark-text mr-2 select-none opacity-80 terminal-prompt">{"$"}</span>
-                                        <span class="text-github-light-text dark:text-github-dark-text">{cmd}</span>
-                                    </div>
-                                    if let Some(output) = history.outputs.get(i) {
-                                        if !output.is_empty() {
-                                            <div class="ml-4 opacity-90 font-light text-github-light-text dark:text-github-dark-text terminal-output">
-                                                {output}
-                                            </div>
-                                        }
-                                    }
-                                </div>
-                            }
+                        completed_lines.iter().enumerate().map(|(i, line)| {
+                             let key = format!("history-{}", i);
+                             html! {
+                                 <div key={key} class="mb-2">
+                                     <div class="flex items-start group">
+                                         <span class="text-github-light-text dark:text-github-dark-text mr-2 select-none opacity-80 terminal-prompt">{ &line }</span>
+                                     </div>
+                                     if let Some(output) = outputs.get(i) {
+                                         if !output.is_empty() || line.contains("cd") || line.contains("theme") || line.contains("clear") { // Always show output space for certain commands
+                                             <div class="ml-4 opacity-90 font-light text-github-light-text dark:text-github-dark-text terminal-output">
+                                                 { output }
+                                             </div>
+                                         }
+                                     }
+                                 </div>
+                             }
                         }).collect::<Html>()
                     }
                     <div class="flex items-start group">
-                        <span class="text-github-light-text dark:text-github-dark-text mr-2 select-none opacity-80 terminal-prompt">{"$"}</span>
                         <input
                             type="text"
                             ref={input_ref}
+                            value={(*current_line).clone()}
                             {onkeydown}
                             {oninput}
                             autofocus=true
@@ -249,8 +330,7 @@ pub fn terminal() -> Html {
                             placeholder=" "
                             spellcheck="false"
                             autocomplete="off"
-                            value={(*current_input).clone()}
-                        />
+                         />
                     </div>
                     <div ref={scroll_ref}></div>
                 </div>
