@@ -2,12 +2,53 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer utilities {
+    .animate-blink {
+        animation: blink 1s step-end infinite;
+    }
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Terminal specific styles */
+.terminal-input {
+    @apply caret-github-light-text dark:caret-github-dark-text;
+}
+
+.terminal-input:focus {
+    @apply outline-none shadow-none;
+}
+
+.terminal-output {
+    @apply transition-colors duration-default ease-default;
+}
+
+.terminal-prompt {
+    @apply text-github-light-text dark:text-github-dark-text;
+}
+
+/* Scrollbar styling */
+.overflow-y-auto {
+    @apply scrollbar scrollbar-w-2 scrollbar-track-github-light-bg dark:scrollbar-track-github-dark-bg scrollbar-thumb-github-light-border dark:scrollbar-thumb-github-dark-border;
+}
+
+.overflow-y-auto::-webkit-scrollbar-thumb:hover {
+    @apply bg-github-light-button-hover dark:bg-github-dark-button-hover;
+}
+
 html {
-  margin: 0;
+    @apply m-0 min-h-screen bg-gradient-to-br from-github-light-bg to-github-light-button dark:from-github-dark-bg dark:to-github-dark-button transition-colors duration-default ease-default;
+}
+
+body {
+    @apply m-0 min-h-screen bg-gradient-to-br from-github-light-bg to-github-light-button dark:from-github-dark-bg dark:to-github-dark-button transition-colors duration-default ease-default;
 }
 
 @layer base {
-  html {
-  }
-
+    html {
+        @apply text-github-light-text dark:text-github-dark-text;
+    }
 }

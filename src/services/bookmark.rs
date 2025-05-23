@@ -1,8 +1,8 @@
 use serde::{Deserialize, Serialize};
-use log::{info, debug, error};
-use crate::services::auth::{AuthService, User};
+use log::{info};
+use crate::services::auth::{AuthService};
 use supabase_rs::SupabaseClient;
-use serde_json::{json, Value};
+use serde_json::{json};
 use gloo_net::http::Request;
 use crate::config::Config;
 use url::Url;

@@ -1,6 +1,6 @@
 use wasm_bindgen_futures::spawn_local;
 use termstart::services::auth::AuthService;
-use termstart::services::bookmark::{BookmarkService, BookmarkError};
+use termstart::services::bookmark::{BookmarkService};
 use termstart::config::Config;
 use web_sys::window;
 
@@ -204,6 +204,7 @@ pub fn handle_command(
             } else {
                 let handle_output = handle_output.clone();
                 let command = command.clone();
+                let tag_filter = parts.get(1).map(|&s| s.to_string());
                 
                 let config = Config::load();
                 let bookmark_service = BookmarkService::new(
@@ -218,15 +219,63 @@ pub fn handle_command(
                                 handle_output(format!("{}\nNo bookmarks found.", command));
                             } else {
                                 let mut output = String::new();
-                                for bookmark in bookmarks {
-                                    let tags = if bookmark.tags.is_empty() {
-                                        String::new()
+                                
+                                if let Some(tag) = tag_filter {
+                                    // Show bookmarks in the specified tag
+                                    let filtered_bookmarks: Vec<_> = bookmarks.iter()
+                                        .filter(|b| b.tags.contains(&tag))
+                                        .collect();
+                                    
+                                    if filtered_bookmarks.is_empty() {
+                                        handle_output(format!("{}\nNo bookmarks found in tag '{}'", command, tag));
                                     } else {
-                                        format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                                    };
-                                    output.push_str(&format!("{}{}\n", bookmark.name, tags));
+                                        output.push_str(&format!("Bookmarks in tag '{}':\n", tag));
+                                        for bookmark in filtered_bookmarks {
+                                            let tags = if bookmark.tags.is_empty() {
+                                                String::new()
+                                            } else {
+                                                format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                                            };
+                                            output.push_str(&format!("{}{}\n", bookmark.name, tags));
+                                        }
+                                        handle_output(format!("{}\n{}", command, output));
+                                    }
+                                } else {
+                                    // Show all tags as folders and bookmarks without tags
+                                    let mut tags: std::collections::HashSet<String> = std::collections::HashSet::new();
+                                    let mut untagged_bookmarks = Vec::new();
+                                    
+                                    for bookmark in &bookmarks {
+                                        if bookmark.tags.is_empty() {
+                                            untagged_bookmarks.push(bookmark);
+                                        } else {
+                                            tags.extend(bookmark.tags.iter().cloned());
+                                        }
+                                    }
+                                    
+                                    // Sort tags alphabetically
+                                    let mut sorted_tags: Vec<_> = tags.into_iter().collect();
+                                    sorted_tags.sort();
+                                    
+                                    // Display tags as folders
+                                    if !sorted_tags.is_empty() {
+                                        output.push_str("Tags:\n");
+                                        for tag in sorted_tags {
+                                            output.push_str(&format!("  {}/\n", tag));
+                                        }
+                                        output.push_str("\n");
+                                    }
+                                    
+                                    // Display untagged bookmarks
+                                    if !untagged_bookmarks.is_empty() {
+                                        output.push_str("Untagged bookmarks:\n");
+                                        for bookmark in untagged_bookmarks {
+                                            output.push_str(&format!("  {}\n", bookmark.name));
+                                        }
+                                    }
+                                    
+                                    handle_output(format!("{}\n{}", command, output));
                                 }
-                                handle_output(format!("{}\n{}", command, output));
                             }
                         }
                         Err(e) => {
