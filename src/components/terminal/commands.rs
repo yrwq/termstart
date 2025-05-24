@@ -1,17 +1,46 @@
-use wasm_bindgen_futures::spawn_local;
 use termstart::services::auth::AuthService;
 use termstart::services::bookmark::{BookmarkService};
 use termstart::config::Config;
 use web_sys::window;
+use futures::Future;
 
 pub fn handle_command(
     parts: Vec<&str>,
-    handle_output: impl Fn(String) + 'static + Clone,
-) -> String {
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     let command = parts.join(" ");
     
+    let parts_owned: Vec<String> = parts.iter().map(|s| s.to_string()).collect();
+    let command_owned = command.clone();
+
     match parts.get(0) {
-        Some(&"help") => {
+        Some(&"help") => Box::pin(async move { Ok(handle_sync_command(parts_owned.iter().map(|s| s.to_string()).collect(), &command_owned)) }),
+        Some(&"fetch") => Box::pin(async move { Ok(handle_sync_command(parts_owned.iter().map(|s| s.to_string()).collect(), &command_owned)) }),
+        Some(&"theme") => Box::pin(async move { Ok(handle_sync_command(parts_owned.iter().map(|s| s.to_string()).collect(), &command_owned)) }),
+        Some(&"version") => Box::pin(async move { Ok(handle_sync_command(parts_owned.iter().map(|s| s.to_string()).collect(), &command_owned)) }),
+        Some(&"whoami") => Box::pin(async move { Ok(handle_sync_command(parts_owned.iter().map(|s| s.to_string()).collect(), &command_owned)) }),
+        Some(&"clear") => Box::pin(async move { Ok("".to_string()) }),
+        Some(&"cd") => Box::pin(async move { Ok("".to_string()) }),
+        Some(&"register") => Box::pin(handle_async_register(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"login") => Box::pin(handle_async_login(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"logout") => Box::pin(handle_async_logout(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"ls") => Box::pin(handle_async_ls(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"cat") => Box::pin(handle_async_cat(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"touch") => Box::pin(handle_async_touch(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"open") => Box::pin(handle_async_open(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"rm") => Box::pin(handle_async_rm(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"tag") => Box::pin(handle_async_tag(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"search") => Box::pin(handle_async_search(parts.into_iter().map(|s| s.to_string()).collect(), command)),
+        Some(&"tree") => Box::pin(handle_async_tree(parts_owned, "".to_string())),
+        Some(_) | None => Box::pin(async move { Ok("Unknown command. Type 'help' for available commands.".to_string()) }),
+    }
+}
+
+fn handle_sync_command(
+    parts: Vec<String>,
+    _command_line: &str,
+) -> String {
+    match parts.get(0).map(|s| s.as_str()) {
+        Some("help") => {
             let is_logged_in = AuthService::get_current_user().is_some();
             let mut help_text = "Available commands:\n  help     - Show this help message\n  clear    - Clear the terminal\n  version  - Show version information\n  theme    - Toggle between light and dark theme\n  fetch    - Display system information\n".to_string();
             
@@ -23,12 +52,11 @@ pub fn handle_command(
             
             help_text       
         },
-        Some(&"fetch") => {
+        Some("fetch") => {
             let window = window().unwrap();
             let navigator = window.navigator();
             let user_agent = navigator.user_agent().unwrap_or_default();
             
-            // Get browser info
             let browser = if user_agent.contains("Firefox") {
                 "Firefox"
             } else if user_agent.contains("Chrome") {
@@ -39,7 +67,6 @@ pub fn handle_command(
                 "Unknown Browser"
             };
 
-            // Get OS info
             let os = if user_agent.contains("Mac") {
                 "macOS"
             } else if user_agent.contains("Windows") {
@@ -50,17 +77,14 @@ pub fn handle_command(
                 "Unknown OS"
             };
 
-            // Get screen resolution
             let screen_width = window.inner_width().unwrap().as_f64().unwrap_or(0.0) as i32;
             let screen_height = window.inner_height().unwrap().as_f64().unwrap_or(0.0) as i32;
 
-            // Get color scheme
             let is_dark = window.document().unwrap()
                 .document_element().unwrap()
                 .class_list().contains("dark");
             let theme = if is_dark { "Dark" } else { "Light" };
 
-            // Format the output
             format!(
                 "{}\n\
                 OS: {}\n\
@@ -81,7 +105,7 @@ pub fn handle_command(
                 browser
             )
         },
-        Some(&"theme") => {
+        Some("theme") => {
             let window = window().unwrap();
             let document = window.document().unwrap();
             let html = document.document_element().unwrap();
@@ -94,539 +118,499 @@ pub fn handle_command(
                 "Switched to dark theme".to_string()
             }
         },
-        Some(&"version") => {
+        Some("version") => {
             "termstart v0.1.0".to_string()
         },
-        Some(&"whoami") => {
+        Some("whoami") => {
             match AuthService::get_current_user() {
                 Some(user) => format!("Logged in as: {}", user.email),
                 None => "Not logged in".to_string(),
             }
         },
-        Some(&"register") => {
-            if AuthService::get_current_user().is_some() {
-                "You are already logged in. Use 'logout' to sign out first.".to_string()
-            } else if parts.len() < 3 {
-                "Usage: register <email> <password>".to_string()
-            } else {
-                let email = parts[1].to_string();
-                let password = parts[2].to_string();
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let auth_service = AuthService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match auth_service.sign_up(&email, &password).await {
-                        Ok(user) => {
-                            handle_output(format!("{}", command));
-                            handle_output(format!("Successfully registered and logged in as: {}", user.email));
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}", command));
-                            handle_output(format!("Registration failed: {}", e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"login") => {
-            if AuthService::get_current_user().is_some() {
-                "You are already logged in. Use 'logout' to sign out first.".to_string()
-            } else if parts.len() < 3 {
-                "Usage: login <email> <password>".to_string()
-            } else {
-                let email = parts[1].to_string();
-                let password = parts[2].to_string();
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let auth_service = AuthService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match auth_service.sign_in(&email, &password).await {
-                        Ok(user) => {
-                            handle_output(format!("{}", command));
-                            handle_output(format!("Successfully logged in as: {}", user.email));
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}", command));
-                            handle_output(format!("Login failed: {}", e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"logout") => {
-            if AuthService::get_current_user().is_none() {
-                "You are not logged in.".to_string()
-            } else {
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let auth_service = AuthService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match auth_service.sign_out().await {
-                        Ok(_) => {
-                            handle_output(format!("{}", command));
-                            handle_output("Successfully logged out".to_string());
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}", command));
-                            handle_output(format!("Logout failed: {}", e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"ls") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else {
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                let tag_filter = parts.get(1).map(|&s| s.to_string());
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match bookmark_service.get_bookmarks(None).await {
-                        Ok(bookmarks) => {
-                            if bookmarks.is_empty() {
-                                handle_output(format!("{}\nNo bookmarks found.", command));
-                            } else {
-                                let mut output = String::new();
-                                
-                                if let Some(tag) = tag_filter {
-                                    // Show bookmarks in the specified tag
-                                    let filtered_bookmarks: Vec<_> = bookmarks.iter()
-                                        .filter(|b| b.tags.contains(&tag))
-                                        .collect();
-                                    
-                                    if filtered_bookmarks.is_empty() {
-                                        handle_output(format!("{}\nNo bookmarks found in tag '{}'", command, tag));
-                                    } else {
-                                        for bookmark in filtered_bookmarks {
-                                            let tags = if bookmark.tags.is_empty() {
-                                                String::new()
-                                            } else {
-                                                format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                                            };
-                                            output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name, tags));
-                                        }
-                                        handle_output(output);
-                                    }
-                                } else {
-                                    // Show all tags as folders and bookmarks without tags
-                                    let mut tags: std::collections::HashSet<String> = std::collections::HashSet::new();
-                                    let mut untagged_bookmarks = Vec::new();
-                                    
-                                    for bookmark in &bookmarks {
-                                        if bookmark.tags.is_empty() {
-                                            untagged_bookmarks.push(bookmark);
-                                        } else {
-                                            tags.extend(bookmark.tags.iter().cloned());
-                                        }
-                                    }
-                                    
-                                    // Sort tags alphabetically
-                                    let mut sorted_tags: Vec<_> = tags.into_iter().collect();
-                                    sorted_tags.sort();
-                                    
-                                    // Display tags as folders
-                                    if !sorted_tags.is_empty() {
-                                        for tag in sorted_tags {
-                                            output.push_str(&format!("TAG_ITEM:{}\n", tag));
-                                        }
-                                    }
-                                    
-                                    // Display untagged bookmarks
-                                    if !untagged_bookmarks.is_empty() {
-                                        for bookmark in untagged_bookmarks {
-                                            let tags = if bookmark.tags.is_empty() {
-                                                String::new()
-                                            } else {
-                                                format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                                            };
-                                            output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name, tags));
-                                        }
-                                    }
-                                    
-                                    handle_output(output);
-                                }
-                            }
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}\nFailed to list bookmarks: {}", command, e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"cat") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else if parts.len() < 2 {
-                "Usage: cat <bookmark_name>".to_string()
-            } else {
-                let name = parts[1].to_string();
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match bookmark_service.get_bookmark_by_name(&name).await {
-                        Ok(Some(bookmark)) => {
-                            let tags = if bookmark.tags.is_empty() {
-                                String::new()
-                            } else {
-                                format!("\nTags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                            };
-                            handle_output(format!("{}\nURL: {}{}", command, bookmark.url, tags));
-                        }
-                        Ok(None) => {
-                            handle_output(format!("{}\nBookmark '{}' not found.", command, name));
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}\nFailed to get bookmark: {}", command, e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"touch") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else if parts.len() < 3 {
-                "Usage: touch <name> <url> [tags]".to_string()
-            } else {
-                let name = parts[1].to_string();
-                let url = parts[2].to_string();
-                let tags = if parts.len() > 3 {
-                    Some(parts[3..].iter().map(|&s| s.to_string()).collect())
-                } else {
-                    None
-                };
-                
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match bookmark_service.create_bookmark(&name, &url, tags).await {
-                        Ok(bookmark) => {
-                            let tags = if bookmark.tags.is_empty() {
-                                String::new()
-                            } else {
-                                format!(" with tags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                            };
-                            handle_output(format!("{}\nCreated bookmark '{}'{}", command, bookmark.name, tags));
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}\nFailed to create bookmark: {}", command, e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"open") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else if parts.len() < 2 {
-                "Usage: open <bookmark_name>".to_string()
-            } else {
-                let name = parts[1].to_string();
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match bookmark_service.get_bookmark_by_name(&name).await {
-                        Ok(Some(bookmark)) => {
-                            if let Some(window) = web_sys::window() {
-                                if let Err(e) = window.open_with_url_and_target(&bookmark.url, "_blank") {
-                                    handle_output(format!("{}\nFailed to open URL: {:?}", command, e));
-                                } else {
-                                    handle_output(format!("{}\nOpening {} in new tab...", command, bookmark.url));
-                                }
-                            } else {
-                                handle_output(format!("{}\nFailed to open URL: Could not access window", command));
-                            }
-                        }
-                        Ok(None) => {
-                            handle_output(format!("{}\nBookmark '{}' not found.", command, name));
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}\nFailed to get bookmark: {}", command, e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"rm") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else if parts.len() < 2 {
-                "Usage: rm <bookmark_name>".to_string()
-            } else {
-                let name = parts[1].to_string();
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match bookmark_service.delete_bookmark(&name).await {
-                        Ok(_) => {
-                            handle_output(format!("{}\nDeleted bookmark '{}'", command, name));
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}\nFailed to delete bookmark: {}", command, e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"tag") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else if parts.len() < 4 {
-                "Usage: tag <bookmark_name> <add|remove> <tag1> [tag2...]".to_string()
-            } else {
-                let name = parts[1].to_string();
-                let action = parts[2].to_string();
-                let tags: Vec<String> = parts[3..].iter().map(|&s| s.to_string()).collect();
-                
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    // First get the existing bookmark
-                    match bookmark_service.get_bookmark_by_name(&name).await {
-                        Ok(Some(existing)) => {
-                            let mut current_tags: Vec<String> = existing.tags.into_iter().collect();
-                            
-                            match action.as_str() {
-                                "add" => {
-                                    current_tags.extend(tags);
-                                    current_tags.sort();
-                                    current_tags.dedup();
-                                }
-                                "remove" => {
-                                    current_tags.retain(|t| !tags.contains(t));
-                                }
-                                _ => {
-                                    handle_output(format!("{}\nInvalid action. Use 'add' or 'remove'.", command));
-                                    return;
-                                }
-                            }
-                            
-                            match bookmark_service.update_bookmark(&name, None, Some(current_tags)).await {
-                                Ok(bookmark) => {
-                                    let tags = if bookmark.tags.is_empty() {
-                                        String::new()
-                                    } else {
-                                        format!(" with tags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                                    };
-                                    handle_output(format!("{}\nUpdated bookmark '{}'{}", command, bookmark.name, tags));
-                                }
-                                Err(e) => {
-                                    handle_output(format!("{}\nFailed to update bookmark: {}", command, e));
-                                }
-                            }
-                        }
-                        Ok(None) => {
-                            handle_output(format!("{}\nBookmark '{}' not found.", command, name));
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}\nFailed to get bookmark: {}", command, e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"search") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else if parts.len() < 2 {
-                "Usage: search <query>".to_string()
-            } else {
-                let query = parts[1..].join(" ");
-                let handle_output = handle_output.clone();
-                let command = command.clone();
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match bookmark_service.search_bookmarks(&query).await {
-                        Ok(bookmarks) => {
-                            if bookmarks.is_empty() {
-                                handle_output(format!("{}\nNo bookmarks found matching '{}'", command, query));
-                            } else {
-                                let mut output = String::new();
-                                for bookmark in bookmarks {
-                                    let tags = if bookmark.tags.is_empty() {
-                                        String::new()
-                                    } else {
-                                        format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                                    };
-                                    output.push_str(&format!("{} - {}{}\n", bookmark.name, bookmark.url, tags));
-                                }
-                                handle_output(format!("{}\n{}", command, output));
-                            }
-                        }
-                        Err(e) => {
-                            handle_output(format!("{}\nFailed to search bookmarks: {}", command, e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
-        Some(&"tree") => {
-            if AuthService::get_current_user().is_none() {
-                "You must be logged in to use this command.".to_string()
-            } else {
-                let handle_output = handle_output.clone();
-                
-                let config = Config::load();
-                let bookmark_service = BookmarkService::new(
-                    config.supabase_url.clone(),
-                    config.supabase_key.clone(),
-                );
-                
-                spawn_local(async move {
-                    match bookmark_service.get_bookmarks(None).await {
-                        Ok(bookmarks) => {
-                            if bookmarks.is_empty() {
-                                handle_output("No bookmarks found.".to_string());
-                            } else {
-                                let mut output = String::new();
-                                
-                                // Group bookmarks by tags
-                                let mut tag_groups: std::collections::HashMap<String, Vec<&termstart::services::bookmark::Bookmark>> = std::collections::HashMap::new();
-                                let mut untagged_bookmarks = Vec::new();
-                                
-                                for bookmark in &bookmarks {
-                                    if bookmark.tags.is_empty() {
-                                        untagged_bookmarks.push(bookmark);
-                                    } else {
-                                        for tag in &bookmark.tags {
-                                            tag_groups.entry(tag.clone())
-                                                .or_insert_with(Vec::new)
-                                                .push(bookmark);
-                                        }
-                                    }
-                                }
-                                
-                                // Sort tags alphabetically
-                                let mut sorted_tags: Vec<_> = tag_groups.keys().cloned().collect();
-                                sorted_tags.sort();
-                                
-                                // Build tree structure
-                                output.push_str(".\n");
-                                
-                                // Add untagged bookmarks at root level
-                                if !untagged_bookmarks.is_empty() {
-                                    for bookmark in untagged_bookmarks {
-                                        output.push_str(&format!("├── BOOKMARK_ITEM:{}\n", bookmark.name));
-                                    }
-                                }
-                                
-                                // Add tagged bookmarks under their tags
-                                for (i, tag) in sorted_tags.iter().enumerate() {
-                                    let is_last = i == sorted_tags.len() - 1;
-                                    let prefix = if is_last { "└── " } else { "├── " };
-                                    output.push_str(&format!("{}TAG_ITEM:{}\n", prefix, tag));
-                                    
-                                    let bookmarks = &tag_groups[tag];
-                                    for (j, bookmark) in bookmarks.iter().enumerate() {
-                                        let is_last_bookmark = j == bookmarks.len() - 1;
-                                        let sub_prefix = if is_last { "    " } else { "│   " };
-                                        let bookmark_prefix = if is_last_bookmark { "└── " } else { "├── " };
-                                        output.push_str(&format!("{}{}BOOKMARK_ITEM:{}\n", sub_prefix, bookmark_prefix, bookmark.name));
-                                    }
-                                }
-                                
-                                handle_output(output);
-                            }
-                        }
-                        Err(e) => {
-                            handle_output(format!("Failed to list bookmarks: {}", e));
-                        }
-                    }
-                });
-                
-                "".to_string()
-            }
-        },
         Some(_) | None => {
-            "Unknown command. Type 'help' for available commands.".to_string()
+             "".to_string()
         }
+    }
+}
+
+fn handle_async_ls(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You must be logged in to use this command.".to_string());
+        }
+
+        let tag_filter = parts.get(1).map(|s| s.to_string());
+        let config = Config::load();
+        let bookmark_service = BookmarkService::new(
+            config.supabase_url.clone(),
+            config.supabase_key.clone(),
+        );
+        
+        match bookmark_service.get_bookmarks(None).await {
+            Ok(bookmarks) => {
+                if bookmarks.is_empty() {
+                    return Ok("No bookmarks found.".to_string());
+                }
+                
+                let mut output = String::new();
+                
+                if let Some(tag) = tag_filter {
+                    let filtered_bookmarks: Vec<_> = bookmarks.iter()
+                        .filter(|b| b.tags.contains(&tag))
+                        .collect();
+                    
+                    if filtered_bookmarks.is_empty() {
+                         return Ok(format!("No bookmarks found in tag '{}'", tag));
+                    } else {
+                        for bookmark in filtered_bookmarks {
+                            let tags = if bookmark.tags.is_empty() {
+                                String::new()
+                            } else {
+                                format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                            };
+                            output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name.trim(), tags.trim()));
+                        }
+                         return Ok(output);
+                    }
+                }
+
+                let mut tags: std::collections::HashSet<String> = std::collections::HashSet::new();
+                let mut untagged_bookmarks = Vec::new();
+                
+                for bookmark in &bookmarks {
+                    if bookmark.tags.is_empty() {
+                        untagged_bookmarks.push(bookmark);
+                    } else {
+                        tags.extend(bookmark.tags.iter().cloned());
+                    }
+                }
+                
+                let mut sorted_tags: Vec<_> = tags.into_iter().collect();
+                sorted_tags.sort();
+                
+                let mut output = String::new();
+                
+                if !sorted_tags.is_empty() {
+                    for tag in sorted_tags {
+                        output.push_str(&format!("TAG_ITEM:{}\n", tag.trim()));
+                    }
+                }
+                
+                if !untagged_bookmarks.is_empty() {
+                    for bookmark in untagged_bookmarks {
+                         let tags = if bookmark.tags.is_empty() {
+                            String::new()
+                        } else {
+                            format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                        };
+                        output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name.trim(), tags.trim()));
+                    }
+                }
+
+                 Ok(output)
+            }
+            Err(e) => {
+                Err(format!("Failed to list bookmarks: {}", e))
+            }
+        }
+    })
+}
+
+fn handle_async_register(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_some() {
+            return Ok("You are already logged in. Use 'logout' to sign out first.".to_string());
+        } else if parts.len() < 3 {
+            return Ok("Usage: register <email> <password>".to_string());
+        } else {
+            let email = parts[1].to_string();
+            let password = parts[2].to_string();
+            
+            let config = Config::load();
+            let auth_service = AuthService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+            
+            match auth_service.sign_up(&email, &password).await {
+                Ok(user) => {
+                    Ok(format!("Successfully registered and logged in as: {}", user.email))
+                }
+                Err(e) => {
+                    Err(format!("Registration failed: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_login(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_some() {
+            return Ok("You are already logged in. Use 'logout' to sign out first.".to_string());
+        } else if parts.len() < 3 {
+            return Ok("Usage: login <email> <password>".to_string());
+        } else {
+            let email = parts[1].to_string();
+            let password = parts[2].to_string();
+            
+            let config = Config::load();
+            let auth_service = AuthService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+            
+            match auth_service.sign_in(&email, &password).await {
+                Ok(user) => {
+                    Ok(format!("Successfully logged in as: {}", user.email))
+                }
+                Err(e) => {
+                    Err(format!("Login failed: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_logout(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You are not logged in.".to_string());
+        } else {
+            let config = Config::load();
+            let auth_service = AuthService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+
+            match auth_service.sign_out().await {
+                Ok(_) => {
+                    Ok("Successfully logged out".to_string())
+                }
+                Err(e) => {
+                    Err(format!("Logout failed: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_cat(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You must be logged in to use this command.".to_string());
+        } else if parts.len() < 2 {
+            return Ok("Usage: cat <bookmark_name>".to_string());
+        } else {
+            let name = parts[1].to_string();
+
+            let config = Config::load();
+            let bookmark_service = BookmarkService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+
+            match bookmark_service.get_bookmark_by_name(&name).await {
+                Ok(Some(bookmark)) => {
+                    let tags = if bookmark.tags.is_empty() {
+                        String::new()
+                    } else {
+                        format!("\nTags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                    };
+                    Ok(format!("URL: {}{}", bookmark.url, tags))
+                }
+                Ok(None) => {
+                    Ok(format!("Bookmark '{}' not found.", name))
+                }
+                Err(e) => {
+                    Err(format!("Failed to get bookmark: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_touch(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You must be logged in to use this command.".to_string());
+        } else if parts.len() < 3 {
+            return Ok("Usage: touch <name> <url> [tags]".to_string());
+        } else {
+            let name = parts[1].to_string();
+            let url = parts[2].to_string();
+            let tags = if parts.len() > 3 {
+                Some(parts[3..].iter().map(|s| s.to_string()).collect())
+            } else {
+                None
+            };
+
+            let config = Config::load();
+            let bookmark_service = BookmarkService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+
+            match bookmark_service.create_bookmark(&name, &url, tags).await {
+                Ok(bookmark) => {
+                    let tags = if bookmark.tags.is_empty() {
+                        String::new()
+                    } else {
+                        format!(" with tags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                    };
+                    Ok(format!("Created bookmark '{}'{}", bookmark.name, tags))
+                }
+                Err(e) => {
+                    Err(format!("Failed to create bookmark: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_open(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You must be logged in to use this command.".to_string());
+        } else if parts.len() < 2 {
+            return Ok("Usage: open <bookmark_name>".to_string());
+        } else {
+            let name = parts[1].to_string();
+
+            let config = Config::load();
+            let bookmark_service = BookmarkService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+
+            match bookmark_service.get_bookmark_by_name(&name).await {
+                Ok(Some(bookmark)) => {
+                    if let Some(window) = web_sys::window() {
+                        if let Err(e) = window.open_with_url_and_target(&bookmark.url, "_blank") {
+                            Err(format!("Failed to open URL: {:?}", e))
+                        } else {
+                            Ok(format!("Opening {} in new tab...", bookmark.url))
+                        }
+                    } else {
+                        Err("Failed to open URL: Could not access window".to_string())
+                    }
+                }
+                Ok(None) => {
+                    Ok(format!("Bookmark '{}' not found.", name))
+                }
+                Err(e) => {
+                    Err(format!("Failed to get bookmark: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_rm(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You must be logged in to use this command.".to_string());
+        } else if parts.len() < 2 {
+            return Ok("Usage: rm <bookmark_name>".to_string());
+        } else {
+            let name = parts[1].to_string();
+
+            let config = Config::load();
+            let bookmark_service = BookmarkService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+
+            match bookmark_service.delete_bookmark(&name).await {
+                Ok(_) => {
+                    Ok(format!("Deleted bookmark '{}'", name))
+                }
+                Err(e) => {
+                    Err(format!("Failed to delete bookmark: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_search(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You must be logged in to use this command.".to_string());
+        } else if parts.len() < 2 {
+            return Ok("Usage: search <query>".to_string());
+        } else {
+            let query = parts[1..].join(" ");
+
+            let config = Config::load();
+            let bookmark_service = BookmarkService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+
+            match bookmark_service.search_bookmarks(&query).await {
+                Ok(bookmarks) => {
+                    if bookmarks.is_empty() {
+                        Ok(format!("No bookmarks found matching '{}'", query))
+                    } else {
+                        let mut output = String::new();
+                        for bookmark in bookmarks {
+                            let tags = if bookmark.tags.is_empty() {
+                                String::new()
+                            } else {
+                                format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                            };
+                            output.push_str(&format!("{} - {}{}\n", bookmark.name, bookmark.url, tags));
+                        }
+                        Ok(output)
+                    }
+                }
+                Err(e) => {
+                    Err(format!("Failed to search bookmarks: {}", e))
+                }
+            }
+        }
+    })
+}
+
+fn handle_async_tag(
+    parts: Vec<String>,
+    command_line: String,
+) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
+    Box::pin(async move {
+        if AuthService::get_current_user().is_none() {
+            return Ok("You must be logged in to use this command.".to_string());
+        }
+
+        if parts.len() < 4 {
+             return Ok("Usage: tag <bookmark_name> <add|remove> <tag1> [tag2...]".to_string());
+        }
+
+        let name = parts[1].to_string();
+        let action = parts[2].to_string();
+        let tags: Vec<String> = parts[3..].iter().map(|s| s.to_string()).collect();
+
+        let config = Config::load();
+        let bookmark_service = BookmarkService::new(
+            config.supabase_url.clone(),
+            config.supabase_key.clone(),
+        );
+
+        match bookmark_service.get_bookmark_by_name(&name).await {
+            Ok(Some(existing)) => {
+                let mut current_tags: Vec<String> = existing.tags.into_iter().collect();
+
+                match action.as_str() {
+                    "add" => {
+                        current_tags.extend(tags);
+                        current_tags.sort();
+                        current_tags.dedup();
+                    }
+                    "remove" => {
+                        current_tags.retain(|t| !tags.contains(t));
+                    }
+                    _ => {
+                         return Ok(format!("Invalid action. Use 'add' or 'remove'."));
+                    }
+                }
+
+                match bookmark_service.update_bookmark(&name, None, Some(current_tags)).await {
+                    Ok(bookmark) => {
+                        let tags = if bookmark.tags.is_empty() {
+                            String::new()
+                        } else {
+                            format!(" with tags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                        };
+                         Ok(format!("Updated bookmark '{}'{}", bookmark.name, tags))
+                    }
+                    Err(e) => {
+                        Err(format!("Failed to update bookmark: {}", e))
+                    }
+                }
+            }
+            Ok(None) => {
+                 Ok(format!("Bookmark '{}' not found.", name))
+            }
+            Err(e) => {
+                Err(format!("Failed to get bookmark: {}", e))
+            }
+        }
+    })
+}
+
+async fn handle_async_tree(parts: Vec<String>, _command_line: String) -> Result<String, String> {
+    if AuthService::get_current_user().is_none() {
+        return Ok("You must be logged in to use this command.".to_string());
+    }
+    let config = Config::load();
+    let bookmark_service = BookmarkService::new(
+        config.supabase_url.clone(),
+        config.supabase_key.clone(),
+    );
+    match bookmark_service.get_bookmarks(None).await {
+        Ok(bookmarks) => {
+            use std::collections::{BTreeMap, BTreeSet};
+            let mut tag_map: BTreeMap<String, Vec<&termstart::services::bookmark::Bookmark>> = BTreeMap::new();
+            let mut untagged = Vec::new();
+            let mut all_tags = BTreeSet::new();
+            for bookmark in &bookmarks {
+                if bookmark.tags.is_empty() {
+                    untagged.push(bookmark);
+                } else {
+                    for tag in &bookmark.tags {
+                        tag_map.entry(tag.clone()).or_default().push(bookmark);
+                        all_tags.insert(tag.clone());
+                    }
+                }
+            }
+            let mut output = String::new();
+            let mut tag_list: Vec<_> = all_tags.into_iter().collect();
+            tag_list.sort();
+            for tag in &tag_list {
+                output.push_str(&format!("TAG_ITEM:{}\n", tag));
+                if let Some(bookmarks) = tag_map.get(tag) {
+                    for (i, bookmark) in bookmarks.iter().enumerate() {
+                        let prefix = if i == bookmarks.len() - 1 { "└──" } else { "├──" };
+                        output.push_str(&format!("BOOKMARK_ITEM: {} {}\n", prefix, bookmark.name));
+                    }
+                }
+            }
+            if !untagged.is_empty() {
+                output.push_str("TAG_ITEM:untagged\n");
+                for (i, bookmark) in untagged.iter().enumerate() {
+                    let prefix = if i == untagged.len() - 1 { "└──" } else { "├──" };
+                    output.push_str(&format!("BOOKMARK_ITEM: {} {}\n", prefix, bookmark.name));
+                }
+            }
+            Ok(output)
+        }
+        Err(e) => Err(format!("Failed to get bookmarks: {}", e))
     }
 }

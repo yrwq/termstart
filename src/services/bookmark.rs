@@ -168,7 +168,7 @@ impl BookmarkService {
         
         let mut url = format!("{}/rest/v1/bookmarks?user_id=eq.{}", self.config.supabase_url, user_id);
         if let Some(tag) = tag {
-            url.push_str(&format!("&tags=cs.{{{}", tag));
+            url.push_str(&format!("&tags=cs.\"{}\"", tag));
         }
 
         let request = Request::get(&url)
