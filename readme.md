@@ -1,12 +1,11 @@
 # termstart
 
 <div align="center">
-    <img align="top" src="./assets/dark.png" width=300>
-    <img align="top" src="./assets/light.png" width=315>
+    <img align="top" src="./assets/dark.png" width=350>
+    <img align="top" src="./assets/light.png" width=365>
 
 <br>
-<h4>A terminal-themed startpage and bookmark manager for web browsers, built with Rust and WebAssembly.
-</h4>
+<h4>A terminal-themed startpage and bookmark manager for web browsers </h4>
 
 </div>
 
