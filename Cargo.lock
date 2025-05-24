@@ -1974,6 +1974,7 @@ dependencies = [
  "gloo 0.10.0",
  "gloo-net 0.5.0",
  "gloo-storage 0.2.2",
+ "gloo-utils 0.2.0",
  "js-sys",
  "lazy_static",
  "log",

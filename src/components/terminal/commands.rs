@@ -3,6 +3,8 @@ use termstart::services::bookmark::{BookmarkService};
 use termstart::config::Config;
 use web_sys::window;
 use futures::Future;
+use wasm_bindgen::JsValue;
+use serde_wasm_bindgen;
 
 pub fn handle_command(
     parts: Vec<&str>,
@@ -135,7 +137,7 @@ fn handle_sync_command(
 
 fn handle_async_ls(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -143,85 +145,116 @@ fn handle_async_ls(
         }
 
         let tag_filter = parts.get(1).map(|s| s.to_string());
-        let config = Config::load();
-        let bookmark_service = BookmarkService::new(
-            config.supabase_url.clone(),
-            config.supabase_key.clone(),
-        );
-        
-        match bookmark_service.get_bookmarks(None).await {
-            Ok(bookmarks) => {
-                if bookmarks.is_empty() {
-                    return Ok("No bookmarks found.".to_string());
-                }
-                
-                let mut output = String::new();
-                
-                if let Some(tag) = tag_filter {
-                    let filtered_bookmarks: Vec<_> = bookmarks.iter()
-                        .filter(|b| b.tags.contains(&tag))
-                        .collect();
-                    
-                    if filtered_bookmarks.is_empty() {
-                         return Ok(format!("No bookmarks found in tag '{}'", tag));
-                    } else {
-                        for bookmark in filtered_bookmarks {
-                            let tags = if bookmark.tags.is_empty() {
-                                String::new()
-                            } else {
-                                format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                            };
-                            output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name.trim(), tags.trim()));
-                        }
-                         return Ok(output);
-                    }
-                }
 
-                let mut tags: std::collections::HashSet<String> = std::collections::HashSet::new();
-                let mut untagged_bookmarks = Vec::new();
-                
-                for bookmark in &bookmarks {
-                    if bookmark.tags.is_empty() {
-                        untagged_bookmarks.push(bookmark);
-                    } else {
-                        tags.extend(bookmark.tags.iter().cloned());
-                    }
-                }
-                
-                let mut sorted_tags: Vec<_> = tags.into_iter().collect();
-                sorted_tags.sort();
-                
-                let mut output = String::new();
-                
-                if !sorted_tags.is_empty() {
-                    for tag in sorted_tags {
-                        output.push_str(&format!("TAG_ITEM:{}\n", tag.trim()));
-                    }
-                }
-                
-                if !untagged_bookmarks.is_empty() {
-                    for bookmark in untagged_bookmarks {
-                         let tags = if bookmark.tags.is_empty() {
-                            String::new()
-                        } else {
-                            format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
-                        };
-                        output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name.trim(), tags.trim()));
-                    }
-                }
+        // Get the cached bookmarks from the window object
+        let window = web_sys::window().unwrap();
+        let cache = js_sys::Reflect::get(&window, &JsValue::from_str("__bookmark_cache"))
+            .ok()
+            .and_then(|v| v.as_f64())
+            .unwrap_or(0.0);
 
-                 Ok(output)
+        let current_time = js_sys::Date::now();
+        let cache_age = current_time - cache;
+
+        let bookmarks = if cache_age > 300000.0 { // 5 minutes in milliseconds
+            // Cache is old or missing, fetch fresh data
+            let config = Config::load();
+            let bookmark_service = BookmarkService::new(
+                config.supabase_url.clone(),
+                config.supabase_key.clone(),
+            );
+
+            match bookmark_service.get_bookmarks(None).await {
+                Ok(fetched_bookmarks) => {
+                    // Update cache timestamp
+                    js_sys::Reflect::set(&window, &JsValue::from_str("__bookmark_cache"), &JsValue::from_f64(current_time))
+                        .unwrap_or_default();
+
+                    // Store bookmarks in cache
+                    js_sys::Reflect::set(&window, &JsValue::from_str("__bookmarks"), &serde_wasm_bindgen::to_value(&fetched_bookmarks).unwrap())
+                        .unwrap_or_default();
+
+                    fetched_bookmarks
+                }
+                Err(e) => return Err(format!("Failed to get bookmarks: {}", e)),
             }
-            Err(e) => {
-                Err(format!("Failed to list bookmarks: {}", e))
+        } else {
+            // Use cached bookmarks
+            js_sys::Reflect::get(&window, &JsValue::from_str("__bookmarks"))
+                .ok()
+                .and_then(|v| serde_wasm_bindgen::from_value(v).ok())
+                .unwrap_or_default()
+        };
+
+        if bookmarks.is_empty() {
+            return Ok("No bookmarks found.".to_string());
+        }
+
+        let mut output = String::new();
+
+        if let Some(tag) = tag_filter {
+            let filtered_bookmarks: Vec<_> = bookmarks.iter()
+                .filter(|b| b.tags.contains(&tag))
+                .collect();
+
+            if filtered_bookmarks.is_empty() {
+                 return Ok(format!("No bookmarks found in tag '{}'", tag));
+            } else {
+                for bookmark in filtered_bookmarks {
+                    let tags = if bookmark.tags.is_empty() {
+                        String::new()
+                    } else {
+                        format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                    };
+                    output.push_str(&format!("BOOKMARK_ITEM:{}{}
+", bookmark.name.trim(), tags.trim()));
+                }
+                 return Ok(output);
             }
         }
+
+        let mut tags: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let mut untagged_bookmarks = Vec::new();
+
+        for bookmark in &bookmarks {
+            if bookmark.tags.is_empty() {
+                untagged_bookmarks.push(bookmark);
+            } else {
+                tags.extend(bookmark.tags.iter().cloned());
+            }
+        }
+
+        let mut sorted_tags: Vec<_> = tags.into_iter().collect();
+        sorted_tags.sort();
+
+        let mut output = String::new();
+
+        if !sorted_tags.is_empty() {
+            for tag in sorted_tags {
+                output.push_str(&format!("TAG_ITEM:{}
+", tag.trim()));
+            }
+        }
+
+        if !untagged_bookmarks.is_empty() {
+            for bookmark in untagged_bookmarks {
+                 let tags = if bookmark.tags.is_empty() {
+                    String::new()
+                } else {
+                    format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                };
+                output.push_str(&format!("BOOKMARK_ITEM:{}{}
+", bookmark.name.trim(), tags.trim()));
+            }
+        }
+
+         Ok(output)
     })
 }
 
 fn handle_async_register(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_some() {
@@ -252,7 +285,7 @@ fn handle_async_register(
 
 fn handle_async_login(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_some() {
@@ -282,8 +315,8 @@ fn handle_async_login(
 }
 
 fn handle_async_logout(
-    parts: Vec<String>,
-    command_line: String,
+    _parts: Vec<String>,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -309,7 +342,7 @@ fn handle_async_logout(
 
 fn handle_async_cat(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -347,7 +380,7 @@ fn handle_async_cat(
 
 fn handle_async_touch(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -388,7 +421,7 @@ fn handle_async_touch(
 
 fn handle_async_open(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -429,7 +462,7 @@ fn handle_async_open(
 
 fn handle_async_rm(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -459,7 +492,7 @@ fn handle_async_rm(
 
 fn handle_async_search(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -502,7 +535,7 @@ fn handle_async_search(
 
 fn handle_async_tag(
     parts: Vec<String>,
-    command_line: String,
+    _command_line: String,
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
@@ -565,52 +598,92 @@ fn handle_async_tag(
     })
 }
 
-async fn handle_async_tree(parts: Vec<String>, _command_line: String) -> Result<String, String> {
+async fn handle_async_tree(_parts: Vec<String>, _command_line: String) -> Result<String, String> {
     if AuthService::get_current_user().is_none() {
         return Ok("You must be logged in to use this command.".to_string());
     }
-    let config = Config::load();
-    let bookmark_service = BookmarkService::new(
-        config.supabase_url.clone(),
-        config.supabase_key.clone(),
-    );
-    match bookmark_service.get_bookmarks(None).await {
-        Ok(bookmarks) => {
-            use std::collections::{BTreeMap, BTreeSet};
-            let mut tag_map: BTreeMap<String, Vec<&termstart::services::bookmark::Bookmark>> = BTreeMap::new();
-            let mut untagged = Vec::new();
-            let mut all_tags = BTreeSet::new();
-            for bookmark in &bookmarks {
-                if bookmark.tags.is_empty() {
-                    untagged.push(bookmark);
-                } else {
-                    for tag in &bookmark.tags {
-                        tag_map.entry(tag.clone()).or_default().push(bookmark);
-                        all_tags.insert(tag.clone());
-                    }
-                }
+
+    // Get the cached bookmarks from the window object
+    let window = web_sys::window().unwrap();
+    let cache = js_sys::Reflect::get(&window, &JsValue::from_str("__bookmark_cache"))
+        .ok()
+        .and_then(|v| v.as_f64())
+        .unwrap_or(0.0);
+
+    let current_time = js_sys::Date::now();
+    let cache_age = current_time - cache;
+
+    // If cache is older than 5 minutes, refresh it
+    if cache_age > 300000.0 { // 5 minutes in milliseconds
+        let config = Config::load();
+        let bookmark_service = BookmarkService::new(
+            config.supabase_url.clone(),
+            config.supabase_key.clone(),
+        );
+        
+        match bookmark_service.get_bookmarks(None).await {
+            Ok(bookmarks) => {
+                // Update cache timestamp
+                js_sys::Reflect::set(&window, &JsValue::from_str("__bookmark_cache"), &JsValue::from_f64(current_time))
+                    .unwrap_or_default();
+                
+                // Store bookmarks in cache
+                js_sys::Reflect::set(&window, &JsValue::from_str("__bookmarks"), &serde_wasm_bindgen::to_value(&bookmarks).unwrap())
+                    .unwrap_or_default();
+                
+                generate_tree_output(&bookmarks)
             }
-            let mut output = String::new();
-            let mut tag_list: Vec<_> = all_tags.into_iter().collect();
-            tag_list.sort();
-            for tag in &tag_list {
-                output.push_str(&format!("TAG_ITEM:{}\n", tag));
-                if let Some(bookmarks) = tag_map.get(tag) {
-                    for (i, bookmark) in bookmarks.iter().enumerate() {
-                        let prefix = if i == bookmarks.len() - 1 { "└──" } else { "├──" };
-                        output.push_str(&format!("BOOKMARK_ITEM: {} {}\n", prefix, bookmark.name));
-                    }
-                }
-            }
-            if !untagged.is_empty() {
-                output.push_str("TAG_ITEM:untagged\n");
-                for (i, bookmark) in untagged.iter().enumerate() {
-                    let prefix = if i == untagged.len() - 1 { "└──" } else { "├──" };
-                    output.push_str(&format!("BOOKMARK_ITEM: {} {}\n", prefix, bookmark.name));
-                }
-            }
-            Ok(output)
+            Err(e) => Err(format!("Failed to get bookmarks: {}", e))
         }
-        Err(e) => Err(format!("Failed to get bookmarks: {}", e))
+    } else {
+        // Use cached bookmarks
+        let cached_bookmarks: Vec<termstart::services::bookmark::Bookmark> = js_sys::Reflect::get(&window, &JsValue::from_str("__bookmarks"))
+            .ok()
+            .and_then(|v| serde_wasm_bindgen::from_value(v).ok())
+            .unwrap_or_default();
+        
+        generate_tree_output(&cached_bookmarks)
     }
+}
+
+fn generate_tree_output(bookmarks: &[termstart::services::bookmark::Bookmark]) -> Result<String, String> {
+    use std::collections::{BTreeMap, BTreeSet};
+    let mut tag_map: BTreeMap<String, Vec<&termstart::services::bookmark::Bookmark>> = BTreeMap::new();
+    let mut untagged = Vec::new();
+    let mut all_tags = BTreeSet::new();
+    
+    for bookmark in bookmarks {
+        if bookmark.tags.is_empty() {
+            untagged.push(bookmark);
+        } else {
+            for tag in &bookmark.tags {
+                tag_map.entry(tag.clone()).or_default().push(bookmark);
+                all_tags.insert(tag.clone());
+            }
+        }
+    }
+    
+    let mut output = String::new();
+    let mut tag_list: Vec<_> = all_tags.into_iter().collect();
+    tag_list.sort();
+    
+    for tag in &tag_list {
+        output.push_str(&format!("TAG_ITEM:{}\n", tag));
+        if let Some(bookmarks) = tag_map.get(tag) {
+            for (i, bookmark) in bookmarks.iter().enumerate() {
+                let prefix = if i == bookmarks.len() - 1 { "└──" } else { "├──" };
+                output.push_str(&format!("BOOKMARK_ITEM: {} {}\n", prefix, bookmark.name));
+            }
+        }
+    }
+    
+    if !untagged.is_empty() {
+        output.push_str("TAG_ITEM:untagged\n");
+        for (i, bookmark) in untagged.iter().enumerate() {
+            let prefix = if i == untagged.len() - 1 { "└──" } else { "├──" };
+            output.push_str(&format!("BOOKMARK_ITEM: {} {}\n", prefix, bookmark.name));
+        }
+    }
+    
+    Ok(output)
 }

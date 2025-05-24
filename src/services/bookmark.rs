@@ -47,6 +47,8 @@ impl std::fmt::Display for BookmarkError {
     }
 }
 
+#[allow(dead_code)]
+#[derive(Debug, Clone)]
 pub struct BookmarkService {
     client: SupabaseClient,
     config: Config,
@@ -95,39 +97,27 @@ impl BookmarkService {
             self.config.supabase_key.clone(),
         );
 
-        // Use wasm_bindgen_futures to handle the async refresh
-        let _ = wasm_bindgen_futures::spawn_local(async move {
-            match auth_service.refresh_token().await {
-                Ok(_) => {
-                    // After refresh, try to get the token again and log
-                    let storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
-                    match storage
-                        .get_item("supabase.auth.token")
-                        .unwrap()
-                    {
-                        Some(token) => {
-                            web_sys::console::log_1(&format!("[DEBUG] Refreshed token retrieved: {}", token).into());
-                        },
-                        None => {
-                             web_sys::console::error_1(&"[DEBUG] Token not available after refresh.".into());
-                        }
-                    }
-                    // Explicitly return () from this arm
-                    ()
-                }
-                Err(e) => {
-                     web_sys::console::error_1(&format!("[DEBUG] Token refresh failed: {}", e).into());
-                     // Explicitly return () from this arm
-                     ()
-                }
-            }
-            // Explicitly return () at the end of the async block.
-            ()
+        // Create a channel to receive the refresh result
+        let (sender, receiver) = std::sync::mpsc::channel();
+        
+        // Spawn the refresh task
+        wasm_bindgen_futures::spawn_local(async move {
+            let result = auth_service.refresh_token().await;
+            let _ = sender.send(result);
         });
 
-        // Since we can't await the spawned future here, we return NotAuthenticated synchronously.
-        // The next time get_auth_token is called, the token might be available if the refresh succeeded.
-        Err(BookmarkError::NotAuthenticated)
+        // Wait for the refresh result
+        match receiver.recv() {
+            Ok(Ok(_)) => {
+                // After successful refresh, try to get the token again
+                storage
+                    .get_item("supabase.auth.token")
+                    .unwrap()
+                    .ok_or(BookmarkError::NotAuthenticated)
+            }
+            Ok(Err(e)) => Err(BookmarkError::DatabaseError(e)),
+            Err(_) => Err(BookmarkError::DatabaseError("Token refresh failed".into())),
+        }
     }
 
     fn normalize_url(url: &str) -> Result<String, BookmarkError> {
@@ -275,9 +265,6 @@ impl BookmarkService {
         let user_id = self.get_current_user_id()?;
         let auth_token = self.get_auth_token()?;
         
-        // Get existing bookmark
-        let existing = self.get_bookmark_by_name(name).await?
-            .ok_or_else(|| BookmarkError::ValidationError("Bookmark not found".into()))?;
 
         // Prepare update data
         let mut update_data = json!({});

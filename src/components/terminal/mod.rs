@@ -7,10 +7,9 @@ use lucide_yew::File;
 use termstart::services::auth::AuthService;
 use termstart::services::bookmark::BookmarkService;
 use wasm_bindgen_futures::spawn_local;
-use wasm_bindgen::{JsCast, closure::Closure};
-use std::rc::Rc;
-use std::cell::RefCell;
+use wasm_bindgen::{JsCast, closure::Closure, JsValue};
 use termstart::config::Config;
+use serde_wasm_bindgen;
 
 use crate::components::terminal::commands::handle_command;
 
@@ -18,6 +17,22 @@ use crate::components::terminal::commands::handle_command;
 pub struct TerminalHistory {
     pub entries: Vec<(String, String, usize)>,
     pub next_id: usize,
+}
+
+#[derive(Clone)]
+#[allow(dead_code)]
+pub struct BookmarkCache {
+    pub bookmarks: Vec<termstart::services::bookmark::Bookmark>,
+    pub last_updated: f64,
+}
+
+impl Default for BookmarkCache {
+    fn default() -> Self {
+        Self {
+            bookmarks: Vec::new(),
+            last_updated: 0.0,
+        }
+    }
 }
 
 #[derive(Clone)]
@@ -178,33 +193,53 @@ pub fn terminal() -> Html {
         });
     }
 
-    {
+    // Function to refresh bookmarks cache
+    let refresh_bookmarks = {
         let tags = tags.clone();
         let bookmarks = bookmarks.clone();
-        use_effect(move || {
+        let config = Config::load(); // Load config once
+        let bookmark_service = BookmarkService::new(
+            config.supabase_url.clone(),
+            config.supabase_key.clone(),
+        );
+
+        move || {
+            let bookmark_service = bookmark_service.clone(); // Clone the service for the async block
             spawn_local(async move {
-                if let Some(user) = AuthService::get_current_user() {
-                    if !user.id.is_empty() {
-                        let config = Config::load();
-                        let bookmark_service = BookmarkService::new(
-                            config.supabase_url.clone(),
-                            config.supabase_key.clone(),
-                        );
-                        
-                        match bookmark_service.get_bookmarks(None).await {
-                            Ok(bookmarks_list) => {
-                                let mut all_tags = std::collections::HashSet::new();
-                                for bookmark in &bookmarks_list {
-                                    all_tags.extend(bookmark.tags.clone());
-                                }
-                                tags.set(all_tags.into_iter().collect());
-                                bookmarks.set(bookmarks_list.into_iter().map(|b| b.name).collect());
-                            }
-                            Err(_) => {}
+                match bookmark_service.get_bookmarks(None).await {
+                    Ok(bookmarks_list) => {
+                        let mut all_tags = std::collections::HashSet::new();
+                        for bookmark in &bookmarks_list {
+                            all_tags.extend(bookmark.tags.clone());
                         }
+                        tags.set(all_tags.into_iter().collect());
+                        bookmarks.set(bookmarks_list.iter().map(|b| b.name.clone()).collect());
+
+                        // Update cache in window object
+                        let window = web_sys::window().unwrap();
+                        let current_time = js_sys::Date::now();
+
+                        js_sys::Reflect::set(&window, &JsValue::from_str("__bookmark_cache"), &JsValue::from_f64(current_time))
+                            .unwrap_or_default();
+                        js_sys::Reflect::set(&window, &JsValue::from_str("__bookmarks"), &serde_wasm_bindgen::to_value(&bookmarks_list).unwrap())
+                            .unwrap_or_default();
+
                     }
+                    Err(_) => {}
                 }
             });
+        }
+    };
+
+    // Initial load of bookmarks
+    {
+        let refresh_bookmarks = refresh_bookmarks.clone();
+        use_effect(move || {
+            if let Some(user) = AuthService::get_current_user() {
+                if !user.id.is_empty() {
+                    refresh_bookmarks();
+                }
+            }
             || ()
         });
     }
@@ -219,6 +254,7 @@ pub fn terminal() -> Html {
         let available_commands = available_commands.clone();
         let tags = tags.clone();
         let bookmarks = bookmarks.clone();
+        let refresh_bookmarks = refresh_bookmarks.clone();
 
         Callback::from(move |e: KeyboardEvent| {
             web_sys::console::log_1(&"[DEBUG] onkeydown handler called".into());
@@ -294,6 +330,7 @@ pub fn terminal() -> Html {
                                     let history = history.clone();
                                     let command_line_clone = command_line.clone();
                                     let current_tag_clone = current_tag.clone();
+                                    let refresh_bookmarks_clone = refresh_bookmarks.clone(); // Clone refresh_bookmarks for use in async block
 
                                     let id = history.next_id;
                                     history.dispatch(HistoryAction::AddCommand { command: command_line_clone.clone(), id });
@@ -302,7 +339,7 @@ pub fn terminal() -> Html {
                                     spawn_local(async move {
                                         let mut command_parts: Vec<String> = command.split_whitespace().map(|s| s.to_string()).collect();
                                         let current_tag_inside_async = current_tag_clone.clone();
-                                        
+
                                         // Add current tag to ls command if in a tagged directory
                                         if command_parts.get(0).map(|s| s.as_str()) == Some("ls") {
                                             if let Some(tag) = &*current_tag_inside_async {
@@ -313,9 +350,22 @@ pub fn terminal() -> Html {
                                         }
 
                                         let parts_refs: Vec<&str> = command_parts.iter().map(|s| s.as_str()).collect();
+                                        let cmd_name_async = parts_refs.get(0).map(|s| s.to_string());
                                         let result = handle_command(parts_refs).await;
 
                                         web_sys::console::info_1(&format!("Command result for {}: {:?}", command_line_clone, result).into());
+
+                                        // Refresh cache for commands that modify bookmarks
+                                        if let Ok(_) = result {
+                                            if let Some(name) = cmd_name_async.as_deref() {
+                                                match name {
+                                                    "touch" | "rm" | "tag" => {
+                                                        refresh_bookmarks_clone();
+                                                    }
+                                                    _ => {}
+                                                }
+                                            }
+                                        }
 
                                         let output = match result {
                                             Ok(output) => output,
@@ -459,7 +509,7 @@ pub fn terminal() -> Html {
                         if current_index < (history.entries.len() as i32 - 1) {
                             let new_index = current_index + 1;
                             history_nav_index.set(new_index);
-                            if let Some((command, _, _)) = history.entries.get((history.entries.len() - 1 - new_index as usize)) {
+                            if let Some((command, _, _)) = history.entries.get(history.entries.len() - 1 - new_index as usize) {
                                 let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
                                 let command_text = command.strip_prefix(&prompt).unwrap_or(command);
                                 current_line.set(command_text.to_string());
@@ -474,7 +524,7 @@ pub fn terminal() -> Html {
                         if current_index > 0 {
                             let new_index = current_index - 1;
                             history_nav_index.set(new_index);
-                            if let Some((command, _, _)) = history.entries.get((history.entries.len() - 1 - new_index as usize)) {
+                            if let Some((command, _, _)) = history.entries.get(history.entries.len() - 1 - new_index as usize) {
                                 let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
                                 let command_text = command.strip_prefix(&prompt).unwrap_or(command);
                                 current_line.set(command_text.to_string());
@@ -488,22 +538,10 @@ pub fn terminal() -> Html {
                         }
                     },
                     "Home" => {
-                        let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
-                        let new_pos = prompt.len();
-                        input.set_selection_range(new_pos as u32, new_pos as u32).ok();
-                        web_sys::console::log_2(&"[DEBUG] Home - new cursor_position:".into(), &new_pos.into());
                     },
                     "End" => {
-                        let new_pos = input.value().len();
-                        input.set_selection_range(new_pos as u32, new_pos as u32).ok();
-                        web_sys::console::log_2(&"[DEBUG] End - new cursor_position:".into(), &new_pos.into());
                     },
                     "Backspace" | "Delete" => {
-                         if let Some(start) = input.selection_start().ok().flatten().map(|s| s as usize) {
-                             web_sys::console::log_2(&"[DEBUG] Backspace/Delete - selectionStart:".into(), &start.into());
-                             let new_pos = if key.as_str() == "Backspace" { start.saturating_sub(1) } else { start };
-                              web_sys::console::log_2(&"[DEBUG] Backspace/Delete - new cursor_position:".into(), &new_pos.into());
-                         }
                     },
                     _ => {
                     }
@@ -519,7 +557,7 @@ pub fn terminal() -> Html {
         let tags = tags.clone();
         let bookmarks = bookmarks.clone();
         let suggestion = suggestion.clone();
-        Callback::from(move |e: InputEvent| {
+        Callback::from(move |_e: InputEvent| {
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 let value = input.value();
                 current_line.set(value.clone());
@@ -628,7 +666,7 @@ pub fn terminal() -> Html {
     html! {
         <>
             <div class="w-full h-screen flex items-center justify-center">
-                <div class="w-full max-w-5xl p-4 bg-github-light-bg/70 dark:bg-github-dark-bg/70 rounded-lg shadow-xl font-mono text-github-light-text dark:text-github-dark-text border border-github-light-border dark:border-github-dark-border backdrop-blur-sm">
+                <div class="w-full max-w-7xl p-4 bg-github-light-bg/70 dark:bg-github-dark-bg/70 rounded-lg shadow-xl font-mono text-github-light-text dark:text-github-dark-text border border-github-light-border dark:border-github-dark-border backdrop-blur-sm">
                     <div class="flex items-center mb-2 px-2">
                         <div class="flex space-x-2">
                             <div class="w-3 h-3 rounded-full bg-red-500"></div>
@@ -654,7 +692,7 @@ pub fn terminal() -> Html {
                         
                         <div class="flex items-start group">
                             <span class="text-github-light-text dark:text-github-dark-text mr-2 select-none opacity-80 terminal-prompt">{if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() }}</span>
-                            <div class="relative flex-grow">
+                            <div class="relative flex-grow w-full">
                                 <input
                                     type="text"
                                     ref={input_ref}
@@ -666,7 +704,10 @@ pub fn terminal() -> Html {
                                         "bg-transparent",
                                         "outline-none",
                                         "border-none",
-                                        "flex-grow",
+                                        "w-full",
+                                        "resize-none",
+                                        "whitespace-nowrap",
+                                        "overflow-hidden",
                                         "terminal-input",
                                         {
                                             let command_text = (*current_line).split_whitespace().next().unwrap_or("").to_string();

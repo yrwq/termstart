@@ -3,7 +3,7 @@ use log::info;
 
 static CONFIG: OnceLock<Config> = OnceLock::new();
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Config {
     pub supabase_url: String,
     pub supabase_key: String,
