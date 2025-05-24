@@ -2,7 +2,8 @@ pub mod commands;
 
 use yew::prelude::*;
 use web_sys::{HtmlInputElement, KeyboardEvent, InputEvent};
-use std::collections::VecDeque;
+use lucide_yew::Folder;
+use lucide_yew::File;
 
 use crate::components::terminal::commands::handle_command;
 
@@ -10,6 +11,89 @@ use crate::components::terminal::commands::handle_command;
 pub struct TerminalHistory {
     pub lines: Vec<String>,
     pub outputs: Vec<String>,
+}
+
+fn render_output_line(line: &str) -> Html {
+    if line.contains("TAG_ITEM:") {
+        let parts: Vec<&str> = line.split("TAG_ITEM:").collect();
+        if parts.len() > 1 {
+            let prefix = parts[0].to_string();
+            let tag_name = parts[1].trim_end().to_string(); // Trim newline
+            html! {
+                <div class="flex items-center">
+                    <span>{ prefix }</span>
+                    <Folder class="w-4 h-4 inline-block mr-1" />
+                    <span>{ format!("{}/", tag_name) }</span>
+                </div>
+            }
+        } else {
+            // Fallback if TAG_ITEM: is at the very start or no content after
+            let tag_name = line.strip_prefix("TAG_ITEM:").unwrap_or("").trim_end().to_string();
+             html! {
+                <div class="flex items-center">
+                    <Folder class="w-4 h-4 inline-block mr-1" />
+                    <span>{ format!("{}/", tag_name) }</span>
+                </div>
+            }
+        }
+    } else if line.contains("BOOKMARK_ITEM:") {
+        let parts: Vec<&str> = line.split("BOOKMARK_ITEM:").collect();
+        if parts.len() > 1 {
+             let prefix = parts[0].to_string();
+            let content = parts[1].trim_end().to_string(); // Trim newline
+            let content_parts: Vec<&str> = content.splitn(2, ' ').collect();
+            let name = content_parts.get(0).unwrap_or(&"").to_string();
+            let tags = if content_parts.len() > 1 {
+                content_parts[1].to_string()
+            } else {
+                String::new()
+            };
+            html! {
+                <div class="flex items-center">
+                    <span>{ prefix }</span>
+                    <File class="w-4 h-4 inline-block mr-1" />
+                    <span>{ format!("{}{}", name, tags) }</span>
+                </div>
+            }
+        } else {
+            // Fallback if BOOKMARK_ITEM: is at the very start or no content after
+             let content = line.strip_prefix("BOOKMARK_ITEM:").unwrap_or("").trim_end().to_string();
+            let content_parts: Vec<&str> = content.splitn(2, ' ').collect();
+            let name = content_parts.get(0).unwrap_or(&"").to_string();
+            let tags = if content_parts.len() > 1 {
+                content_parts[1].to_string()
+            } else {
+                String::new()
+            };
+            html! {
+                <div class="flex items-center">
+                    <File class="w-4 h-4 inline-block mr-1" />
+                    <span>{ format!("{}{}", name, tags) }</span>
+                </div>
+            }
+        }
+    } else if !line.is_empty() {
+        html! { <div>{ line.to_string() }</div> }
+    } else {
+        html! { <div></div> }
+    }
+}
+
+fn render_output(output: Option<&String>) -> Html {
+    if let Some(output) = output {
+        let rendered_lines = output.lines().map(|line| render_output_line(line)).collect::<Vec<Html>>();
+        html! {
+            <div class="ml-4 opacity-90 font-light text-github-light-text dark:text-github-dark-text terminal-output">
+                {rendered_lines}
+            </div>
+        }
+    } else {
+        html! {
+            <div class="ml-4 opacity-90 font-light text-github-light-text dark:text-github-dark-text terminal-output">
+                { "" }
+            </div>
+        }
+    }
 }
 
 #[function_component(Terminal)]
@@ -108,21 +192,17 @@ pub fn terminal() -> Html {
                                 },
                                 "cd" => {
                                     let args: Vec<&str> = parts.get(1..).unwrap_or(&[]).to_vec();
-                                    let output = if args.is_empty() {
+                                    if args.is_empty() {
                                         // cd to root
                                         current_tag.set(None);
-                                        "cd to /".to_string()
                                     } else if args.len() == 1 {
                                         let tag = args[0].to_string();
                                         // In a real scenario, you might want to validate if the tag exists
                                         current_tag.set(Some(tag.clone()));
-                                        format!("cd to tag '{}'", tag)
-                                    } else {
-                                        "Usage: cd <tag_name> or cd".to_string()
-                                    };
-                                    // Add output for cd command
+                                    }
+                                    // Add empty output for cd command's position in output history
                                     let mut current_outputs = (*outputs).clone();
-                                    current_outputs.push(output);
+                                    current_outputs.push("".to_string());
                                     outputs.set(current_outputs);
                                 },
                                 _ => {
@@ -153,8 +233,13 @@ pub fn terminal() -> Html {
 
                                     let command_parts_str_refs: Vec<&str> = command_parts_for_handler.iter().map(|s| s.as_str()).collect();
 
-                                    // handle_command uses handle_output internally, so its output will be added to the outputs state
-                                    handle_command(command_parts_str_refs, handle_output.clone());
+                                    // handle_command returns the output string
+                                    let output = handle_command(command_parts_str_refs, handle_output.clone()); // Pass handle_output for async commands still
+                                    if !output.is_empty() {
+                                        let mut current_outputs = (*outputs).clone();
+                                        current_outputs.push(output);
+                                        outputs.set(current_outputs);
+                                    }
                                 }
                             }
                         }
@@ -307,13 +392,7 @@ pub fn terminal() -> Html {
                                      <div class="flex items-start group">
                                          <span class="text-github-light-text dark:text-github-dark-text mr-2 select-none opacity-80 terminal-prompt">{ &line }</span>
                                      </div>
-                                     if let Some(output) = outputs.get(i) {
-                                         if !output.is_empty() || line.contains("cd") || line.contains("theme") || line.contains("clear") { // Always show output space for certain commands
-                                             <div class="ml-4 opacity-90 font-light text-github-light-text dark:text-github-dark-text terminal-output">
-                                                 { output }
-                                             </div>
-                                         }
-                                     }
+                                     {render_output(outputs.get(i))}
                                  </div>
                              }
                         }).collect::<Html>()

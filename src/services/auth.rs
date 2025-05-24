@@ -374,66 +374,27 @@ impl AuthService {
     pub async fn sign_out(&self) -> Result<(), String> {
         info!("Attempting to sign out");
         let window = web_sys::window().unwrap();
-        
-        // First check if we have a stored session
         let storage = window.local_storage().unwrap().unwrap();
-        if storage.get_item("supabase.auth.token").unwrap().is_none() {
-            info!("No active session found, clearing any remaining data");
-            storage.remove_item("supabase.auth.token").ok();
-            return Ok(());
-        }
         
+        // Clear all auth-related data from storage
+        storage.remove_item("supabase.auth.token").ok();
+        storage.remove_item("supabase.auth.user").ok();
+        
+        // Try to sign out from Supabase, but don't fail if it doesn't work
         let supabase = js_sys::eval(&format!(
             "window.supabase.createClient('{}', '{}')",
             self.supabase_url, self.supabase_key
-        ))
-        .map_err(|e| {
-            error!("Failed to create Supabase client: {:?}", e);
-            format!("Failed to create Supabase client: {:?}", e)
-        })?;
+        )).ok();
 
-        info!("Supabase client created successfully");
-
-        let auth = js_sys::Reflect::get(&supabase, &JsValue::from_str("auth"))
-            .map_err(|e| {
-                error!("Failed to get auth object: {:?}", e);
-                format!("Failed to get auth object: {:?}", e)
-            })?;
-
-        info!("Got auth object");
-
-        let sign_out_fn = js_sys::Reflect::get(&auth, &JsValue::from_str("signOut"))
-            .map_err(|e| {
-                error!("Failed to get signOut function: {:?}", e);
-                format!("Failed to get signOut function: {:?}", e)
-            })?
-            .dyn_into::<js_sys::Function>()
-            .map_err(|e| {
-                error!("Failed to convert to Function: {:?}", e);
-                format!("Failed to convert to Function: {:?}", e)
-            })?;
-
-        info!("Got signOut function");
-
-        let sign_out_promise = sign_out_fn
-            .call0(&auth)
-            .map_err(|e| {
-                error!("Failed to call signOut: {:?}", e);
-                format!("Failed to call signOut: {:?}", e)
-            })?;
-
-        info!("Called signOut");
-
-        // Even if the sign out fails, we should clear our local storage
-        let _ = JsFuture::from(js_sys::Promise::from(sign_out_promise)).await;
-
-        // Clear local storage regardless of the sign out result
-        storage
-            .remove_item("supabase.auth.token")
-            .map_err(|e| {
-                error!("Failed to clear session: {:?}", e);
-                format!("Failed to clear session: {:?}", e)
-            })?;
+        if let Some(supabase) = supabase {
+            if let Ok(auth) = js_sys::Reflect::get(&supabase, &JsValue::from_str("auth")) {
+                if let Ok(sign_out_fn) = js_sys::Reflect::get(&auth, &JsValue::from_str("signOut"))
+                    .and_then(|f| f.dyn_into::<js_sys::Function>())
+                {
+                    let _ = sign_out_fn.call0(&auth);
+                }
+            }
+        }
 
         info!("Successfully cleared session");
         Ok(())

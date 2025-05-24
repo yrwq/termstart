@@ -229,16 +229,15 @@ pub fn handle_command(
                                     if filtered_bookmarks.is_empty() {
                                         handle_output(format!("{}\nNo bookmarks found in tag '{}'", command, tag));
                                     } else {
-                                        output.push_str(&format!("Bookmarks in tag '{}':\n", tag));
                                         for bookmark in filtered_bookmarks {
                                             let tags = if bookmark.tags.is_empty() {
                                                 String::new()
                                             } else {
                                                 format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
                                             };
-                                            output.push_str(&format!("{}{}\n", bookmark.name, tags));
+                                            output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name, tags));
                                         }
-                                        handle_output(format!("{}\n{}", command, output));
+                                        handle_output(output);
                                     }
                                 } else {
                                     // Show all tags as folders and bookmarks without tags
@@ -259,22 +258,24 @@ pub fn handle_command(
                                     
                                     // Display tags as folders
                                     if !sorted_tags.is_empty() {
-                                        output.push_str("Tags:\n");
                                         for tag in sorted_tags {
-                                            output.push_str(&format!("  {}/\n", tag));
+                                            output.push_str(&format!("TAG_ITEM:{}\n", tag));
                                         }
-                                        output.push_str("\n");
                                     }
                                     
                                     // Display untagged bookmarks
                                     if !untagged_bookmarks.is_empty() {
-                                        output.push_str("Untagged bookmarks:\n");
                                         for bookmark in untagged_bookmarks {
-                                            output.push_str(&format!("  {}\n", bookmark.name));
+                                            let tags = if bookmark.tags.is_empty() {
+                                                String::new()
+                                            } else {
+                                                format!(" [{}]", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                                            };
+                                            output.push_str(&format!("BOOKMARK_ITEM:{}{}\n", bookmark.name, tags));
                                         }
                                     }
                                     
-                                    handle_output(format!("{}\n{}", command, output));
+                                    handle_output(output);
                                 }
                             }
                         }
@@ -552,7 +553,6 @@ pub fn handle_command(
                 "You must be logged in to use this command.".to_string()
             } else {
                 let handle_output = handle_output.clone();
-                let command = command.clone();
                 
                 let config = Config::load();
                 let bookmark_service = BookmarkService::new(
@@ -564,7 +564,7 @@ pub fn handle_command(
                     match bookmark_service.get_bookmarks(None).await {
                         Ok(bookmarks) => {
                             if bookmarks.is_empty() {
-                                handle_output(format!("{}\nNo bookmarks found.", command));
+                                handle_output("No bookmarks found.".to_string());
                             } else {
                                 let mut output = String::new();
                                 
@@ -594,7 +594,7 @@ pub fn handle_command(
                                 // Add untagged bookmarks at root level
                                 if !untagged_bookmarks.is_empty() {
                                     for bookmark in untagged_bookmarks {
-                                        output.push_str(&format!("├── {}\n", bookmark.name));
+                                        output.push_str(&format!("├── BOOKMARK_ITEM:{}\n", bookmark.name));
                                     }
                                 }
                                 
@@ -602,22 +602,22 @@ pub fn handle_command(
                                 for (i, tag) in sorted_tags.iter().enumerate() {
                                     let is_last = i == sorted_tags.len() - 1;
                                     let prefix = if is_last { "└── " } else { "├── " };
-                                    output.push_str(&format!("{} {}/\n", prefix, tag));
+                                    output.push_str(&format!("{}TAG_ITEM:{}\n", prefix, tag));
                                     
                                     let bookmarks = &tag_groups[tag];
                                     for (j, bookmark) in bookmarks.iter().enumerate() {
                                         let is_last_bookmark = j == bookmarks.len() - 1;
                                         let sub_prefix = if is_last { "    " } else { "│   " };
                                         let bookmark_prefix = if is_last_bookmark { "└── " } else { "├── " };
-                                        output.push_str(&format!("{}{}{}\n", sub_prefix, bookmark_prefix, bookmark.name));
+                                        output.push_str(&format!("{}{}BOOKMARK_ITEM:{}\n", sub_prefix, bookmark_prefix, bookmark.name));
                                     }
                                 }
                                 
-                                handle_output(format!("{}\n{}", command, output));
+                                handle_output(output);
                             }
                         }
                         Err(e) => {
-                            handle_output(format!("{}\nFailed to list bookmarks: {}", command, e));
+                            handle_output(format!("Failed to list bookmarks: {}", e));
                         }
                     }
                 });
