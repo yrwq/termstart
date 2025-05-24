@@ -6,9 +6,7 @@ use lucide_yew::Folder;
 use lucide_yew::File;
 use termstart::services::auth::AuthService;
 use wasm_bindgen_futures::spawn_local;
-use wasm_bindgen::JsCast;
-use std::rc::Rc;
-use std::cell::RefCell;
+use wasm_bindgen::{JsCast, closure::Closure};
 
 use crate::components::terminal::commands::handle_command;
 
@@ -117,7 +115,14 @@ pub fn terminal() -> Html {
     let history = use_reducer(|| TerminalHistory { entries: Vec::new(), next_id: 0 });
     let current_line = use_state(|| "".to_string());
     let history_nav_index = use_state(|| -1);
-    let is_dark = use_state(|| false);
+    let is_dark = use_state(|| {
+        if let Some(window) = web_sys::window() {
+            if let Some(media_query) = window.match_media("(prefers-color-scheme: dark)").ok().flatten() {
+                return media_query.matches();
+            }
+        }
+        false
+    });
     let current_tag = use_state(|| None::<String>);
 
     {
@@ -125,6 +130,23 @@ pub fn terminal() -> Html {
         use_effect(move || {
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 input.focus().ok();
+            }
+            || ()
+        });
+    }
+
+    {
+        let is_dark = is_dark.clone();
+        use_effect(move || {
+            if let Some(window) = web_sys::window() {
+                if let Some(media_query) = window.match_media("(prefers-color-scheme: dark)").ok().flatten() {
+                    let callback = Closure::wrap(Box::new(move |e: web_sys::MediaQueryListEvent| {
+                        is_dark.set(e.matches());
+                    }) as Box<dyn FnMut(_)>);
+                    
+                    media_query.set_onchange(Some(callback.as_ref().unchecked_ref()));
+                    callback.forget();
+                }
             }
             || ()
         });
@@ -276,7 +298,6 @@ pub fn terminal() -> Html {
                             }
                         }
 
-                        let new_prompt = format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() });
                         current_line.set("".to_string());
                         input.set_value("");
                         history_nav_index.set(-1);
@@ -359,9 +380,8 @@ pub fn terminal() -> Html {
 
     let oninput = {
         let current_line = current_line.clone();
-        let current_tag = current_tag.clone();
         let input_ref = input_ref.clone();
-        Callback::from(move |e: InputEvent| {
+        Callback::from(move |_e: InputEvent| {
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 let value = input.value();
                 // Only update the current_line state with the text AFTER the prompt
@@ -372,7 +392,6 @@ pub fn terminal() -> Html {
 
     // Add effect to update prompt when tag changes
     {
-        let current_line = current_line.clone();
         let current_tag = current_tag.clone();
         let input_ref = input_ref.clone();
         use_effect_with((*current_tag).clone(), move |tag| {
