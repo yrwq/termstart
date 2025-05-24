@@ -298,6 +298,40 @@ pub fn terminal() -> Html {
                              web_sys::console::log_2(&"[DEBUG] ArrowRight - new cursor_position:".into(), &new_pos.into());
                         }
                     },
+                    "ArrowUp" => {
+                        e.prevent_default();
+                        let current_index = *history_nav_index;
+                        if current_index < (history.entries.len() as i32 - 1) {
+                            let new_index = current_index + 1;
+                            history_nav_index.set(new_index);
+                            if let Some((command, _, _)) = history.entries.get((history.entries.len() - 1 - new_index as usize)) {
+                                let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
+                                let command_text = command.strip_prefix(&prompt).unwrap_or(command);
+                                current_line.set(command_text.to_string());
+                                input.set_value(command_text);
+                                input.set_selection_range(command_text.len() as u32, command_text.len() as u32).ok();
+                            }
+                        }
+                    },
+                    "ArrowDown" => {
+                        e.prevent_default();
+                        let current_index = *history_nav_index;
+                        if current_index > 0 {
+                            let new_index = current_index - 1;
+                            history_nav_index.set(new_index);
+                            if let Some((command, _, _)) = history.entries.get((history.entries.len() - 1 - new_index as usize)) {
+                                let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
+                                let command_text = command.strip_prefix(&prompt).unwrap_or(command);
+                                current_line.set(command_text.to_string());
+                                input.set_value(command_text);
+                                input.set_selection_range(command_text.len() as u32, command_text.len() as u32).ok();
+                            }
+                        } else if current_index == 0 {
+                            history_nav_index.set(-1);
+                            current_line.set("".to_string());
+                            input.set_value("");
+                        }
+                    },
                     "Home" => {
                         let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
                         let new_pos = prompt.len();
