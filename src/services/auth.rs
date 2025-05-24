@@ -34,7 +34,18 @@ impl AuthService {
         let window = web_sys::window().unwrap();
         
         let supabase = js_sys::eval(&format!(
-            "window.supabase.createClient('{}', '{}')",
+            "window.supabase.createClient('{}', '{}', {{
+                auth: {{
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true,
+                    flowType: 'pkce',
+                    storage: window.localStorage,
+                    storageKey: 'supabase.auth.token',
+                    debug: false,
+                    tokenExpirationTime: 31536000000 // 1 year in milliseconds
+                }}
+            }})",
             self.supabase_url, self.supabase_key
         ))
         .map_err(|e| {
@@ -205,7 +216,18 @@ impl AuthService {
         let window = web_sys::window().unwrap();
         
         let supabase = js_sys::eval(&format!(
-            "window.supabase.createClient('{}', '{}')",
+            "window.supabase.createClient('{}', '{}', {{
+                auth: {{
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true,
+                    flowType: 'pkce',
+                    storage: window.localStorage,
+                    storageKey: 'supabase.auth.token',
+                    debug: false,
+                    tokenExpirationTime: 31536000000 // 1 year in milliseconds
+                }}
+            }})",
             self.supabase_url, self.supabase_key
         ))
         .map_err(|e| {
