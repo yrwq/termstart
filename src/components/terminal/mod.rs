@@ -5,8 +5,12 @@ use web_sys::{HtmlInputElement, KeyboardEvent, InputEvent};
 use lucide_yew::Folder;
 use lucide_yew::File;
 use termstart::services::auth::AuthService;
+use termstart::services::bookmark::BookmarkService;
 use wasm_bindgen_futures::spawn_local;
 use wasm_bindgen::{JsCast, closure::Closure};
+use std::rc::Rc;
+use std::cell::RefCell;
+use termstart::config::Config;
 
 use crate::components::terminal::commands::handle_command;
 
@@ -125,6 +129,10 @@ pub fn terminal() -> Html {
     });
     let current_tag = use_state(|| None::<String>);
 
+    let available_commands = ["help", "fetch", "theme", "version", "whoami", "clear", "cd", "register", "login", "logout", "ls", "cat", "touch", "open", "rm", "tag", "search", "tree"];
+    let tags = use_state(|| Vec::<String>::new());
+    let bookmarks = use_state(|| Vec::<String>::new());
+
     {
         let input_ref = input_ref.clone();
         use_effect(move || {
@@ -169,6 +177,37 @@ pub fn terminal() -> Html {
         });
     }
 
+    {
+        let tags = tags.clone();
+        let bookmarks = bookmarks.clone();
+        use_effect(move || {
+            spawn_local(async move {
+                if let Some(user) = AuthService::get_current_user() {
+                    if !user.id.is_empty() {
+                        let config = Config::load();
+                        let bookmark_service = BookmarkService::new(
+                            config.supabase_url.clone(),
+                            config.supabase_key.clone(),
+                        );
+                        
+                        match bookmark_service.get_bookmarks(None).await {
+                            Ok(bookmarks_list) => {
+                                let mut all_tags = std::collections::HashSet::new();
+                                for bookmark in &bookmarks_list {
+                                    all_tags.extend(bookmark.tags.clone());
+                                }
+                                tags.set(all_tags.into_iter().collect());
+                                bookmarks.set(bookmarks_list.into_iter().map(|b| b.name).collect());
+                            }
+                            Err(_) => {}
+                        }
+                    }
+                }
+            });
+            || ()
+        });
+    }
+
     let onkeydown = {
         let input_ref = input_ref.clone();
         let history = history.clone();
@@ -176,6 +215,9 @@ pub fn terminal() -> Html {
         let history_nav_index = history_nav_index.clone();
         let is_dark = is_dark.clone();
         let current_tag = current_tag.clone();
+        let available_commands = available_commands.clone();
+        let tags = tags.clone();
+        let bookmarks = bookmarks.clone();
 
         Callback::from(move |e: KeyboardEvent| {
             web_sys::console::log_1(&"[DEBUG] onkeydown handler called".into());
@@ -303,6 +345,77 @@ pub fn terminal() -> Html {
                         history_nav_index.set(-1);
                         input.focus().ok();
                     },
+                    "Tab" => {
+                        e.prevent_default();
+                        let value = input.value();
+                        let parts: Vec<&str> = value.split_whitespace().collect();
+                        
+                        if parts.is_empty() {
+                            return;
+                        }
+
+                        let current_word = parts.last().unwrap();
+                        let prefix = parts[..parts.len()-1].join(" ");
+                        let prefix = if prefix.is_empty() { String::new() } else { format!("{} ", prefix) };
+
+                        let completions = if parts.len() == 1 {
+                            // Command completion
+                            available_commands.iter()
+                                .filter(|cmd| cmd.starts_with(current_word))
+                                .map(|s| s.to_string())
+                                .collect::<Vec<_>>()
+                        } else if parts[0] == "cd" {
+                            // Tag completion for cd command
+                            tags.iter()
+                                .filter(|tag| tag.starts_with(current_word))
+                                .map(|s| s.to_string())
+                                .collect::<Vec<_>>()
+                        } else {
+                            // Bookmark completion for other commands
+                            bookmarks.iter()
+                                .filter(|name| name.starts_with(current_word))
+                                .map(|s| s.to_string())
+                                .collect::<Vec<_>>()
+                        };
+
+                        if completions.len() == 1 {
+                            // Single completion
+                            let completion = completions[0].clone();
+                            let new_value = format!("{}{}", prefix, completion);
+                            current_line.set(new_value.clone());
+                            input.set_value(&new_value);
+                            input.set_selection_range(new_value.len() as u32, new_value.len() as u32).ok();
+                        } else if completions.len() > 1 {
+                            // Multiple completions - show them inline
+                            let mut output = String::new();
+                            let mut max_length = 0;
+                            
+                            // First pass: calculate max length
+                            for completion in &completions {
+                                max_length = max_length.max(completion.len());
+                            }
+                            
+                            // Second pass: format completions in columns
+                            let columns = 3;
+                            let rows = (completions.len() + columns - 1) / columns;
+                            
+                            for row in 0..rows {
+                                for col in 0..columns {
+                                    if let Some(completion) = completions.get(row + col * rows) {
+                                        output.push_str(&format!("{:<width$}  ", completion, width = max_length));
+                                    }
+                                }
+                                output.push('\n');
+                            }
+                            
+                            let id = history.next_id;
+                            history.dispatch(HistoryAction::SetOutput { 
+                                id, 
+                                command: format!("{}{}", prefix, current_word), 
+                                output 
+                            });
+                        }
+                    },
                     "ArrowLeft" => {
                          if let Some(start) = input.selection_start().ok().flatten().map(|s| s as usize) {
                             web_sys::console::log_2(&"[DEBUG] ArrowLeft - selectionStart:".into(), &start.into());
@@ -421,8 +534,6 @@ pub fn terminal() -> Html {
             || ()
         });
     }
-
-    let available_commands = ["help", "fetch", "theme", "version", "whoami", "clear", "cd", "register", "login", "logout", "ls", "cat", "touch", "open", "rm", "tag", "search", "tree"];
 
     html! {
         <>
