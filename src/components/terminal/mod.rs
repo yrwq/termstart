@@ -6,6 +6,9 @@ use lucide_yew::Folder;
 use lucide_yew::File;
 use termstart::services::auth::AuthService;
 use wasm_bindgen_futures::spawn_local;
+use wasm_bindgen::JsCast;
+use std::rc::Rc;
+use std::cell::RefCell;
 
 use crate::components::terminal::commands::handle_command;
 
@@ -343,6 +346,7 @@ pub fn terminal() -> Html {
                 } else {
                     current_line.set(value);
                 }
+                input.focus().ok();
             }
         })
     };
@@ -365,6 +369,63 @@ pub fn terminal() -> Html {
         });
     }
 
+    // Keep input focused when the current line changes
+    {
+        let input_ref = input_ref.clone();
+        use_effect_with((*current_line).clone(), move |_| {
+            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
+                input.focus().ok();
+            }
+            || ()
+        });
+    }
+
+    // Keep input focused when clicking outside
+    {
+        let input_ref = input_ref.clone();
+        let terminal_ref = use_node_ref(); // Ref for the main terminal div
+        use_effect(move || {
+            let document = web_sys::window().unwrap().document().unwrap();
+            let input_element = input_ref.cast::<HtmlInputElement>();
+            let terminal_element = terminal_ref.cast::<web_sys::Element>();
+
+            let handler = Rc::new(RefCell::new(wasm_bindgen::closure::Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |event: web_sys::MouseEvent| {
+                if let Some(input) = input_element.clone() {
+                    if let Some(terminal) = terminal_element.clone() {
+                        // Traverse up the DOM tree to see if the clicked element is inside the terminal
+                        let mut target: Option<web_sys::Element> = event.target().and_then(|t| t.dyn_into::<web_sys::Element>().ok());
+                        let mut clicked_inside_terminal = false;
+                        while let Some(element) = target {
+                            if element.is_same_node(Some(&terminal.clone().into())) {
+                                clicked_inside_terminal = true;
+                                break;
+                            }
+                            target = element.parent_element();
+                        }
+
+                        if !clicked_inside_terminal {
+                             event.prevent_default();
+                             input.focus().ok();
+                        }
+                    } else {
+                         // If terminal_element is not available, just try to refocus input
+                         input.focus().ok();
+                    }
+                } else {
+                     // If input_element is not available, do nothing
+                }
+            })));
+
+            document.add_event_listener_with_callback("click", handler.borrow().as_ref().unchecked_ref()).unwrap();
+
+            let handler_cloned = handler.clone();
+            move || {
+                document.remove_event_listener_with_callback("click", handler_cloned.borrow().as_ref().unchecked_ref()).unwrap();
+            }
+        });
+    }
+
+    // Auto-scroll to bottom effect
     let scroll_ref = use_node_ref();
     {
         let history = history.clone();
