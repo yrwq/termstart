@@ -115,7 +115,7 @@ fn render_output(output: Option<&String>) -> Html {
 pub fn terminal() -> Html {
     let input_ref = use_node_ref();
     let history = use_reducer(|| TerminalHistory { entries: Vec::new(), next_id: 0 });
-    let current_line = use_state(String::new);
+    let current_line = use_state(|| "".to_string());
     let history_nav_index = use_state(|| -1);
     let is_dark = use_state(|| false);
     let current_tag = use_state(|| None::<String>);
@@ -159,13 +159,14 @@ pub fn terminal() -> Html {
             web_sys::console::log_1(&"[DEBUG] onkeydown handler called".into());
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 let key = e.key();
+                web_sys::console::log_2(&"[DEBUG] Key pressed:".into(), &key.clone().into());
 
                 match key.as_str() {
                     "Enter" => {
                         e.prevent_default();
-                        let command_line = (*current_line).clone();
-                        let command = command_line.strip_prefix(&format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() }))
-                                                .unwrap_or(&command_line).trim().to_string();
+                        let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
+                        let command_line = format!("{}{}", prompt, (*current_line).clone());
+                        let command = (*current_line).trim().to_string();
 
                         if !command.is_empty() {
                             let parts: Vec<String> = command.split_whitespace().map(|s| s.to_string()).collect();
@@ -226,18 +227,20 @@ pub fn terminal() -> Html {
                                 },
                                 _ => {
                                     let history = history.clone();
-                                    let parts_clone = parts.clone();
-                                    let current_tag_clone = current_tag.clone();
                                     let command_line_clone = command_line.clone();
+                                    let current_tag_clone = current_tag.clone();
 
                                     let id = history.next_id;
                                     history.dispatch(HistoryAction::AddCommand { command: command_line_clone.clone(), id });
 
                                     let history_dispatch = history.dispatcher();
                                     spawn_local(async move {
-                                        let mut command_parts = parts_clone;
-                                        if cmd_name == "ls" {
-                                            if let Some(tag) = &*current_tag_clone {
+                                        let mut command_parts: Vec<String> = command.split_whitespace().map(|s| s.to_string()).collect();
+                                        let current_tag_inside_async = current_tag_clone.clone();
+                                        
+                                        // Add current tag to ls command if in a tagged directory
+                                        if command_parts.get(0).map(|s| s.as_str()) == Some("ls") {
+                                            if let Some(tag) = &*current_tag_inside_async {
                                                 if command_parts.len() == 1 {
                                                     command_parts.push(tag.clone());
                                                 }
@@ -247,6 +250,7 @@ pub fn terminal() -> Html {
                                         let parts_refs: Vec<&str> = command_parts.iter().map(|s| s.as_str()).collect();
                                         let result = handle_command(parts_refs).await;
 
+                                        // Common part after handling command
                                         web_sys::console::info_1(&format!("Command result for {}: {:?}", command_line_clone, result).into());
 
                                         let output = match result {
@@ -273,55 +277,46 @@ pub fn terminal() -> Html {
                         }
 
                         let new_prompt = format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() });
-                        current_line.set(new_prompt.clone());
-                        input.set_value(&new_prompt);
+                        current_line.set("".to_string());
+                        input.set_value("");
                         history_nav_index.set(-1);
                         input.focus().ok();
                     },
-                    "ArrowUp" => {
-                        e.prevent_default();
-                        let history_len = history.entries.len();
-                        if history_len > 0 {
-                            let mut new_index = *history_nav_index;
-                            if new_index < (history_len as i32 - 1) {
-                                new_index += 1;
-                                history_nav_index.set(new_index);
-                                if let Some((command, _, _)) = history.entries.get((history_len as i32 - 1 - new_index) as usize) {
-                                    current_line.set(command.clone());
-                                    input.set_value(command);
-                                }
-                            }
+                    "ArrowLeft" => {
+                         if let Some(start) = input.selection_start().ok().flatten().map(|s| s as usize) {
+                            web_sys::console::log_2(&"[DEBUG] ArrowLeft - selectionStart:".into(), &start.into());
+                            let new_pos = start.saturating_sub(1);
+                            input.set_selection_range(new_pos as u32, new_pos as u32).ok();
+                             web_sys::console::log_2(&"[DEBUG] ArrowLeft - new cursor_position:".into(), &new_pos.into());
                         }
                     },
-                    "ArrowDown" => {
-                        e.prevent_default();
-                        let history_len = history.entries.len();
-                        if history_len > 0 {
-                            let mut new_index = *history_nav_index;
-                            if new_index > 0 {
-                                new_index -= 1;
-                                history_nav_index.set(new_index);
-                                if let Some((command, _, _)) = history.entries.get((history_len as i32 - 1 - new_index) as usize) {
-                                    current_line.set(command.clone());
-                                    input.set_value(command);
-                                } else {
-                                    let new_prompt = format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() });
-                                    current_line.set(new_prompt.clone());
-                                    input.set_value(&new_prompt);
-                                }
-                            } else {
-                                let new_prompt = format!("{}", if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() });
-                                current_line.set(new_prompt.clone());
-                                input.set_value(&new_prompt);
-                                history_nav_index.set(-1);
-                            }
+                    "ArrowRight" => {
+                        if let Some(start) = input.selection_start().ok().flatten().map(|s| s as usize) {
+                            web_sys::console::log_2(&"[DEBUG] ArrowRight - selectionStart:".into(), &start.into());
+                             let new_pos = start + 1;
+                             input.set_selection_range(new_pos as u32, new_pos as u32).ok();
+                             web_sys::console::log_2(&"[DEBUG] ArrowRight - new cursor_position:".into(), &new_pos.into());
                         }
                     },
-                    "ArrowLeft" | "ArrowRight" | "Backspace" | "Delete" | "Home" | "End" => {
-
+                    "Home" => {
+                        let prompt = if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() };
+                        let new_pos = prompt.len();
+                        input.set_selection_range(new_pos as u32, new_pos as u32).ok();
+                        web_sys::console::log_2(&"[DEBUG] Home - new cursor_position:".into(), &new_pos.into());
+                    },
+                    "End" => {
+                        let new_pos = input.value().len();
+                        input.set_selection_range(new_pos as u32, new_pos as u32).ok();
+                        web_sys::console::log_2(&"[DEBUG] End - new cursor_position:".into(), &new_pos.into());
+                    },
+                    "Backspace" | "Delete" => {
+                         if let Some(start) = input.selection_start().ok().flatten().map(|s| s as usize) {
+                             web_sys::console::log_2(&"[DEBUG] Backspace/Delete - selectionStart:".into(), &start.into());
+                             let new_pos = if key.as_str() == "Backspace" { start.saturating_sub(1) } else { start };
+                              web_sys::console::log_2(&"[DEBUG] Backspace/Delete - new cursor_position:".into(), &new_pos.into());
+                         }
                     },
                     _ => {
-
                     }
                 }
             }
@@ -331,26 +326,17 @@ pub fn terminal() -> Html {
     let oninput = {
         let current_line = current_line.clone();
         let current_tag = current_tag.clone();
+        let input_ref = input_ref.clone();
         Callback::from(move |e: InputEvent| {
-            if let Some(input) = e.target_dyn_into::<HtmlInputElement>() {
+            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 let value = input.value();
-                let prompt = if let Some(tag) = &*current_tag {
-                    format!("/{}/ > ", tag)
-                } else {
-                    "~ > ".to_string()
-                };
-
-                if !value.starts_with(&prompt) {
-                    input.set_value(&prompt);
-                    current_line.set(prompt);
-                } else {
-                    current_line.set(value);
-                }
-                input.focus().ok();
+                // Only update the current_line state with the text AFTER the prompt
+                current_line.set(value);
             }
         })
     };
 
+    // Add effect to update prompt when tag changes
     {
         let current_line = current_line.clone();
         let current_tag = current_tag.clone();
@@ -362,66 +348,11 @@ pub fn terminal() -> Html {
                 } else {
                     "~ > ".to_string()
                 };
-                current_line.set(new_prompt.clone());
-                input.set_value(&new_prompt);
+                // Only set cursor position after the prompt
+                let prompt_len = new_prompt.len();
+                input.set_selection_range(prompt_len as u32, prompt_len as u32).ok();
             }
             || ()
-        });
-    }
-
-    // Keep input focused when the current line changes
-    {
-        let input_ref = input_ref.clone();
-        use_effect_with((*current_line).clone(), move |_| {
-            if let Some(input) = input_ref.cast::<HtmlInputElement>() {
-                input.focus().ok();
-            }
-            || ()
-        });
-    }
-
-    // Keep input focused when clicking outside
-    {
-        let input_ref = input_ref.clone();
-        let terminal_ref = use_node_ref(); // Ref for the main terminal div
-        use_effect(move || {
-            let document = web_sys::window().unwrap().document().unwrap();
-            let input_element = input_ref.cast::<HtmlInputElement>();
-            let terminal_element = terminal_ref.cast::<web_sys::Element>();
-
-            let handler = Rc::new(RefCell::new(wasm_bindgen::closure::Closure::<dyn FnMut(web_sys::MouseEvent)>::new(move |event: web_sys::MouseEvent| {
-                if let Some(input) = input_element.clone() {
-                    if let Some(terminal) = terminal_element.clone() {
-                        // Traverse up the DOM tree to see if the clicked element is inside the terminal
-                        let mut target: Option<web_sys::Element> = event.target().and_then(|t| t.dyn_into::<web_sys::Element>().ok());
-                        let mut clicked_inside_terminal = false;
-                        while let Some(element) = target {
-                            if element.is_same_node(Some(&terminal.clone().into())) {
-                                clicked_inside_terminal = true;
-                                break;
-                            }
-                            target = element.parent_element();
-                        }
-
-                        if !clicked_inside_terminal {
-                             event.prevent_default();
-                             input.focus().ok();
-                        }
-                    } else {
-                         // If terminal_element is not available, just try to refocus input
-                         input.focus().ok();
-                    }
-                } else {
-                     // If input_element is not available, do nothing
-                }
-            })));
-
-            document.add_event_listener_with_callback("click", handler.borrow().as_ref().unchecked_ref()).unwrap();
-
-            let handler_cloned = handler.clone();
-            move || {
-                document.remove_event_listener_with_callback("click", handler_cloned.borrow().as_ref().unchecked_ref()).unwrap();
-            }
         });
     }
 
@@ -438,10 +369,12 @@ pub fn terminal() -> Html {
         });
     }
 
+    let available_commands = ["help", "fetch", "theme", "version", "whoami", "clear", "cd", "register", "login", "logout", "ls", "cat", "touch", "open", "rm", "tag", "search", "tree"];
+
     html! {
         <>
             <div class="w-full h-screen flex items-center justify-center">
-                <div class="w-full max-w-5xl p-4 bg-github-light-bg/70 dark:bg-github-dark-bg/70 rounded-lg shadow-xl font-mono text-github-light-text dark:text-github-dark-text border border-github-light-border dark:border-github-dark-border backdrop-blur-lg">
+                <div class="w-full max-w-5xl p-4 bg-github-light-bg/70 dark:bg-github-dark-bg/70 rounded-lg shadow-xl font-mono text-github-light-text dark:text-github-dark-text border border-github-light-border dark:border-github-dark-border backdrop-blur-sm">
                     <div class="flex items-center mb-2 px-2">
                         <div class="flex space-x-2">
                             <div class="w-3 h-3 rounded-full bg-red-500"></div>
@@ -466,14 +399,32 @@ pub fn terminal() -> Html {
                         }
                         
                         <div class="flex items-start group">
-                            <input
+                            <span class="text-github-light-text dark:text-github-dark-text mr-2 select-none opacity-80 terminal-prompt">{if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() }}</span>
+                             <input
                                 type="text"
                                 ref={input_ref}
                                 value={(*current_line).clone()}
                                 onkeydown={onkeydown}
                                 oninput={oninput}
                                 autofocus=true
-                                class="bg-transparent outline-none border-none text-github-light-text dark:text-github-dark-text w-full terminal-input"
+                                class={classes!(
+                                    "bg-transparent",
+                                    "outline-none",
+                                    "border-none",
+                                    "flex-grow", // Allow input to take remaining space
+                                    "terminal-input",
+                                    {
+                                        let command_text = (*current_line).split_whitespace().next().unwrap_or("").to_string();
+                                        let is_command_available = available_commands.contains(&command_text.as_str());
+                                        if is_command_available && !command_text.is_empty() {
+                                            "text-[#238636]"
+                                        } else if !command_text.is_empty() {
+                                            "text-[#f85149]"
+                                        } else {
+                                            ""
+                                        }
+                                    }
+                                )}
                                 placeholder=" "
                                 spellcheck="false"
                                 autocomplete="off"
