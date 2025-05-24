@@ -315,7 +315,6 @@ pub fn terminal() -> Html {
                                         let parts_refs: Vec<&str> = command_parts.iter().map(|s| s.as_str()).collect();
                                         let result = handle_command(parts_refs).await;
 
-                                        // Common part after handling command
                                         web_sys::console::info_1(&format!("Command result for {}: {:?}", command_line_clone, result).into());
 
                                         let output = match result {

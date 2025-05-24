@@ -77,10 +77,57 @@ impl BookmarkService {
     fn get_auth_token(&self) -> Result<String, BookmarkError> {
         let window = web_sys::window().unwrap();
         let storage = window.local_storage().unwrap().unwrap();
-        storage
+        
+        // Try to get the token
+        let token = storage
             .get_item("supabase.auth.token")
             .unwrap()
-            .ok_or(BookmarkError::NotAuthenticated)
+            .ok_or(BookmarkError::NotAuthenticated)?;
+
+        // If we have a token, try to use it
+        if !token.is_empty() {
+            return Ok(token);
+        }
+
+        // If no token or empty token, try to refresh
+        let auth_service = AuthService::new(
+            self.config.supabase_url.clone(),
+            self.config.supabase_key.clone(),
+        );
+
+        // Use wasm_bindgen_futures to handle the async refresh
+        let _ = wasm_bindgen_futures::spawn_local(async move {
+            match auth_service.refresh_token().await {
+                Ok(_) => {
+                    // After refresh, try to get the token again and log
+                    let storage = web_sys::window().unwrap().local_storage().unwrap().unwrap();
+                    match storage
+                        .get_item("supabase.auth.token")
+                        .unwrap()
+                    {
+                        Some(token) => {
+                            web_sys::console::log_1(&format!("[DEBUG] Refreshed token retrieved: {}", token).into());
+                        },
+                        None => {
+                             web_sys::console::error_1(&"[DEBUG] Token not available after refresh.".into());
+                        }
+                    }
+                    // Explicitly return () from this arm
+                    ()
+                }
+                Err(e) => {
+                     web_sys::console::error_1(&format!("[DEBUG] Token refresh failed: {}", e).into());
+                     // Explicitly return () from this arm
+                     ()
+                }
+            }
+            // Explicitly return () at the end of the async block.
+            ()
+        });
+
+        // Since we can't await the spawned future here, we return NotAuthenticated synchronously.
+        // The next time get_auth_token is called, the token might be available if the refresh succeeded.
+        Err(BookmarkError::NotAuthenticated)
     }
 
     fn normalize_url(url: &str) -> Result<String, BookmarkError> {

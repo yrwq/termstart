@@ -425,9 +425,89 @@ impl AuthService {
     pub fn get_current_user() -> Option<User> {
         let window = web_sys::window().unwrap();
         let storage = window.local_storage().unwrap().unwrap();
+        
+        // First check if we have a token
+        let token = storage.get_item("supabase.auth.token").unwrap();
+        if token.is_none() {
+            return None;
+        }
+
+        // Then get the user
         storage
             .get_item("supabase.auth.user")
             .unwrap()
             .and_then(|user| serde_json::from_str(&user).ok())
+    }
+
+    pub async fn refresh_token(&self) -> Result<(), String> {
+        let window = web_sys::window().unwrap();
+        let storage = window.local_storage().unwrap().unwrap();
+        
+        let supabase = js_sys::eval(&format!(
+            "window.supabase.createClient('{}', '{}', {{
+                auth: {{
+                    persistSession: true,
+                    autoRefreshToken: true,
+                    detectSessionInUrl: true,
+                    flowType: 'pkce',
+                    storage: window.localStorage,
+                    storageKey: 'supabase.auth.token',
+                    debug: false,
+                    tokenExpirationTime: 31536000000 // 1 year in milliseconds
+                }}
+            }})",
+            self.supabase_url, self.supabase_key
+        ))
+        .map_err(|e| format!("Failed to create Supabase client: {:?}", e))?;
+
+        let auth = js_sys::Reflect::get(&supabase, &JsValue::from_str("auth"))
+            .map_err(|e| format!("Failed to get auth object: {:?}", e))?;
+
+        let refresh_fn = js_sys::Reflect::get(&auth, &JsValue::from_str("refreshSession"))
+            .map_err(|e| format!("Failed to get refreshSession function: {:?}", e))?
+            .dyn_into::<js_sys::Function>()
+            .map_err(|e| format!("Failed to convert to Function: {:?}", e))?;
+
+        let refresh_promise = refresh_fn
+            .call0(&auth)
+            .map_err(|e| format!("Failed to call refreshSession: {:?}", e))?;
+
+        let refresh_result = JsFuture::from(js_sys::Promise::from(refresh_promise))
+            .await
+            .map_err(|e| format!("Failed to refresh token: {:?}", e))?;
+
+        let error = js_sys::Reflect::get(&refresh_result, &JsValue::from_str("error"))
+            .ok()
+            .and_then(|e| {
+                if e.is_null() {
+                    None
+                } else {
+                    let message = js_sys::Reflect::get(&e, &JsValue::from_str("message"))
+                        .ok()
+                        .and_then(|m| m.as_string())
+                        .unwrap_or_else(|| "Unknown error".to_string());
+                    Some(message)
+                }
+            });
+        
+        if let Some(error_msg) = error {
+            return Err(format!("Token refresh failed: {}", error_msg));
+        }
+
+        let session = js_sys::Reflect::get(&refresh_result, &JsValue::from_str("data"))
+            .map_err(|e| format!("Failed to get session data: {:?}", e))?
+            .dyn_into::<js_sys::Object>()
+            .map_err(|e| format!("Failed to convert to Object: {:?}", e))?;
+
+        let access_token = js_sys::Reflect::get(&session, &JsValue::from_str("access_token"))
+            .map_err(|e| format!("Failed to get access token: {:?}", e))?
+            .as_string()
+            .ok_or_else(|| "Access token is not a string".to_string())?;
+
+        storage
+            .set_item("supabase.auth.token", &access_token)
+            .map_err(|e| format!("Failed to store token: {:?}", e))?;
+
+        Ok(())
     }
 } 
