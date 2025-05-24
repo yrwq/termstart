@@ -132,6 +132,7 @@ pub fn terminal() -> Html {
     let available_commands = ["help", "fetch", "theme", "version", "whoami", "clear", "cd", "register", "login", "logout", "ls", "cat", "touch", "open", "rm", "tag", "search", "tree"];
     let tags = use_state(|| Vec::<String>::new());
     let bookmarks = use_state(|| Vec::<String>::new());
+    let suggestion = use_state(|| None::<String>);
 
     {
         let input_ref = input_ref.clone();
@@ -364,18 +365,39 @@ pub fn terminal() -> Html {
                                 .filter(|cmd| cmd.starts_with(current_word))
                                 .map(|s| s.to_string())
                                 .collect::<Vec<_>>()
-                        } else if parts[0] == "cd" {
-                            // Tag completion for cd command
+                        } else if AuthService::get_current_user().is_none() {
+                            // No completions if not authenticated
+                            Vec::new()
+                        } else if parts[0] == "cd" || parts[0] == "ls" {
+                            // Tag completion for cd and ls commands
                             tags.iter()
                                 .filter(|tag| tag.starts_with(current_word))
                                 .map(|s| s.to_string())
                                 .collect::<Vec<_>>()
-                        } else {
-                            // Bookmark completion for other commands
+                        } else if parts[0] == "cat" || parts[0] == "open" || parts[0] == "rm" {
+                            // Bookmark completion for cat, open, rm commands
                             bookmarks.iter()
                                 .filter(|name| name.starts_with(current_word))
                                 .map(|s| s.to_string())
                                 .collect::<Vec<_>>()
+                        } else if parts[0] == "tag" && parts.len() >= 3 {
+                            // Tag completion for tag command's tag arguments
+                            if parts[1] == "add" || parts[1] == "remove" {
+                                tags.iter()
+                                    .filter(|tag| tag.starts_with(current_word))
+                                    .map(|s| s.to_string())
+                                    .collect::<Vec<_>>()
+                            } else {
+                                Vec::new()
+                            }
+                        } else if parts[0] == "tag" && parts.len() == 2 {
+                            // Bookmark completion for tag command's bookmark argument
+                            bookmarks.iter()
+                                .filter(|name| name.starts_with(current_word))
+                                .map(|s| s.to_string())
+                                .collect::<Vec<_>>()
+                        } else {
+                            Vec::new()
                         };
 
                         if completions.len() == 1 {
@@ -494,11 +516,80 @@ pub fn terminal() -> Html {
     let oninput = {
         let current_line = current_line.clone();
         let input_ref = input_ref.clone();
-        Callback::from(move |_e: InputEvent| {
+        let available_commands = available_commands.clone();
+        let tags = tags.clone();
+        let bookmarks = bookmarks.clone();
+        let suggestion = suggestion.clone();
+        Callback::from(move |e: InputEvent| {
             if let Some(input) = input_ref.cast::<HtmlInputElement>() {
                 let value = input.value();
-                // Only update the current_line state with the text AFTER the prompt
-                current_line.set(value);
+                current_line.set(value.clone());
+                
+                // Generate suggestion
+                let parts: Vec<&str> = value.split_whitespace().collect();
+                if !parts.is_empty() {
+                    let current_word = parts.last().unwrap();
+                    if current_word.is_empty() {
+                        suggestion.set(None);
+                        return;
+                    }
+                    let prefix = parts[..parts.len()-1].join(" ");
+                    let prefix = if prefix.is_empty() { String::new() } else { format!("{} ", prefix) };
+
+                    let completions = if parts.len() == 1 {
+                        // Command completion
+                        available_commands.iter()
+                            .filter(|cmd| cmd.starts_with(current_word))
+                            .map(|s| s.to_string())
+                            .collect::<Vec<_>>()
+                    } else if AuthService::get_current_user().is_none() {
+                        // No completions if not authenticated
+                        Vec::new()
+                    } else if parts[0] == "cd" || parts[0] == "ls" {
+                        // Tag completion for cd and ls commands
+                        tags.iter()
+                            .filter(|tag| tag.starts_with(current_word))
+                            .map(|s| s.to_string())
+                            .collect::<Vec<_>>()
+                    } else if parts[0] == "cat" || parts[0] == "open" || parts[0] == "rm" {
+                        // Bookmark completion for cat, open, rm commands
+                        bookmarks.iter()
+                            .filter(|name| name.starts_with(current_word))
+                            .map(|s| s.to_string())
+                            .collect::<Vec<_>>()
+                    } else if parts[0] == "tag" && parts.len() >= 3 {
+                        // Tag completion for tag command's tag arguments
+                        if parts[1] == "add" || parts[1] == "remove" {
+                            tags.iter()
+                                .filter(|tag| tag.starts_with(current_word))
+                                .map(|s| s.to_string())
+                                .collect::<Vec<_>>()
+                        } else {
+                            Vec::new()
+                        }
+                    } else if parts[0] == "tag" && parts.len() == 2 {
+                        // Bookmark completion for tag command's bookmark argument
+                        bookmarks.iter()
+                            .filter(|name| name.starts_with(current_word))
+                            .map(|s| s.to_string())
+                            .collect::<Vec<_>>()
+                    } else {
+                        Vec::new()
+                    };
+
+                    if completions.len() == 1 {
+                        let completion = completions[0].clone();
+                        if completion != current_word.to_string() {
+                            suggestion.set(Some(format!("{}{}", prefix, completion)));
+                        } else {
+                            suggestion.set(None);
+                        }
+                    } else {
+                        suggestion.set(None);
+                    }
+                } else {
+                    suggestion.set(None);
+                }
             }
         })
     };
@@ -564,35 +655,42 @@ pub fn terminal() -> Html {
                         
                         <div class="flex items-start group">
                             <span class="text-github-light-text dark:text-github-dark-text mr-2 select-none opacity-80 terminal-prompt">{if let Some(tag) = &*current_tag { format!("/{}/ > ", tag) } else { "~ > ".to_string() }}</span>
-                             <input
-                                type="text"
-                                ref={input_ref}
-                                value={(*current_line).clone()}
-                                onkeydown={onkeydown}
-                                oninput={oninput}
-                                autofocus=true
-                                class={classes!(
-                                    "bg-transparent",
-                                    "outline-none",
-                                    "border-none",
-                                    "flex-grow", // Allow input to take remaining space
-                                    "terminal-input",
-                                    {
-                                        let command_text = (*current_line).split_whitespace().next().unwrap_or("").to_string();
-                                        let is_command_available = available_commands.contains(&command_text.as_str());
-                                        if is_command_available && !command_text.is_empty() {
-                                            "text-[#238636]"
-                                        } else if !command_text.is_empty() {
-                                            "text-[#f85149]"
-                                        } else {
-                                            ""
+                            <div class="relative flex-grow">
+                                <input
+                                    type="text"
+                                    ref={input_ref}
+                                    value={(*current_line).clone()}
+                                    onkeydown={onkeydown}
+                                    oninput={oninput}
+                                    autofocus=true
+                                    class={classes!(
+                                        "bg-transparent",
+                                        "outline-none",
+                                        "border-none",
+                                        "flex-grow",
+                                        "terminal-input",
+                                        {
+                                            let command_text = (*current_line).split_whitespace().next().unwrap_or("").to_string();
+                                            let is_command_available = available_commands.contains(&command_text.as_str());
+                                            if is_command_available && !command_text.is_empty() {
+                                                "text-[#238636]"
+                                            } else if !command_text.is_empty() {
+                                                "text-[#f85149]"
+                                            } else {
+                                                ""
+                                            }
                                         }
-                                    }
-                                )}
-                                placeholder=" "
-                                spellcheck="false"
-                                autocomplete="off"
-                             />
+                                    )}
+                                    placeholder=" "
+                                    spellcheck="false"
+                                    autocomplete="off"
+                                />
+                                if let Some(sugg) = &*suggestion {
+                                    <div class="absolute top-0 left-0 pointer-events-none text-github-light-text/30 dark:text-github-dark-text/30">
+                                        { sugg }
+                                    </div>
+                                }
+                            </div>
                         </div>
                         <div ref={scroll_ref}></div>
                     </div>
