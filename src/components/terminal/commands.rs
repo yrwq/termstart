@@ -44,15 +44,46 @@ fn handle_sync_command(
     match parts.get(0).map(|s| s.as_str()) {
         Some("help") => {
             let is_logged_in = AuthService::get_current_user().is_some();
-            let mut help_text = "available commands:\n  help     - show this help message\n  clear    - clear the terminal\n  version  - show version information\n  theme    - toggle between light and dark theme\n  fetch    - display system information\n".to_string();
+            let mut help_text = String::new();
+            
+            // Header
+            help_text.push_str("╭──────────────────────────╮\n");
+            help_text.push_str("│      termstart v0.1.0    │\n");
+            help_text.push_str("├──────────────────────────┤\n");
+            
+            // Basic commands
+            help_text.push_str("│  Basic:                  │\n");
+            help_text.push_str("│  • help    - help menu   │\n");
+            help_text.push_str("│  • clear   - clear       │\n");
+            help_text.push_str("│  • version - version     │\n");
+            help_text.push_str("│  • theme   - theme       │\n");
+            help_text.push_str("│  • fetch   - system info │\n");
             
             if !is_logged_in {
-                help_text.push_str("  login    - login to your account\n  register - create a new account\n");
+                // Auth commands
+                help_text.push_str("├──────────────────────────┤\n");
+                help_text.push_str("│  Auth:                   │\n");
+                help_text.push_str("│  • login   - sign in     │\n");
+                help_text.push_str("│  • register - sign up    │\n");
             } else {
-                help_text.push_str("  logout   - logout from your account\n  whoami   - show current user information\n  ls       - list your bookmarks\n  cat      - show bookmark URL (usage: cat <bookmark_name>)\n  touch    - create a bookmark (usage: touch <name> <url> [tags])\n  open     - open bookmark in new tab (usage: open <bookmark_name>)\n  rm       - remove a bookmark (usage: rm <bookmark_name>)\n  tag      - add/remove tags (usage: tag <bookmark_name> <add|remove> <tag1> [tag2...])\n  search   - search bookmarks (usage: search <query>)\n  tree     - show a hierarchical view of bookmarks organized by tags\n");
+                // Bookmark commands
+                help_text.push_str("├──────────────────────────┤\n");
+                help_text.push_str("│  Bookmarks:              │\n");
+                help_text.push_str("│  • ls     - list         │\n");
+                help_text.push_str("│  • cat    - show url     │\n");
+                help_text.push_str("│  • touch  - create       │\n");
+                help_text.push_str("│  • open   - open tab     │\n");
+                help_text.push_str("│  • rm     - remove       │\n");
+                help_text.push_str("│  • tag    - tags         │\n");
+                help_text.push_str("│  • search - search       │\n");
+                help_text.push_str("│  • tree   - tree view    │\n");
+                help_text.push_str("│  • logout - sign out     │\n");
+                help_text.push_str("│  • whoami - user info    │\n");
             }
             
-            help_text       
+            help_text.push_str("╰──────────────────────────╯\n");
+            
+            help_text
         },
         Some("fetch") => {
             let window = window().unwrap();

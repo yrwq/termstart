@@ -665,9 +665,9 @@ pub fn terminal() -> Html {
 
     html! {
         <>
-            <div class="w-full h-screen flex items-center justify-center">
-                <div class="w-full max-w-7xl p-4 bg-github-light-bg/70 dark:bg-github-dark-bg/70 rounded-lg shadow-xl font-mono text-github-light-text dark:text-github-dark-text border border-github-light-border dark:border-github-dark-border backdrop-blur-sm">
-                    <div class="flex items-center mb-2 px-2">
+            <div class="w-full h-screen flex items-center justify-center p-0 overflow-hidden">
+                <div class="w-full h-full md:h-[600px] md:max-w-7xl bg-github-light-bg/70 dark:bg-github-dark-bg/70 rounded-none md:rounded-lg shadow-xl font-mono text-github-light-text dark:text-github-dark-text border-0 md:border border-github-light-border dark:border-github-dark-border backdrop-blur-sm overflow-hidden flex flex-col">
+                    <div class="flex items-center p-4 flex-shrink-0">
                         <div class="flex space-x-2">
                             <div class="w-3 h-3 rounded-full bg-red-500"></div>
                             <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
@@ -675,7 +675,7 @@ pub fn terminal() -> Html {
                         </div>
                         <div class="ml-4 text-sm text-github-light-text dark:text-github-dark-text opacity-70">{"termstart v0.1.0"}</div>
                     </div>
-                    <div class="overflow-y-auto h-[600px] whitespace-pre-wrap rounded p-4">
+                    <div class="overflow-y-auto flex-grow whitespace-pre-wrap rounded p-4">
                         { 
                             history.entries.iter().enumerate().map(|(i, (command, output, _id))| {
                                  let key = format!("history-{}-{}", i, command);
