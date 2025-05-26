@@ -319,7 +319,7 @@ pub fn terminal() -> Html {
                                                     history_dispatch.dispatch(HistoryAction::SetOutput {
                                                         id,
                                                         command: command_line_clone.clone(),
-                                                        output: "Not authenticated. Please login first.".to_string(),
+                                                        output: "not authenticated. please login first.".to_string(),
                                                     });
                                                 }
                                             }
@@ -373,7 +373,7 @@ pub fn terminal() -> Html {
                                                 web_sys::console::error_1(&format!("Command execution error: {}", e).into());
                                                 if e.to_string().contains("Not authenticated") {
                                                     web_sys::console::log_1(&format!("[DEBUG] Auth status: {:?}", AuthService::get_current_user()).into());
-                                                    "Error: Authentication issue detected. Please try logging in again with 'login' command.".to_string()
+                                                    "error: authentication issue detected. please try logging in again with 'login' command.".to_string()
                                                 } else {
                                                     format!("Error: {}", e)
                                                 }

@@ -44,12 +44,12 @@ fn handle_sync_command(
     match parts.get(0).map(|s| s.as_str()) {
         Some("help") => {
             let is_logged_in = AuthService::get_current_user().is_some();
-            let mut help_text = "Available commands:\n  help     - Show this help message\n  clear    - Clear the terminal\n  version  - Show version information\n  theme    - Toggle between light and dark theme\n  fetch    - Display system information\n".to_string();
+            let mut help_text = "available commands:\n  help     - show this help message\n  clear    - clear the terminal\n  version  - show version information\n  theme    - toggle between light and dark theme\n  fetch    - display system information\n".to_string();
             
             if !is_logged_in {
-                help_text.push_str("  login    - Login to your account\n  register - Create a new account\n");
+                help_text.push_str("  login    - login to your account\n  register - create a new account\n");
             } else {
-                help_text.push_str("  logout   - Logout from your account\n  whoami   - Show current user information\n  ls       - List your bookmarks\n  cat      - Show bookmark URL (usage: cat <bookmark_name>)\n  touch    - Create a bookmark (usage: touch <name> <url> [tags])\n  open     - Open bookmark in new tab (usage: open <bookmark_name>)\n  rm       - Remove a bookmark (usage: rm <bookmark_name>)\n  tag      - Add/remove tags (usage: tag <bookmark_name> <add|remove> <tag1> [tag2...])\n  search   - Search bookmarks (usage: search <query>)\n  tree     - Show a hierarchical view of bookmarks organized by tags\n");
+                help_text.push_str("  logout   - logout from your account\n  whoami   - show current user information\n  ls       - list your bookmarks\n  cat      - show bookmark URL (usage: cat <bookmark_name>)\n  touch    - create a bookmark (usage: touch <name> <url> [tags])\n  open     - open bookmark in new tab (usage: open <bookmark_name>)\n  rm       - remove a bookmark (usage: rm <bookmark_name>)\n  tag      - add/remove tags (usage: tag <bookmark_name> <add|remove> <tag1> [tag2...])\n  search   - search bookmarks (usage: search <query>)\n  tree     - show a hierarchical view of bookmarks organized by tags\n");
             }
             
             help_text       
@@ -60,23 +60,23 @@ fn handle_sync_command(
             let user_agent = navigator.user_agent().unwrap_or_default();
             
             let browser = if user_agent.contains("Firefox") {
-                "Firefox"
+                "firefox"
             } else if user_agent.contains("Chrome") {
-                "Chrome"
+                "chrome"
             } else if user_agent.contains("Safari") {
-                "Safari"
+                "safari"
             } else {
-                "Unknown Browser"
+                "unknown"
             };
 
             let os = if user_agent.contains("Mac") {
-                "macOS"
+                "macos"
             } else if user_agent.contains("Windows") {
-                "Windows"
+                "windows"
             } else if user_agent.contains("Linux") {
-                "Linux"
+                "linux"
             } else {
-                "Unknown OS"
+                "unknown"
             };
 
             let screen_width = window.inner_width().unwrap().as_f64().unwrap_or(0.0) as i32;
@@ -85,15 +85,15 @@ fn handle_sync_command(
             let is_dark = window.document().unwrap()
                 .document_element().unwrap()
                 .class_list().contains("dark");
-            let theme = if is_dark { "Dark" } else { "Light" };
+            let theme = if is_dark { "dark" } else { "light" };
 
             format!(
                 "{}\n\
-                OS: {}\n\
-                Browser: {}\n\
-                Resolution: {}x{}\n\
-                Theme: {}\n\
-                User Agent: {}\n",
+                os: {}\n\
+                browser: {}\n\
+                resolution: {}x{}\n\
+                theme: {}\n\
+                user agent: {}\n",
                 if let Some(user) = AuthService::get_current_user() {
                     user.email
                 } else {
@@ -114,10 +114,10 @@ fn handle_sync_command(
             
             if html.class_list().contains("dark") {
                 html.class_list().remove_1("dark").unwrap();
-                "Switched to light theme".to_string()
+                "switched to light theme".to_string()
             } else {
                 html.class_list().add_1("dark").unwrap();
-                "Switched to dark theme".to_string()
+                "switched to dark theme".to_string()
             }
         },
         Some("version") => {
@@ -125,8 +125,8 @@ fn handle_sync_command(
         },
         Some("whoami") => {
             match AuthService::get_current_user() {
-                Some(user) => format!("Logged in as: {}", user.email),
-                None => "Not logged in".to_string(),
+                Some(user) => format!("logged in as: {}", user.email),
+                None => "not logged in".to_string(),
             }
         },
         Some(_) | None => {
@@ -141,7 +141,7 @@ fn handle_async_ls(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You must be logged in to use this command.".to_string());
+            return Ok("you must be logged in to use this command.".to_string());
         }
 
         let tag_filter = parts.get(1).map(|s| s.to_string());
@@ -176,7 +176,7 @@ fn handle_async_ls(
 
                     fetched_bookmarks
                 }
-                Err(e) => return Err(format!("Failed to get bookmarks: {}", e)),
+                Err(e) => return Err(format!("failed to get bookmarks: {}", e)),
             }
         } else {
             // Use cached bookmarks
@@ -187,7 +187,7 @@ fn handle_async_ls(
         };
 
         if bookmarks.is_empty() {
-            return Ok("No bookmarks found.".to_string());
+            return Ok("no bookmarks found.".to_string());
         }
 
         let mut output = String::new();
@@ -198,7 +198,7 @@ fn handle_async_ls(
                 .collect();
 
             if filtered_bookmarks.is_empty() {
-                 return Ok(format!("No bookmarks found in tag '{}'", tag));
+                 return Ok(format!("no bookmarks found in tag '{}'", tag));
             } else {
                 for bookmark in filtered_bookmarks {
                     let tags = if bookmark.tags.is_empty() {
@@ -258,9 +258,9 @@ fn handle_async_register(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_some() {
-            return Ok("You are already logged in. Use 'logout' to sign out first.".to_string());
+            return Ok("you are already logged in".to_string());
         } else if parts.len() < 3 {
-            return Ok("Usage: register <email> <password>".to_string());
+            return Ok("usage: register <email> <password>".to_string());
         } else {
             let email = parts[1].to_string();
             let password = parts[2].to_string();
@@ -273,10 +273,10 @@ fn handle_async_register(
             
             match auth_service.sign_up(&email, &password).await {
                 Ok(user) => {
-                    Ok(format!("Successfully registered and logged in as: {}", user.email))
+                    Ok(format!("successfully registered and logged in as: {}", user.email))
                 }
                 Err(e) => {
-                    Err(format!("Registration failed: {}", e))
+                    Err(format!("registration failed: {}", e))
                 }
             }
         }
@@ -289,9 +289,9 @@ fn handle_async_login(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_some() {
-            return Ok("You are already logged in. Use 'logout' to sign out first.".to_string());
+            return Ok("you are already logged in.".to_string());
         } else if parts.len() < 3 {
-            return Ok("Usage: login <email> <password>".to_string());
+            return Ok("usage: login <email> <password>".to_string());
         } else {
             let email = parts[1].to_string();
             let password = parts[2].to_string();
@@ -304,10 +304,10 @@ fn handle_async_login(
             
             match auth_service.sign_in(&email, &password).await {
                 Ok(user) => {
-                    Ok(format!("Successfully logged in as: {}", user.email))
+                    Ok(format!("successfully logged in as: {}", user.email))
                 }
                 Err(e) => {
-                    Err(format!("Login failed: {}", e))
+                    Err(format!("login failed: {}", e))
                 }
             }
         }
@@ -320,7 +320,7 @@ fn handle_async_logout(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You are not logged in.".to_string());
+            return Ok("you are not logged in.".to_string());
         } else {
             let config = Config::load();
             let auth_service = AuthService::new(
@@ -330,10 +330,10 @@ fn handle_async_logout(
 
             match auth_service.sign_out().await {
                 Ok(_) => {
-                    Ok("Successfully logged out".to_string())
+                    Ok("successfully logged out".to_string())
                 }
                 Err(e) => {
-                    Err(format!("Logout failed: {}", e))
+                    Err(format!("logout failed: {}", e))
                 }
             }
         }
@@ -346,9 +346,9 @@ fn handle_async_cat(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You must be logged in to use this command.".to_string());
+            return Ok("you must be logged in to use this command.".to_string());
         } else if parts.len() < 2 {
-            return Ok("Usage: cat <bookmark_name>".to_string());
+            return Ok("usage: cat <bookmark_name>".to_string());
         } else {
             let name = parts[1].to_string();
 
@@ -363,15 +363,15 @@ fn handle_async_cat(
                     let tags = if bookmark.tags.is_empty() {
                         String::new()
                     } else {
-                        format!("\nTags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
+                        format!("\ntags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
                     };
-                    Ok(format!("URL: {}{}", bookmark.url, tags))
+                    Ok(format!("url: {}{}", bookmark.url, tags))
                 }
                 Ok(None) => {
-                    Ok(format!("Bookmark '{}' not found.", name))
+                    Ok(format!("bookmark '{}' not found.", name))
                 }
                 Err(e) => {
-                    Err(format!("Failed to get bookmark: {}", e))
+                    Err(format!("failed to get bookmark: {}", e))
                 }
             }
         }
@@ -384,9 +384,9 @@ fn handle_async_touch(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You must be logged in to use this command.".to_string());
+            return Ok("you must be logged in to use this command.".to_string());
         } else if parts.len() < 3 {
-            return Ok("Usage: touch <name> <url> [tags]".to_string());
+            return Ok("usage: touch <name> <url> [tags]".to_string());
         } else {
             let name = parts[1].to_string();
             let url = parts[2].to_string();
@@ -409,10 +409,10 @@ fn handle_async_touch(
                     } else {
                         format!(" with tags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
                     };
-                    Ok(format!("Created bookmark '{}'{}", bookmark.name, tags))
+                    Ok(format!("created bookmark '{}'{}", bookmark.name, tags))
                 }
                 Err(e) => {
-                    Err(format!("Failed to create bookmark: {}", e))
+                    Err(format!("failed to create bookmark: {}", e))
                 }
             }
         }
@@ -425,9 +425,9 @@ fn handle_async_open(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You must be logged in to use this command.".to_string());
+            return Ok("you must be logged in to use this command.".to_string());
         } else if parts.len() < 2 {
-            return Ok("Usage: open <bookmark_name>".to_string());
+            return Ok("usage: open <bookmark_name>".to_string());
         } else {
             let name = parts[1].to_string();
 
@@ -441,19 +441,19 @@ fn handle_async_open(
                 Ok(Some(bookmark)) => {
                     if let Some(window) = web_sys::window() {
                         if let Err(e) = window.open_with_url_and_target(&bookmark.url, "_blank") {
-                            Err(format!("Failed to open URL: {:?}", e))
+                            Err(format!("failed to open URL: {:?}", e))
                         } else {
-                            Ok(format!("Opening {} in new tab...", bookmark.url))
+                            Ok(format!("opening {} in new tab...", bookmark.url))
                         }
                     } else {
-                        Err("Failed to open URL: Could not access window".to_string())
+                        Err("failed to open URL: Could not access window".to_string())
                     }
                 }
                 Ok(None) => {
-                    Ok(format!("Bookmark '{}' not found.", name))
+                    Ok(format!("bookmark '{}' not found.", name))
                 }
                 Err(e) => {
-                    Err(format!("Failed to get bookmark: {}", e))
+                    Err(format!("failed to get bookmark: {}", e))
                 }
             }
         }
@@ -466,9 +466,9 @@ fn handle_async_rm(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You must be logged in to use this command.".to_string());
+            return Ok("you must be logged in to use this command.".to_string());
         } else if parts.len() < 2 {
-            return Ok("Usage: rm <bookmark_name>".to_string());
+            return Ok("usage: rm <bookmark_name>".to_string());
         } else {
             let name = parts[1].to_string();
 
@@ -480,10 +480,10 @@ fn handle_async_rm(
 
             match bookmark_service.delete_bookmark(&name).await {
                 Ok(_) => {
-                    Ok(format!("Deleted bookmark '{}'", name))
+                    Ok(format!("deleted bookmark '{}'", name))
                 }
                 Err(e) => {
-                    Err(format!("Failed to delete bookmark: {}", e))
+                    Err(format!("failed to delete bookmark: {}", e))
                 }
             }
         }
@@ -496,9 +496,9 @@ fn handle_async_search(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You must be logged in to use this command.".to_string());
+            return Ok("you must be logged in to use this command.".to_string());
         } else if parts.len() < 2 {
-            return Ok("Usage: search <query>".to_string());
+            return Ok("usage: search <query>".to_string());
         } else {
             let query = parts[1..].join(" ");
 
@@ -511,7 +511,7 @@ fn handle_async_search(
             match bookmark_service.search_bookmarks(&query).await {
                 Ok(bookmarks) => {
                     if bookmarks.is_empty() {
-                        Ok(format!("No bookmarks found matching '{}'", query))
+                        Ok(format!("no bookmarks found matching '{}'", query))
                     } else {
                         let mut output = String::new();
                         for bookmark in bookmarks {
@@ -526,7 +526,7 @@ fn handle_async_search(
                     }
                 }
                 Err(e) => {
-                    Err(format!("Failed to search bookmarks: {}", e))
+                    Err(format!("failed to search bookmarks: {}", e))
                 }
             }
         }
@@ -539,11 +539,11 @@ fn handle_async_tag(
 ) -> std::pin::Pin<Box<dyn Future<Output = Result<String, String>> + 'static>> {
     Box::pin(async move {
         if AuthService::get_current_user().is_none() {
-            return Ok("You must be logged in to use this command.".to_string());
+            return Ok("you must be logged in to use this command.".to_string());
         }
 
         if parts.len() < 4 {
-             return Ok("Usage: tag <bookmark_name> <add|remove> <tag1> [tag2...]".to_string());
+             return Ok("usage: tag <bookmark_name> <add|remove> <tag1> [tag2...]".to_string());
         }
 
         let name = parts[1].to_string();
@@ -581,18 +581,18 @@ fn handle_async_tag(
                         } else {
                             format!(" with tags: {}", bookmark.tags.iter().map(|s| s.as_str()).collect::<Vec<_>>().join(", "))
                         };
-                         Ok(format!("Updated bookmark '{}'{}", bookmark.name, tags))
+                         Ok(format!("updated bookmark '{}'{}", bookmark.name, tags))
                     }
                     Err(e) => {
-                        Err(format!("Failed to update bookmark: {}", e))
+                        Err(format!("failed to update bookmark: {}", e))
                     }
                 }
             }
             Ok(None) => {
-                 Ok(format!("Bookmark '{}' not found.", name))
+                 Ok(format!("bookmark '{}' not found.", name))
             }
             Err(e) => {
-                Err(format!("Failed to get bookmark: {}", e))
+                Err(format!("failed to get bookmark: {}", e))
             }
         }
     })
@@ -600,7 +600,7 @@ fn handle_async_tag(
 
 async fn handle_async_tree(_parts: Vec<String>, _command_line: String) -> Result<String, String> {
     if AuthService::get_current_user().is_none() {
-        return Ok("You must be logged in to use this command.".to_string());
+        return Ok("you must be logged in to use this command.".to_string());
     }
 
     // Get the cached bookmarks from the window object
@@ -633,7 +633,7 @@ async fn handle_async_tree(_parts: Vec<String>, _command_line: String) -> Result
                 
                 generate_tree_output(&bookmarks)
             }
-            Err(e) => Err(format!("Failed to get bookmarks: {}", e))
+            Err(e) => Err(format!("failed to get bookmarks: {}", e))
         }
     } else {
         // Use cached bookmarks
