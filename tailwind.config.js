@@ -27,6 +27,10 @@ module.exports = {
                 'gradient-dark-start': '#80604d',
                 'gradient-dark-end': '#40506f',
             },
+            caretColor: {
+                'github-light-text': '#24292f',
+                'github-dark-text': '#c9d1d9',
+            },
             animation: {
                 "fadein": "fadein 0.1s linear",
                 "handwave": "handwave 2.5s linear infinite",

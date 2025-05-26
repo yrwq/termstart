@@ -107,7 +107,6 @@ impl AuthService {
             })?;
 
         info!("Got sign up result");
-
         info!("Sign up response: {:?}", sign_up_result);
 
         let error = js_sys::Reflect::get(&sign_up_result, &JsValue::from_str("error"))
@@ -120,7 +119,13 @@ impl AuthService {
                         .ok()
                         .and_then(|m| m.as_string())
                         .unwrap_or_else(|| "Unknown error".to_string());
-                    Some(message)
+                    
+                    // Check if this is a rate limiting error
+                    if message.contains("For security purposes, you can only request this after") {
+                        Some("Please wait a moment before trying to register again. This is a security measure to protect against abuse.".to_string())
+                    } else {
+                        Some(message)
+                    }
                 }
             });
         
@@ -136,6 +141,12 @@ impl AuthService {
             })?;
 
         info!("User data: {:?}", user_data);
+
+        // Check if user_data is null
+        if user_data.is_null() {
+            error!("User data is null in response");
+            return Err("Registration failed: Invalid response".to_string());
+        }
 
         let user = js_sys::Reflect::get(&user_data, &JsValue::from_str("user"))
             .map_err(|e| {
@@ -175,39 +186,56 @@ impl AuthService {
         info!("Successfully parsed user data");
 
         let storage = window.local_storage().unwrap().unwrap();
+        
+        // Check if we have a session (user might need to confirm email)
         let session = js_sys::Reflect::get(&user_data, &JsValue::from_str("session"))
-            .map_err(|e| {
-                error!("Failed to get session: {:?}", e);
-                format!("Failed to get session: {:?}", e)
-            })?;
+            .ok()
+            .and_then(|s| {
+                if s.is_null() {
+                    info!("Session is null");
+                    None
+                } else {
+                    info!("Session data: {:?}", s);
+                    Some(s)
+                }
+            });
 
-        let access_token = js_sys::Reflect::get(&session, &JsValue::from_str("access_token"))
-            .map_err(|e| {
-                error!("Failed to get access token: {:?}", e);
-                format!("Failed to get access token: {:?}", e)
-            })?
-            .as_string()
-            .ok_or_else(|| {
-                error!("Access token is not a string");
-                "Access token is not a string".to_string()
-            })?;
+        if let Some(session) = session {
+            let access_token = js_sys::Reflect::get(&session, &JsValue::from_str("access_token"))
+                .map_err(|e| {
+                    error!("Failed to get access token: {:?}", e);
+                    format!("Failed to get access token: {:?}", e)
+                })?
+                .as_string()
+                .ok_or_else(|| {
+                    error!("Access token is not a string");
+                    "Access token is not a string".to_string()
+                })?;
 
-        // Store both the user object and the token
-        storage
-            .set_item("supabase.auth.user", &serde_json::to_string(&user).unwrap())
-            .map_err(|e| {
-                error!("Failed to store user: {:?}", e);
-                format!("Failed to store user: {:?}", e)
-            })?;
+            info!("Got access token: {}", access_token);
 
-        storage
-            .set_item("supabase.auth.token", &access_token)
-            .map_err(|e| {
-                error!("Failed to store token: {:?}", e);
-                format!("Failed to store token: {:?}", e)
-            })?;
+            // Store both the user object and the token
+            storage
+                .set_item("supabase.auth.user", &serde_json::to_string(&user).unwrap())
+                .map_err(|e| {
+                    error!("Failed to store user: {:?}", e);
+                    format!("Failed to store user: {:?}", e)
+                })?;
 
-        info!("Successfully stored session");
+            storage
+                .set_item("supabase.auth.token", &access_token)
+                .map_err(|e| {
+                    error!("Failed to store token: {:?}", e);
+                    format!("Failed to store token: {:?}", e)
+                })?;
+
+            info!("Successfully stored session");
+        } else {
+            // No session means user needs to confirm email
+            info!("No session in response - email confirmation required");
+            return Err("Registration successful! Please check your email to confirm your account.".to_string());
+        }
+
         Ok(user)
     }
 
