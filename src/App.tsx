@@ -1,34 +1,18 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
+import { useState } from 'react'
+import { TerminalDebugger } from './components/TerminalDebugger'
+import type { FileSystem } from './filesystem'
+import { createEmptyFileSystem } from './filesystem'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [fs, setFs] = useState<FileSystem>(() => createEmptyFileSystem())
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="min-h-screen w-screen bg-stone-850 text-white">
+      <div className="mx-auto px-6 py-8 space-y-6">
+        <TerminalDebugger fs={fs} onFsChange={setFs} />
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    </div>
   )
 }
 
