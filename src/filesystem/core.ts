@@ -1,5 +1,5 @@
-import type { DirectoryNode, FileSystem, FileSystemNode } from './types';
-import { isDirectory, isFile } from './types';
+import type { DirectoryNode, FileSystem, FileSystemNode } from '@/filesystem/types';
+import { isDirectory, isFile } from '@/filesystem/types';
 
 export function createEmptyFileSystem(): FileSystem {
   const root: DirectoryNode = {

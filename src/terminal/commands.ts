@@ -1,4 +1,4 @@
-import type { FileSystem } from '../filesystem';
+import type { FileSystem } from '@/filesystem';
 import {
   changeDirectory,
   createDirectory,

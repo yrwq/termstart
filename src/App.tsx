@@ -1,8 +1,8 @@
-import './App.css'
+import '@/App.css'
 import { useEffect, useState } from 'react'
-import { TerminalDebugger } from './components/TerminalDebugger'
-import type { FileSystem } from './filesystem'
-import { createEmptyOrFallback, serializeFileSystem } from './filesystem'
+import { Terminal } from '@/components/Terminal'
+import type { FileSystem } from '@/filesystem'
+import { createEmptyOrFallback, serializeFileSystem } from '@/filesystem'
 
 const STORAGE_KEY = 'terminal-bookmark-manager:filesystem'
 
@@ -30,14 +30,14 @@ function App() {
   }, [fs, storageError])
 
   return (
-    <div className="min-h-screen w-screen bg-stone-850 text-white">
+    <div className="min-h-screen w-screen bg-stone-950 text-white">
       <div className="mx-auto px-6 py-8 space-y-6">
         {storageError && (
-          <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
+          <div className="rounded-lg px-4 py-3 text-sm text-amber-100">
             {storageError}
           </div>
         )}
-        <TerminalDebugger fs={fs} onFsChange={setFs} />
+        <Terminal fs={fs} onFsChange={setFs} />
       </div>
     </div>
   )

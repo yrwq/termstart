@@ -1,6 +1,6 @@
-import type { DirectoryNode, FileNode, FileSystem, FileSystemNode } from './types';
-import { isDirectory } from './types';
-import { createEmptyFileSystem, getCurrentPath, resolvePath } from './core';
+import type { DirectoryNode, FileNode, FileSystem, FileSystemNode } from '@/filesystem/types';
+import { isDirectory } from '@/filesystem/types';
+import { createEmptyFileSystem, getCurrentPath, resolvePath } from '@/filesystem/core';
 
 type SerializedFile = {
   name: string;

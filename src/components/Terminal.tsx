@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { FileSystem } from '../filesystem';
+import type { FileSystem } from '@/filesystem';
 import {
   getCurrentPath,
-} from '../filesystem';
-import { executeCommand } from '../terminal/commands';
-import { parseCommand } from '../terminal/parser';
+} from '@/filesystem';
+import { executeCommand } from '@/terminal/commands';
+import { parseCommand } from '@/terminal/parser';
 
-type TerminalDebuggerProps = {
+type TerminalProps = {
   fs: FileSystem;
   onFsChange: (next: FileSystem) => void;
 };
@@ -25,7 +25,7 @@ function createOpenUrlHandler(): (url: string) => boolean {
   };
 }
 
-export function TerminalDebugger({ fs, onFsChange }: TerminalDebuggerProps) {
+export function Terminal({ fs, onFsChange }: TerminalProps) {
   const [input, setInput] = useState('');
   const [cursor, setCursor] = useState(0);
   const [history, setHistory] = useState<HistoryLine[]>([]);
@@ -209,6 +209,18 @@ export function TerminalDebugger({ fs, onFsChange }: TerminalDebuggerProps) {
     }
   };
 
+  const focusInput = () => {
+    inputRef.current?.focus();
+  };
+
+  const handleBlur = () => {
+    window.setTimeout(() => {
+      if (document.activeElement !== inputRef.current) {
+        focusInput();
+      }
+    }, 0);
+  };
+
   const syncCursorFromEvent = (event: React.SyntheticEvent<HTMLInputElement>) => {
     const target = event.currentTarget;
     const selectionStart = target.selectionStart ?? target.value.length;
@@ -229,8 +241,15 @@ export function TerminalDebugger({ fs, onFsChange }: TerminalDebuggerProps) {
     outputRef.current.scrollTop = outputRef.current.scrollHeight;
   }, [history]);
 
+  useEffect(() => {
+    focusInput();
+  }, []);
+
   return (
-    <div className="bg-stone-900 text-orange-200 rounded-xl shadow-xl">
+    <div
+      className="terminal-shell bg-stone-900 text-orange-200 rounded-xl shadow-xl"
+      onMouseDown={focusInput}
+    >
       <div
         ref={outputRef}
         className="px-4 py-4 h-[28rem] overflow-y-auto font-mono text-sm space-y-1"
@@ -258,8 +277,9 @@ export function TerminalDebugger({ fs, onFsChange }: TerminalDebuggerProps) {
             onKeyDown={handleKeyDown}
             onClick={syncCursorFromEvent}
             onKeyUp={syncCursorFromEvent}
+            onBlur={handleBlur}
             className="flex-1 bg-transparent outline-none text-orange-200 placeholder:text-orange-200/50"
-            placeholder="type here"
+            placeholder="enter command"
             autoComplete="off"
             spellCheck={false}
           />
