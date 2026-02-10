@@ -24,3 +24,9 @@ export {
   readFile,
   moveNode,
 } from './core';
+
+export {
+  serializeFileSystem,
+  deserializeFileSystem,
+  createEmptyOrFallback,
+} from './persistence';
