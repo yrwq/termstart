@@ -20,4 +20,7 @@ export {
   createDirectory,
   deleteFile,
   deleteDirectory,
+  listDirectory,
+  readFile,
+  moveNode,
 } from './core';
