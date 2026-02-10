@@ -65,6 +65,27 @@ const commandList: CommandDefinition[] = [
     },
   },
   {
+    name: 'man',
+    description: 'Show help for a command',
+    usage: 'man <command>',
+    run: (command) => {
+      if (command.args.length === 0) {
+        return { error: 'man: missing command name' };
+      }
+      const target = command.args[0];
+      const match = commandList.find((cmd) => cmd.name === target);
+      if (!match) {
+        return { error: `man: no entry for '${target}'` };
+      }
+      return {
+        output: [
+          `${match.name}: ${match.description}`,
+          `Usage: ${match.usage}`,
+        ],
+      };
+    },
+  },
+  {
     name: 'pwd',
     description: 'Print the current directory',
     usage: 'pwd',
