@@ -223,3 +223,63 @@ function findNodeInClone(
   const path = getNodePath(originalNode);
   return resolvePath(path, clonedRoot, clonedRoot);
 }
+
+export function deleteFile(path: string, fs: FileSystem): FileSystem | null {
+  const normalizedPath = path.trim();
+  if (!normalizedPath) return null;
+
+  const node = resolvePath(normalizedPath, fs.currentDirectory, fs.root);
+
+  if (!node) return null;
+  if (isDirectory(node)) return null;
+  if (!node.parent) return null;
+
+  const newRoot = cloneFilesystem(fs.root);
+  const parentPathStr = getNodePath(node.parent);
+
+  const newParent = resolvePath(parentPathStr, newRoot, newRoot) as DirectoryNode;
+  if (!newParent || !isDirectory(newParent)) return null;
+
+  newParent.children.delete(node.name);
+
+  const newCurrentDirectory = findNodeInClone(fs.currentDirectory, newRoot, fs.root) as DirectoryNode;
+
+  return {
+    root: newRoot,
+    currentDirectory: newCurrentDirectory,
+  };
+}
+
+
+export function deleteDirectory(path: string, recursive: boolean, fs: FileSystem): FileSystem | null {
+  const normalizedPath = path.trim();
+  if (!normalizedPath) return null;
+
+  const node = resolvePath(normalizedPath, fs.currentDirectory, fs.root);
+
+  if (!node) return null;
+  if (!isDirectory(node)) return null;
+  if (!node.parent) return null;
+
+  if (!recursive && node.children.size > 0) return null;
+
+  const newRoot = cloneFilesystem(fs.root);
+  const parentPathStr = getNodePath(node.parent);
+
+  const newParent = resolvePath(parentPathStr, newRoot, newRoot) as DirectoryNode;
+  if (!newParent || !isDirectory(newParent)) return null;
+
+  newParent.children.delete(node.name);
+
+  let newCurrentDirectory = findNodeInClone(fs.currentDirectory, newRoot, fs.root) as DirectoryNode;
+
+  if (!newCurrentDirectory) {
+    newCurrentDirectory = newRoot;
+  }
+
+  return {
+    root: newRoot,
+    currentDirectory: newCurrentDirectory,
+  };
+}
+

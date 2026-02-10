@@ -18,4 +18,6 @@ export {
   getNodePath,
   createFile,
   createDirectory,
+  deleteFile,
+  deleteDirectory,
 } from './core';
