@@ -5,9 +5,19 @@ import type { FileSystem } from '@/filesystem'
 import { createEmptyOrFallback, serializeFileSystem } from '@/filesystem'
 
 const STORAGE_KEY = 'terminal-bookmark-manager:filesystem'
+const THEME_KEY = 'terminal-bookmark-manager:theme'
 
 function App() {
   const [storageError, setStorageError] = useState<string | null>(null)
+  const [theme, setTheme] = useState(() => {
+    try {
+      const stored = window.localStorage.getItem(THEME_KEY)
+      return stored ?? 'amber'
+    } catch (error) {
+      console.error(error)
+      return 'amber'
+    }
+  })
   const [fs, setFs] = useState<FileSystem>(() => {
     try {
       const raw = window.localStorage.getItem(STORAGE_KEY)
@@ -29,15 +39,29 @@ function App() {
     }
   }, [fs, storageError])
 
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    try {
+      window.localStorage.setItem(THEME_KEY, theme)
+    } catch (error) {
+      console.error(error)
+    }
+  }, [theme])
+
   return (
-    <div className="min-h-screen w-screen bg-stone-950 text-white">
-      <div className="mx-auto px-6 py-8 space-y-6">
+    <div className="min-h-screen w-screen terminal-page">
+      <div className="terminal-container">
         {storageError && (
-          <div className="rounded-lg px-4 py-3 text-sm text-amber-100">
+          <div className="terminal-warning">
             {storageError}
           </div>
         )}
-        <Terminal fs={fs} onFsChange={setFs} />
+        <Terminal
+          fs={fs}
+          onFsChange={setFs}
+          theme={theme}
+          onThemeChange={setTheme}
+        />
       </div>
     </div>
   )

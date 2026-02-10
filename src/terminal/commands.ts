@@ -26,6 +26,8 @@ type CommandResult = {
 type CommandContext = {
   fs: FileSystem;
   openUrl: (url: string) => boolean;
+  theme: string;
+  setTheme: (next: string) => void;
 };
 
 type CommandDefinition = {
@@ -34,6 +36,17 @@ type CommandDefinition = {
   usage: string;
   run: (command: ParsedCommand, context: CommandContext) => CommandResult;
 };
+
+const AVAILABLE_THEMES = [
+  'amber',
+  'gruvbox',
+  'paper',
+  'dracula',
+  'nord',
+  'tokyo-night',
+  'solarized-dark',
+  'monokai',
+];
 
 const commandList: CommandDefinition[] = [
   {
@@ -207,6 +220,28 @@ const commandList: CommandDefinition[] = [
       const opened = context.openUrl(node.url);
       if (!opened) return { error: `open: failed to open ${node.url}` };
       return { output: [`Opened ${node.url}`] };
+    },
+  },
+  {
+    name: 'theme',
+    description: 'List or set the terminal theme',
+    usage: 'theme [name|list]',
+    run: (command, context) => {
+      if (command.args.length === 0) {
+        return { output: [`Current theme: ${context.theme}`] };
+      }
+
+      const arg = command.args[0];
+      if (arg === 'list') {
+        return { output: ['Themes:', ...AVAILABLE_THEMES.map((name) => `  ${name}`)] };
+      }
+
+      if (!AVAILABLE_THEMES.includes(arg)) {
+        return { error: `theme: unknown theme '${arg}'` };
+      }
+
+      context.setTheme(arg);
+      return { output: [`Theme set to ${arg}`] };
     },
   },
   {

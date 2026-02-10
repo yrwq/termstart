@@ -9,6 +9,8 @@ import { parseCommand } from '@/terminal/parser';
 type TerminalProps = {
   fs: FileSystem;
   onFsChange: (next: FileSystem) => void;
+  theme: string;
+  onThemeChange: (next: string) => void;
 };
 
 type HistoryLine = {
@@ -25,7 +27,7 @@ function createOpenUrlHandler(): (url: string) => boolean {
   };
 }
 
-export function Terminal({ fs, onFsChange }: TerminalProps) {
+export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps) {
   const [input, setInput] = useState('');
   const [cursor, setCursor] = useState(0);
   const [history, setHistory] = useState<HistoryLine[]>([]);
@@ -71,7 +73,12 @@ export function Terminal({ fs, onFsChange }: TerminalProps) {
       }
       return;
     }
-    const result = executeCommand(parsed, { fs, openUrl: createOpenUrlHandler() });
+    const result = executeCommand(parsed, {
+      fs,
+      openUrl: createOpenUrlHandler(),
+      theme,
+      setTheme: onThemeChange,
+    });
 
     if (result.clear) {
       setHistory([]);
@@ -246,21 +253,18 @@ export function Terminal({ fs, onFsChange }: TerminalProps) {
   }, []);
 
   return (
-    <div
-      className="terminal-shell bg-stone-900 text-orange-200 rounded-xl shadow-xl"
-      onMouseDown={focusInput}
-    >
+    <div className="terminal-shell" onMouseDown={focusInput}>
       <div
         ref={outputRef}
         className="px-4 py-4 h-[28rem] overflow-y-auto font-mono text-sm space-y-1"
       >
         {history.length === 0 ? (
-          <div className="text-orange-200"> </div>
+          <div className="terminal-muted"> </div>
         ) : (
           history.map((line) => (
             <div
               key={line.id}
-              className={line.kind === 'error' ? 'text-rose-400' : 'text-orange-200'}
+              className={line.kind === 'error' ? 'terminal-error' : 'terminal-text'}
             >
               {line.text}
             </div>
@@ -269,7 +273,7 @@ export function Terminal({ fs, onFsChange }: TerminalProps) {
       </div>
       <form onSubmit={handleSubmit} className="px-4 py-3">
         <div className="flex items-center gap-2 font-mono text-sm">
-          <span className="text-orange-200">{prompt}</span>
+          <span className="terminal-text">{prompt}</span>
           <input
             ref={inputRef}
             value={input}
@@ -278,7 +282,7 @@ export function Terminal({ fs, onFsChange }: TerminalProps) {
             onClick={syncCursorFromEvent}
             onKeyUp={syncCursorFromEvent}
             onBlur={handleBlur}
-            className="flex-1 bg-transparent outline-none text-orange-200 placeholder:text-orange-200/50"
+            className="terminal-input flex-1 bg-transparent outline-none"
             placeholder="enter command"
             autoComplete="off"
             spellCheck={false}
