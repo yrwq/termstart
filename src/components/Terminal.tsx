@@ -22,8 +22,12 @@ type HistoryLine = {
 
 function createOpenUrlHandler(): (url: string) => boolean {
   return (url: string) => {
-    const opened = window.open(url, '_blank', 'noopener,noreferrer');
-    return Boolean(opened);
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return true;
+    } catch {
+      return false;
+    }
   };
 }
 

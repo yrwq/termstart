@@ -48,6 +48,14 @@ const AVAILABLE_THEMES = [
   'monokai',
 ];
 
+function normalizeUrl(input: string): string {
+  const trimmed = input.trim();
+  if (trimmed === '') return trimmed;
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(trimmed)) return trimmed;
+  if (trimmed.startsWith('//')) return `https:${trimmed}`;
+  return `https://${trimmed}`;
+}
+
 const commandList: CommandDefinition[] = [
   {
     name: 'help',
@@ -153,7 +161,8 @@ const commandList: CommandDefinition[] = [
       const url = command.args[1];
       if (!pathArg) return { error: 'touch: missing file operand' };
       if (!url) return { error: 'touch: missing URL operand' };
-      const nextFs = createFile(pathArg, url, context.fs);
+      const normalizedUrl = normalizeUrl(url);
+      const nextFs = createFile(pathArg, normalizedUrl, context.fs);
       if (!nextFs) return { error: `touch: cannot create file '${pathArg}'` };
       return { nextFs, output: [] };
     },
