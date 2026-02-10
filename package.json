@@ -7,10 +7,7 @@
     "dev": "bun --bun vite",
     "build": "bun run tsc -b && bun --bun vite build",
     "lint": "bun run eslint .",
-    "preview": "bun --bun vite preview",
-    "test": "bun test",
-    "test:watch": "bun test --watch",
-    "test:coverage": "bun test --coverage"
+    "preview": "bun --bun vite preview"
   },
   "dependencies": {
     "react": "^19.2.0",

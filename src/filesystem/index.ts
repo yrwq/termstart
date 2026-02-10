@@ -16,4 +16,6 @@ export {
   getCurrentPath,
   changeDirectory,
   getNodePath,
+  createFile,
+  createDirectory,
 } from './core';

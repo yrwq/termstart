@@ -1,9 +1,6 @@
 import type { DirectoryNode, FileSystem, FileSystemNode } from './types';
 import { isDirectory } from './types';
 
-/*
- * Creates an empty filesystem with a root directory
- */
 export function createEmptyFileSystem(): FileSystem {
   const root: DirectoryNode = {
     name: '',
@@ -18,10 +15,6 @@ export function createEmptyFileSystem(): FileSystem {
   };
 }
 
-/*
- * Resolves a path to a filesystem node
- * Supports both absolute paths (starting with /) and relative paths
- */
 export function resolvePath(
   path: string,
   current: DirectoryNode,
@@ -65,9 +58,6 @@ export function resolvePath(
   return node;
 }
 
-/*
- * Get the absolute path of a node in the filesystem
- */
 export function getNodePath(node: FileSystemNode): string {
   const parts: string[] = [];
   let current: FileSystemNode | null = node;
@@ -80,25 +70,14 @@ export function getNodePath(node: FileSystemNode): string {
   return '/' + parts.join('/');
 }
 
-/*
- * Get the current working directory path
- */
 export function getCurrentPath(fs: FileSystem): string {
   return getNodePath(fs.currentDirectory);
 }
 
-/*
- * Change the current directory (immutable operation)
- * Returns a new FileSystem with updated currentDirectory
- */
 export function changeDirectory(path: string, fs: FileSystem): FileSystem | null {
   const resolved = resolvePath(path, fs.currentDirectory, fs.root);
   
-  if (!resolved) {
-    return null;
-  }
-  
-  if (!isDirectory(resolved)) {
+  if (!resolved || !isDirectory(resolved)) {
     return null;
   }
   
@@ -106,4 +85,141 @@ export function changeDirectory(path: string, fs: FileSystem): FileSystem | null
     root: fs.root,
     currentDirectory: resolved,
   };
+}
+
+export function createFile(path: string, url: string, fs: FileSystem): FileSystem | null {
+  const normalizedPath = path.trim();
+  if (!normalizedPath) return null;
+
+  const lastSlashIndex = normalizedPath.lastIndexOf('/');
+  let parentPath: string;
+  let fileName: string;
+
+  if (lastSlashIndex === -1) {
+    parentPath = '';
+    fileName = normalizedPath;
+  } else if (lastSlashIndex === 0) {
+    parentPath = '/';
+    fileName = normalizedPath.slice(1);
+  } else {
+    parentPath = normalizedPath.slice(0, lastSlashIndex);
+    fileName = normalizedPath.slice(lastSlashIndex + 1);
+  }
+
+  if (!fileName) return null;
+
+  const parentNode = parentPath === ''
+    ? fs.currentDirectory
+    : resolvePath(parentPath, fs.currentDirectory, fs.root);
+
+  if (!parentNode || !isDirectory(parentNode)) return null;
+  if (parentNode.children.has(fileName)) return null;
+
+  const newRoot = cloneFilesystem(fs.root);
+  const newParent = findNodeInClone(parentNode, newRoot, fs.root) as DirectoryNode;
+  
+  if (!newParent) return null;
+
+  const newFile: import('./types').FileNode = {
+    name: fileName,
+    type: 'file',
+    url,
+    parent: newParent,
+  };
+
+  newParent.children.set(fileName, newFile);
+  const newCurrentDirectory = findNodeInClone(fs.currentDirectory, newRoot, fs.root) as DirectoryNode;
+
+  return {
+    root: newRoot,
+    currentDirectory: newCurrentDirectory,
+  };
+}
+
+export function createDirectory(path: string, recursive: boolean, fs: FileSystem): FileSystem | null {
+  const normalizedPath = path.trim();
+  if (!normalizedPath) return null;
+
+  const isAbsolute = normalizedPath.startsWith('/');
+  const components = normalizedPath.split('/').filter(c => c !== '' && c !== '.');
+
+  if (components.length === 0) return null;
+
+  const newRoot = cloneFilesystem(fs.root);
+  let currentNode: DirectoryNode = isAbsolute ? newRoot : findNodeInClone(fs.currentDirectory, newRoot, fs.root) as DirectoryNode;
+
+  if (!currentNode) return null;
+
+  for (let i = 0; i < components.length; i++) {
+    const component = components[i];
+
+    if (component === '..') {
+      if (currentNode.parent !== null) {
+        currentNode = currentNode.parent;
+      }
+      continue;
+    }
+
+    const existingChild = currentNode.children.get(component);
+
+    if (existingChild) {
+      if (i === components.length - 1) return null;
+      if (!isDirectory(existingChild)) return null;
+      currentNode = existingChild;
+    } else {
+      if (i < components.length - 1 && !recursive) return null;
+
+      const newDir: DirectoryNode = {
+        name: component,
+        type: 'directory',
+        parent: currentNode,
+        children: new Map(),
+      };
+
+      currentNode.children.set(component, newDir);
+      currentNode = newDir;
+    }
+  }
+
+  const newCurrentDirectory = findNodeInClone(fs.currentDirectory, newRoot, fs.root) as DirectoryNode;
+
+  return {
+    root: newRoot,
+    currentDirectory: newCurrentDirectory,
+  };
+}
+
+function cloneFilesystem(node: DirectoryNode, parent: DirectoryNode | null = null): DirectoryNode {
+  const clonedDir: DirectoryNode = {
+    name: node.name,
+    type: 'directory',
+    parent,
+    children: new Map(),
+  };
+
+  for (const [name, child] of node.children) {
+    if (isDirectory(child)) {
+      const clonedChild = cloneFilesystem(child, clonedDir);
+      clonedDir.children.set(name, clonedChild);
+    } else {
+      const clonedFile: import('./types').FileNode = {
+        name: child.name,
+        type: 'file',
+        url: (child as import('./types').FileNode).url,
+        parent: clonedDir,
+      };
+      clonedDir.children.set(name, clonedFile);
+    }
+  }
+
+  return clonedDir;
+}
+
+function findNodeInClone(
+  originalNode: FileSystemNode,
+  clonedRoot: DirectoryNode,
+  _originalRoot: DirectoryNode
+): FileSystemNode | null {
+  const path = getNodePath(originalNode);
+  return resolvePath(path, clonedRoot, clonedRoot);
 }
