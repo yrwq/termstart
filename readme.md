@@ -1,108 +1,75 @@
-# termstart
+# React + TypeScript + Vite
 
-<div align="center">
-    <img align="top" src="./assets/dark.png" width=350>
-    <img align="top" src="./assets/light.png" width=365>
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-<br>
-<h4>A terminal-themed startpage and bookmark manager for web browsers </h4>
+Currently, two official plugins are available:
 
-</div>
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-## Features
+## React Compiler
 
-- Terminal-inspired user interface
-- Bookmark management
-- Supabase integration
+The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
 
-### Tech Stack
+Note: This will impact Vite dev & build performances.
 
-- **Frontend**: Rust + Yew (WebAssembly)
-- **Styling**: Tailwind CSS
-- **Backend**: Supabase
+## Expanding the ESLint configuration
 
-## Usage
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-### Basic Commands
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-- `help` - Show available commands
-- `clear` - Clear the terminal
-- `version` - Show version information
-- `theme` - Toggle between light and dark theme
-- `fetch` - Display system information
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
 
-### Authentication
-
-- `register` - Create a new account
-- `login <email> <password>` - Login to your account
-- `logout` - Logout from your account
-- `whoami` - Show current user information
-
-### Bookmark Management
-
-- `ls [tag]` - List your bookmarks (optionally filtered by tag)
-- `cat <bookmark_name>` - Show bookmark URL
-- `touch <name> <url> [tags]` - Create a bookmark with optional tags
-- `open <bookmark_name>` - Open bookmark in new tab
-- `rm <bookmark_name>` - Remove a bookmark
-- `tag <bookmark_name> <add|remove> <tag1> [tag2...]` - Add or remove tags from a bookmark
-- `search <query>` - Search bookmarks by name or tags
-- `tree` - Show a hierarchical view of bookmarks organized by tags
-
-### Navigation
-
-- `cd <tag>` - Navigate to a tag directory
-- `cd ..` - Navigate back to root
-
-### Keyboard Shortcuts
-
-- `Tab` - Completion for commands, tags and bookmarks
-- `↑/↓` - Navigate command history
-- `Home` - Move cursor to start of line
-- `End` - Move cursor to end of line
-
-## Setup
-
-### Docker Setup (Recommended)
-
-The easiest way to get started is using Docker:
-
-```bash
-docker compose up --build
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-This will build and run the application locally in a container.
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-### Manual Setup
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
 
-1. Install Trunk (Rust WASM build tool):
-
-```bash
-# Source (recommended)
-cargo install --locked trunk
-
-# Binary
-cargo binstall trunk
-
-# Homebrew
-brew install trunk
-
-# For Apple Silicon: Install wasm-bindgen from source
-cargo install --locked wasm-bindgen-cli
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-2. Install WebAssembly target:
-
-```bash
-rustup target add wasm32-unknown-unknown
-```
-
-3. Run the development server:
-
-```bash
-trunk serve --open
-```
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
