@@ -125,7 +125,7 @@ const commandList: CommandDefinition[] = [
       const items = entries
         .map((child) => (isDirectory(child) ? `${child.name}/` : child.name))
         .sort((a, b) => a.localeCompare(b));
-      return { output: items.length === 0 ? ['(empty)'] : items };
+      return { output: items.length === 0 ? [''] : items };
     },
   },
   {
@@ -268,14 +268,14 @@ function resolveCommand(name: string): CommandDefinition | undefined {
 export function executeCommand(parsed: ParsedCommand, context: CommandContext): CommandResult {
   const command = resolveCommand(parsed.name);
   if (!command) {
-    return { error: `Unknown command: ${parsed.name}. Type 'help' for commands.` };
+    return { error: `command not found: ${parsed.name}. type 'help' for commands.` };
   }
 
   try {
     return command.run(parsed, context);
   } catch (error) {
     console.error(error);
-    return { error: `Error executing ${parsed.name}` };
+    return { error: `error executing ${parsed.name}` };
   }
 }
 

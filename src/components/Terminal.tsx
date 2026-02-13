@@ -2,8 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { FileSystem } from '@/filesystem';
 import {
   getCurrentPath,
+  isDirectory,
+  listDirectory,
 } from '@/filesystem';
-import { executeCommand } from '@/terminal/commands';
+import { executeCommand, getCommandNames } from '@/terminal/commands';
 import { parseCommand } from '@/terminal/parser';
 
 type TerminalProps = {
@@ -142,7 +144,141 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
     setCursor(nextValue.length);
   };
 
+  const longestCommonPrefix = (values: string[]): string => {
+    if (values.length === 0) return '';
+
+    let prefix = values[0];
+    for (let i = 1; i < values.length; i += 1) {
+      const value = values[i];
+      let j = 0;
+      const max = Math.min(prefix.length, value.length);
+      while (j < max && prefix[j] === value[j]) {
+        j += 1;
+      }
+      prefix = prefix.slice(0, j);
+      if (prefix.length === 0) return '';
+    }
+
+    return prefix;
+  };
+
+  const replaceInputToken = (start: number, end: number, value: string) => {
+    const nextInput = input.slice(0, start) + value + input.slice(end);
+    setInput(nextInput);
+    setCursor(start + value.length);
+  };
+
+  const completeCommandName = (token: string, tokenStart: number, tokenEnd: number) => {
+    const matches = getCommandNames()
+      .filter((name) => name.startsWith(token))
+      .sort((a, b) => a.localeCompare(b));
+
+    if (matches.length === 0) return;
+
+    if (matches.length === 1) {
+      replaceInputToken(tokenStart, tokenEnd, `${matches[0]} `);
+      return;
+    }
+
+    const prefix = longestCommonPrefix(matches);
+    if (prefix.length > token.length) {
+      replaceInputToken(tokenStart, tokenEnd, prefix);
+      return;
+    }
+
+    appendLines([matches.join('  ')], 'output');
+  };
+
+  const completePath = (
+    commandName: string,
+    token: string,
+    tokenStart: number,
+    tokenEnd: number
+  ) => {
+    const lastSlash = token.lastIndexOf('/');
+    const basePath = lastSlash >= 0 ? token.slice(0, lastSlash + 1) : '';
+    const nameFragment = lastSlash >= 0 ? token.slice(lastSlash + 1) : token;
+    const lookupPath = basePath === ''
+      ? '.'
+      : (basePath === '/' ? '/' : basePath.slice(0, -1));
+
+    const directoryOnlyCommands = new Set(['cd', 'ls', 'mkdir']);
+    const fileOnlyCommands = new Set<string>();
+
+    const entries = listDirectory(lookupPath, fs);
+    if (!entries) return;
+
+    const matches = entries
+      .filter((entry) => entry.name.startsWith(nameFragment))
+      .filter((entry) => {
+        if (directoryOnlyCommands.has(commandName)) return isDirectory(entry);
+        if (fileOnlyCommands.has(commandName)) return !isDirectory(entry);
+        return true;
+      })
+      .map((entry) => ({
+        text: `${basePath}${entry.name}${isDirectory(entry) ? '/' : ''}`,
+        isDirectory: isDirectory(entry),
+      }))
+      .sort((a, b) => {
+        if (a.isDirectory !== b.isDirectory) {
+          return a.isDirectory ? -1 : 1;
+        }
+        return a.text.localeCompare(b.text);
+      });
+
+    if (matches.length === 0) return;
+
+    if (matches.length === 1) {
+      const [match] = matches;
+      replaceInputToken(tokenStart, tokenEnd, match.isDirectory ? match.text : `${match.text} `);
+      return;
+    }
+
+    const options = matches.map((match) => match.text);
+    const prefix = longestCommonPrefix(options);
+    if (prefix.length > token.length) {
+      replaceInputToken(tokenStart, tokenEnd, prefix);
+      return;
+    }
+
+    appendLines([options.join('  ')], 'output');
+  };
+
+  const handleTabCompletion = () => {
+    const tokenStart = (() => {
+      let i = cursor;
+      while (i > 0 && !/\s/.test(input[i - 1])) {
+        i -= 1;
+      }
+      return i;
+    })();
+    const tokenEnd = (() => {
+      let i = cursor;
+      while (i < input.length && !/\s/.test(input[i])) {
+        i += 1;
+      }
+      return i;
+    })();
+
+    const token = input.slice(tokenStart, tokenEnd);
+    const beforeToken = input.slice(0, tokenStart).trim();
+    const previousTokens = beforeToken.length > 0 ? beforeToken.split(/\s+/) : [];
+
+    if (previousTokens.length === 0) {
+      completeCommandName(token, tokenStart, tokenEnd);
+      return;
+    }
+
+    completePath(previousTokens[0], token, tokenStart, tokenEnd);
+  };
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      handleTabCompletion();
+      return;
+    }
+
     if (event.key === 'ArrowUp') {
       event.preventDefault();
       handleHistoryUp();
@@ -260,7 +396,7 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
     <div className="terminal-shell" onMouseDown={focusInput}>
       <div
         ref={outputRef}
-        className="px-4 py-4 h-[28rem] overflow-y-auto font-mono text-sm space-y-1"
+        className="px-4 py-4 h-112 overflow-y-auto font-mono text-sm space-y-1"
       >
         {history.length === 0 ? (
           <div className="terminal-muted"> </div>
@@ -287,7 +423,7 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
             onKeyUp={syncCursorFromEvent}
             onBlur={handleBlur}
             className="terminal-input flex-1 bg-transparent outline-none"
-            placeholder="enter command"
+            placeholder=""
             autoComplete="off"
             spellCheck={false}
           />
