@@ -48,12 +48,13 @@ function deserializeNode(
   parent: DirectoryNode | null
 ): FileSystemNode | null {
   if (node.type === 'file') {
-    return {
+    const fileNode: FileNode = {
       name: node.name,
       type: 'file',
       url: node.url,
       parent,
     };
+    return fileNode;
   }
 
   const directory: DirectoryNode = {

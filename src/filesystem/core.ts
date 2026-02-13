@@ -189,7 +189,7 @@ export function moveNode(sourcePath: string, destinationPath: string, fs: FileSy
   let destinationName = sourceNode.name;
 
   if (destinationNode) {
-    if (isFile(destinationNode)) return null;
+    if (!isDirectory(destinationNode)) return null;
     destinationParent = destinationNode;
     destinationName = sourceNode.name;
   } else {
