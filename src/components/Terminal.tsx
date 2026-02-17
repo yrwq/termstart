@@ -40,9 +40,11 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
   const [commandHistory, setCommandHistory] = useState<string[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number | null>(null);
   const [draftInput, setDraftInput] = useState('');
+  const [isFocusLocked, setIsFocusLocked] = useState(true);
   const counterRef = useRef(1);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const outputRef = useRef<HTMLDivElement | null>(null);
+  const isFocusLockedRef = useRef(true);
 
   const prompt = useMemo(() => `${getCurrentPath(fs)} $`, [fs]);
 
@@ -273,6 +275,35 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    const isEscape = event.key === 'Escape' || event.key === 'Esc' || event.keyCode === 27;
+    if (isEscape) {
+      event.preventDefault();
+      unlockFocus();
+      return;
+    }
+
+    if (!isFocusLockedRef.current) return;
+
+    const key = event.key.toLowerCase();
+    if ((event.ctrlKey || event.metaKey) && !event.altKey) {
+      if (key === 'a') {
+        event.preventDefault();
+        setCursor(0);
+        return;
+      }
+      if (key === 'e') {
+        event.preventDefault();
+        setCursor(input.length);
+        return;
+      }
+      if (key === 'l') {
+        event.preventDefault();
+        setHistory([]);
+        return;
+      }
+      return;
+    }
+
     if (event.key === 'Tab') {
       event.preventDefault();
       handleTabCompletion();
@@ -291,21 +322,15 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
       return;
     }
 
-    if (event.key === 'Home' || (event.ctrlKey && event.key.toLowerCase() === 'a')) {
+    if (event.key === 'Home') {
       event.preventDefault();
       setCursor(0);
       return;
     }
 
-    if (event.key === 'End' || (event.ctrlKey && event.key.toLowerCase() === 'e')) {
+    if (event.key === 'End') {
       event.preventDefault();
       setCursor(input.length);
-      return;
-    }
-
-    if (event.ctrlKey && event.key.toLowerCase() === 'l') {
-      event.preventDefault();
-      setHistory([]);
       return;
     }
 
@@ -360,12 +385,40 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
     inputRef.current?.focus();
   };
 
-  const handleBlur = () => {
-    window.setTimeout(() => {
-      if (document.activeElement !== inputRef.current) {
-        focusInput();
-      }
-    }, 0);
+  const setFocusLock = (locked: boolean) => {
+    isFocusLockedRef.current = locked;
+    setIsFocusLocked(locked);
+  };
+
+  const lockFocus = () => {
+    setFocusLock(true);
+    if (inputRef.current) {
+      inputRef.current.disabled = false;
+      inputRef.current.tabIndex = 0;
+    }
+    window.requestAnimationFrame(() => {
+      focusInput();
+    });
+  };
+
+  const unlockFocus = () => {
+    setFocusLock(false);
+    if (inputRef.current) {
+      inputRef.current.disabled = true;
+      inputRef.current.tabIndex = -1;
+    }
+    const active = document.activeElement;
+    if (active instanceof HTMLElement) {
+      active.blur();
+    }
+  };
+
+  const handleShellMouseDown = () => {
+    if (!isFocusLockedRef.current) {
+      lockFocus();
+      return;
+    }
+    focusInput();
   };
 
   const syncCursorFromEvent = (event: React.SyntheticEvent<HTMLInputElement>) => {
@@ -389,11 +442,26 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
   }, [history]);
 
   useEffect(() => {
-    focusInput();
+    lockFocus();
+  }, []);
+
+  useEffect(() => {
+    const onWindowKeyDown = (event: KeyboardEvent) => {
+      const isEscape = event.key === 'Escape' || event.key === 'Esc' || event.keyCode === 27;
+      if (isEscape && isFocusLockedRef.current) {
+        event.preventDefault();
+        unlockFocus();
+      }
+    };
+
+    window.addEventListener('keydown', onWindowKeyDown, true);
+    return () => {
+      window.removeEventListener('keydown', onWindowKeyDown, true);
+    };
   }, []);
 
   return (
-    <div className="terminal-shell" onMouseDown={focusInput}>
+    <div className="terminal-shell" onMouseDown={handleShellMouseDown}>
       <div
         ref={outputRef}
         className="px-4 py-4 h-112 overflow-y-auto font-mono text-sm space-y-1"
@@ -421,11 +489,12 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
             onKeyDown={handleKeyDown}
             onClick={syncCursorFromEvent}
             onKeyUp={syncCursorFromEvent}
-            onBlur={handleBlur}
             className="terminal-input flex-1 bg-transparent outline-none"
             placeholder=""
             autoComplete="off"
             spellCheck={false}
+            disabled={!isFocusLocked}
+            tabIndex={isFocusLocked ? 0 : -1}
           />
         </div>
       </form>
