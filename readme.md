@@ -1,75 +1,47 @@
-# React + TypeScript + Vite
+# termstart
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+terminal themed bookmark manager for web browsers
 
-Currently, two official plugins are available:
+behaves like a small shell:
+- navigate directories
+- create/delete/move files and folders
+- store bookmark URLs in files
+- open bookmark files in a new tab
+- persist everything to `localStorage`
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## features
 
-## React Compiler
+- shell like commands (`cd`, `ls`, `mkdir`, `rm`, `mv`, `cat`, `tree`, etc.)
+- `man <command>` help pages
+- `help` to list commands
+- theme switching (`theme`, `theme list`, `theme <name>`)
+- tab completion for commands, paths, themes, and `man` pages
+- keyboard friendly input/history behavior
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+## commands
 
-Note: This will impact Vite dev & build performances.
+| command | description |
+| --- | --- |
+| `help` | list commands |
+| `man <command>` | show help and usage for a command |
+| `pwd` | print current directory |
+| `ls [path]` | list directory contents |
+| `cd [path]` | change current directory |
+| `mkdir [-p] <path>` | create directories |
+| `touch <path> <url>` | create bookmark file with URL |
+| `cat <path>` | print bookmark URL |
+| `open <path>` | open bookmark URL in a new tab |
+| `mv <src> <dest>` | move or rename file/directory |
+| `rm [-r] <path>` | remove file or directory (`-r` for directories) |
+| `tree [path]` | print directory tree |
+| `theme [name\|list]` | show/set/list themes |
+| `clear` | clear terminal |
 
-## Expanding the ESLint configuration
+## shortcuts
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+- `Tab`: autocomplete
+- `ArrowUp` / `ArrowDown`: command history
+- `Ctrl/Cmd + A`: move cursor to start
+- `Ctrl/Cmd + E`: move cursor to end
+- `Ctrl/Cmd + L`: clear output
+- `Esc`: release input focus lock
