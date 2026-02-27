@@ -111,16 +111,19 @@ body {
 
 .terminal-text {
   color: var(--terminal-text);
+  white-space: pre;
   transition: color 200ms ease;
 }
 
 .terminal-muted {
   color: var(--terminal-muted);
+  white-space: pre;
   transition: color 200ms ease;
 }
 
 .terminal-error {
   color: var(--terminal-error);
+  white-space: pre;
   transition: color 200ms ease;
 }
 

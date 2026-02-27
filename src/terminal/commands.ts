@@ -1,4 +1,4 @@
-import type { FileSystem } from '@/filesystem';
+import type { DirectoryNode, FileSystem, FileSystemNode } from '@/filesystem';
 import {
   changeDirectory,
   createDirectory,
@@ -61,6 +61,50 @@ function formatCommandHelp(command: CommandDefinition): string[] {
     `${command.name} - ${command.description}`,
     `usage: ${command.usage}`,
   ];
+}
+
+function sortTreeEntries(entries: FileSystemNode[]): FileSystemNode[] {
+  return entries
+    .slice()
+    .sort((a, b) => {
+      if (isDirectory(a) !== isDirectory(b)) return isDirectory(a) ? -1 : 1;
+      return a.name.localeCompare(b.name);
+    });
+}
+
+function pluralize(word: string, count: number): string {
+  if (count === 1) return word;
+  if (word.endsWith('y')) return `${word.slice(0, -1)}ies`;
+  return `${word}s`;
+}
+
+function renderTree(node: FileSystemNode, label: string): { lines: string[]; directories: number; files: number } {
+  const lines = [label];
+  let directories = 0;
+  let files = 0;
+
+  const walk = (current: DirectoryNode, prefix: string) => {
+    const children = sortTreeEntries(Array.from(current.children.values()));
+    children.forEach((child, index) => {
+      const isLast = index === children.length - 1;
+      lines.push(`${prefix}${isLast ? '└──' : '├──'} ${child.name}`);
+
+      if (isDirectory(child)) {
+        directories += 1;
+        walk(child, `${prefix}${isLast ? '    ' : '│   '}`);
+      } else {
+        files += 1;
+      }
+    });
+  };
+
+  if (isDirectory(node)) {
+    walk(node, '');
+  } else {
+    files = 1;
+  }
+
+  return { lines, directories, files };
 }
 
 const commandList: CommandDefinition[] = [
@@ -204,6 +248,26 @@ const commandList: CommandDefinition[] = [
       const value = readFile(pathArg, context.fs);
       if (!value) return { error: `cat: ${pathArg}: no such file or directory` };
       return { output: [value] };
+    },
+  },
+  {
+    name: 'tree',
+    description: 'display files and directories as a tree',
+    usage: 'tree [path]',
+    run: (command, context) => {
+      const target = command.args[0] ?? '.';
+      const node = resolvePath(target, context.fs.currentDirectory, context.fs.root);
+      if (!node) return { error: `tree: ${target}: no such file or directory` };
+
+      const label = command.args[0] ?? '.';
+      const { lines, directories, files } = renderTree(node, label);
+      return {
+        output: [
+          ...lines,
+          '',
+          `${directories} ${pluralize('directory', directories)}, ${files} ${pluralize('file', files)}`,
+        ],
+      };
     },
   },
   {
