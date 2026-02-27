@@ -5,7 +5,7 @@ import {
   isDirectory,
   listDirectory,
 } from '@/filesystem';
-import { executeCommand, getCommandNames } from '@/terminal/commands';
+import { executeCommand, getCommandNames, getThemeNames } from '@/terminal/commands';
 import { parseCommand } from '@/terminal/parser';
 
 type TerminalProps = {
@@ -170,25 +170,35 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
     setCursor(start + value.length);
   };
 
-  const completeCommandName = (token: string, tokenStart: number, tokenEnd: number) => {
-    const matches = getCommandNames()
-      .filter((name) => name.startsWith(token))
+  const completeFromValues = (
+    token: string,
+    tokenStart: number,
+    tokenEnd: number,
+    values: string[]
+  ): boolean => {
+    const matches = values
+      .filter((value) => value.startsWith(token))
       .sort((a, b) => a.localeCompare(b));
 
-    if (matches.length === 0) return;
+    if (matches.length === 0) return false;
 
     if (matches.length === 1) {
       replaceInputToken(tokenStart, tokenEnd, `${matches[0]} `);
-      return;
+      return true;
     }
 
     const prefix = longestCommonPrefix(matches);
     if (prefix.length > token.length) {
       replaceInputToken(tokenStart, tokenEnd, prefix);
-      return;
+      return true;
     }
 
     appendLines([matches.join('  ')], 'output');
+    return true;
+  };
+
+  const completeCommandName = (token: string, tokenStart: number, tokenEnd: number) => {
+    completeFromValues(token, tokenStart, tokenEnd, getCommandNames());
   };
 
   const completePath = (
@@ -271,7 +281,19 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
       return;
     }
 
-    completePath(previousTokens[0], token, tokenStart, tokenEnd);
+    const commandName = previousTokens[0];
+    const argIndex = previousTokens.length - 1;
+
+    if (commandName === 'theme' && argIndex === 0) {
+      const options = [...getThemeNames(), 'list'];
+      if (completeFromValues(token, tokenStart, tokenEnd, options)) return;
+    }
+
+    if (commandName === 'man' && argIndex === 0) {
+      if (completeFromValues(token, tokenStart, tokenEnd, getCommandNames())) return;
+    }
+
+    completePath(commandName, token, tokenStart, tokenEnd);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {

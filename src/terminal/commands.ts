@@ -337,6 +337,10 @@ export function getCommandNames(): string[] {
   return commandList.map((cmd) => cmd.name);
 }
 
+export function getThemeNames(): string[] {
+  return AVAILABLE_THEMES.slice();
+}
+
 export function getCommandDefinition(name: string): CommandDefinition | undefined {
   return resolveCommand(name);
 }
