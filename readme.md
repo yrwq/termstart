@@ -1,5 +1,11 @@
 # termstart
 
+<div align="center">
+
+</div>
+
+![preview](https://github.com/user-attachments/assets/c6d5cb88-29e5-4c7a-88e7-c1f3b42caf5e)
+
 terminal themed bookmark manager for web browsers
 
 behaves like a small shell:
