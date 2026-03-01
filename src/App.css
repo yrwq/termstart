@@ -6,6 +6,15 @@
   --terminal-text: #e6e6e6;
   --terminal-muted: #a8a8a8;
   --terminal-error: #f87171;
+  --terminal-prompt: #f59e0b;
+  --terminal-command: #60a5fa;
+  --terminal-alias: #f472b6;
+  --terminal-flag: #fb7185;
+  --terminal-path: #34d399;
+  --terminal-url: #22d3ee;
+  --terminal-theme: #c084fc;
+  --terminal-meta: #facc15;
+  --terminal-tree: #6b7280;
   --terminal-cursor: #e6e6e6;
   --terminal-selection-bg: rgba(255, 255, 255, 0.2);
   --terminal-selection-fg: #e6e6e6;
@@ -16,6 +25,15 @@
   --terminal-text: #ebdbb2;
   --terminal-muted: #bdae93;
   --terminal-error: #fb4934;
+  --terminal-prompt: #fabd2f;
+  --terminal-command: #83a598;
+  --terminal-alias: #d3869b;
+  --terminal-flag: #fb4934;
+  --terminal-path: #8ec07c;
+  --terminal-url: #689d6a;
+  --terminal-theme: #d79921;
+  --terminal-meta: #fe8019;
+  --terminal-tree: #928374;
   --terminal-cursor: #ebdbb2;
   --terminal-selection-bg: rgba(235, 219, 178, 0.2);
   --terminal-selection-fg: #ebdbb2;
@@ -26,6 +44,15 @@
   --terminal-text: #f8f8f2;
   --terminal-muted: #b7b7d1;
   --terminal-error: #ff5555;
+  --terminal-prompt: #ffb86c;
+  --terminal-command: #8be9fd;
+  --terminal-alias: #ff79c6;
+  --terminal-flag: #ff5555;
+  --terminal-path: #50fa7b;
+  --terminal-url: #8be9fd;
+  --terminal-theme: #bd93f9;
+  --terminal-meta: #f1fa8c;
+  --terminal-tree: #6272a4;
   --terminal-cursor: #f8f8f2;
   --terminal-selection-bg: rgba(248, 248, 242, 0.2);
   --terminal-selection-fg: #f8f8f2;
@@ -36,6 +63,15 @@
   --terminal-text: #e5e9f0;
   --terminal-muted: #a3b1cc;
   --terminal-error: #bf616a;
+  --terminal-prompt: #ebcb8b;
+  --terminal-command: #88c0d0;
+  --terminal-alias: #b48ead;
+  --terminal-flag: #bf616a;
+  --terminal-path: #a3be8c;
+  --terminal-url: #5e81ac;
+  --terminal-theme: #b48ead;
+  --terminal-meta: #d08770;
+  --terminal-tree: #4c566a;
   --terminal-cursor: #e5e9f0;
   --terminal-selection-bg: rgba(229, 233, 240, 0.2);
   --terminal-selection-fg: #e5e9f0;
@@ -46,6 +82,15 @@
   --terminal-text: #c0caf5;
   --terminal-muted: #9aa5ce;
   --terminal-error: #f7768e;
+  --terminal-prompt: #e0af68;
+  --terminal-command: #7aa2f7;
+  --terminal-alias: #bb9af7;
+  --terminal-flag: #f7768e;
+  --terminal-path: #9ece6a;
+  --terminal-url: #2ac3de;
+  --terminal-theme: #bb9af7;
+  --terminal-meta: #e0af68;
+  --terminal-tree: #565f89;
   --terminal-cursor: #c0caf5;
   --terminal-selection-bg: rgba(192, 202, 245, 0.2);
   --terminal-selection-fg: #c0caf5;
@@ -56,6 +101,15 @@
   --terminal-text: #93a1a1;
   --terminal-muted: #7b8b8b;
   --terminal-error: #dc322f;
+  --terminal-prompt: #b58900;
+  --terminal-command: #268bd2;
+  --terminal-alias: #d33682;
+  --terminal-flag: #dc322f;
+  --terminal-path: #859900;
+  --terminal-url: #2aa198;
+  --terminal-theme: #6c71c4;
+  --terminal-meta: #cb4b16;
+  --terminal-tree: #586e75;
   --terminal-cursor: #93a1a1;
   --terminal-selection-bg: rgba(147, 161, 161, 0.2);
   --terminal-selection-fg: #93a1a1;
@@ -66,6 +120,15 @@
   --terminal-text: #f8f8f2;
   --terminal-muted: #b8b8b2;
   --terminal-error: #f92672;
+  --terminal-prompt: #fd971f;
+  --terminal-command: #66d9ef;
+  --terminal-alias: #ae81ff;
+  --terminal-flag: #f92672;
+  --terminal-path: #a6e22e;
+  --terminal-url: #66d9ef;
+  --terminal-theme: #ae81ff;
+  --terminal-meta: #e6db74;
+  --terminal-tree: #75715e;
   --terminal-cursor: #f8f8f2;
   --terminal-selection-bg: rgba(248, 248, 242, 0.2);
   --terminal-selection-fg: #f8f8f2;
@@ -76,6 +139,15 @@
   --terminal-text: #c8baa4;
   --terminal-muted: #ab9382;
   --terminal-error: #c65f5f;
+  --terminal-prompt: #d9a441;
+  --terminal-command: #6ca0dc;
+  --terminal-alias: #d17aa8;
+  --terminal-flag: #c65f5f;
+  --terminal-path: #89b46a;
+  --terminal-url: #5aa6b1;
+  --terminal-theme: #a58ad4;
+  --terminal-meta: #d98e3d;
+  --terminal-tree: #7d6f67;
   --terminal-cursor: #cdc0ad;
   --terminal-selection-bg: #413c3a;
   --terminal-selection-fg: #c8baa4;
@@ -104,6 +176,7 @@ body {
 }
 
 .terminal-shell {
+  position: relative;
   background-color: var(--terminal-bg);
   color: var(--terminal-text);
   transition: background-color 200ms ease, color 200ms ease;
@@ -128,9 +201,24 @@ body {
 }
 
 .terminal-input {
-  color: var(--terminal-text);
+  position: relative;
+  color: transparent;
   caret-color: var(--terminal-cursor);
+  white-space: pre;
   transition: color 200ms ease, caret-color 200ms ease;
+}
+
+.terminal-input-wrap {
+  position: relative;
+  min-height: 1.25rem;
+}
+
+.terminal-input-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  white-space: pre;
+  overflow: hidden;
 }
 
 .terminal-input::placeholder {
@@ -141,6 +229,42 @@ body {
   margin-bottom: 12px;
   font-size: 0.875rem;
   color: var(--terminal-muted);
+}
+
+.terminal-token-prompt {
+  color: var(--terminal-prompt);
+}
+
+.terminal-token-command {
+  color: var(--terminal-command);
+}
+
+.terminal-token-alias {
+  color: var(--terminal-alias);
+}
+
+.terminal-token-flag {
+  color: var(--terminal-flag);
+}
+
+.terminal-token-path {
+  color: var(--terminal-path);
+}
+
+.terminal-token-url {
+  color: var(--terminal-url);
+}
+
+.terminal-token-theme {
+  color: var(--terminal-theme);
+}
+
+.terminal-token-meta {
+  color: var(--terminal-meta);
+}
+
+.terminal-token-tree {
+  color: var(--terminal-tree);
 }
 
 .terminal-shell ::selection {

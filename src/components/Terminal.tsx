@@ -22,7 +22,10 @@ type HistoryLine = {
   kind: 'input' | 'output' | 'error';
   text: string;
 };
-
+type TokenPart = {
+  text: string;
+  className: string;
+};
 
 function createOpenUrlHandler(): (url: string) => boolean {
   return (url: string) => {
@@ -49,6 +52,8 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange, aliases, onAlia
   const isFocusLockedRef = useRef(true);
 
   const prompt = useMemo(() => `${getCurrentPath(fs)} $`, [fs]);
+  const commandNames = useMemo(() => getCommandNames(), []);
+  const aliasNames = useMemo(() => getAliasNames(aliases), [aliases]);
 
   const appendLine = (line: HistoryLine) => {
     setHistory((prev) => [...prev, line]);
@@ -66,6 +71,133 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange, aliases, onAlia
       })),
     ]);
     counterRef.current += lines.length;
+  };
+
+  const classifyToken = (
+    token: string,
+    index: number,
+    commandName: string | null
+  ): string => {
+    if (token.startsWith('-')) return 'terminal-token-flag';
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(token) || token.startsWith('//')) {
+      return 'terminal-token-url';
+    }
+    if (index === 0) {
+      if (aliasNames.includes(token)) return 'terminal-token-alias';
+      if (commandNames.includes(token)) return 'terminal-token-command';
+    }
+    if (commandName === 'theme' && (getThemeNames().includes(token) || token === 'list')) {
+      return 'terminal-token-theme';
+    }
+    if (token.includes('/') || token === '.' || token === '..' || token.startsWith('~')) {
+      return 'terminal-token-path';
+    }
+    return 'terminal-text';
+  };
+
+  const tokenizeForDisplay = (text: string): TokenPart[] => {
+    const pieces = text.match(/\s+|[^\s]+/g) ?? [];
+    let tokenIndex = 0;
+    let commandName: string | null = null;
+
+    return pieces.map((piece) => {
+      if (/^\s+$/.test(piece)) {
+        return { text: piece, className: 'terminal-text' };
+      }
+
+      const className = classifyToken(piece, tokenIndex, commandName);
+      if (tokenIndex === 0) {
+        commandName = piece;
+      }
+      tokenIndex += 1;
+      return { text: piece, className };
+    });
+  };
+
+  const renderSuggestionList = (text: string) => {
+    const parts = text.split(/(\s{2,})/);
+    const knownValues = new Set([
+      ...commandNames,
+      ...aliasNames,
+      ...getThemeNames(),
+      'list',
+    ]);
+
+    return parts.map((part, index) => {
+      if (part.length === 0) return null;
+      if (/^\s+$/.test(part)) {
+        return <span key={`${part}-${index}`} className="terminal-text">{part}</span>;
+      }
+
+      const className = knownValues.has(part)
+        ? (aliasNames.includes(part) ? 'terminal-token-alias' : 'terminal-token-command')
+        : 'terminal-text';
+
+      return <span key={`${part}-${index}`} className={className}>{part}</span>;
+    });
+  };
+
+  const renderOutputLine = (text: string) => {
+    if (/^[A-Za-z0-9._-]+(?:\s{2,}[A-Za-z0-9._-]+)+$/.test(text)) {
+      return renderSuggestionList(text);
+    }
+
+    if (/^\d+ directories?, \d+ files?$/.test(text)) {
+      return <span className="terminal-token-meta">{text}</span>;
+    }
+
+    if (/^\s*[│├└].*$/.test(text)) {
+      const match = text.match(/^([│├└─\s]+)(.*)$/);
+      if (match) {
+        return (
+          <>
+            <span className="terminal-token-tree">{match[1]}</span>
+            <span className="terminal-token-path">{match[2]}</span>
+          </>
+        );
+      }
+    }
+
+    if (/^[A-Za-z0-9._-]+='.*'$/.test(text)) {
+      const aliasMatch = text.match(/^([A-Za-z0-9._-]+)(=')(.+)(')$/);
+      if (aliasMatch) {
+        return (
+          <>
+            <span className="terminal-token-alias">{aliasMatch[1]}</span>
+            <span className="terminal-text">{aliasMatch[2]}</span>
+            <span className="terminal-token-command">{aliasMatch[3]}</span>
+            <span className="terminal-text">{aliasMatch[4]}</span>
+          </>
+        );
+      }
+    }
+
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(text)) {
+      return <span className="terminal-token-url">{text}</span>;
+    }
+
+    if (/^[A-Za-z0-9._/-]+\/$/.test(text)) {
+      return <span className="terminal-token-path">{text}</span>;
+    }
+
+    return <span className="terminal-text">{text}</span>;
+  };
+
+  const renderInputLine = (text: string) => {
+    const match = text.match(/^(.* \$) (.*)$/);
+    if (!match) {
+      return renderOutputLine(text);
+    }
+
+    return (
+      <>
+        <span className="terminal-token-prompt">{match[1]}</span>
+        <span className="terminal-text"> </span>
+        {tokenizeForDisplay(match[2]).map((part, index) => (
+          <span key={`${part.text}-${index}`} className={part.className}>{part.text}</span>
+        ))}
+      </>
+    );
   };
 
   const runCommand = (commandText: string) => {
@@ -500,14 +632,20 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange, aliases, onAlia
               key={line.id}
               className={line.kind === 'error' ? 'terminal-error' : 'terminal-text'}
             >
-              {line.text}
+              {line.kind === 'input' ? renderInputLine(line.text) : renderOutputLine(line.text)}
             </div>
           ))
         )}
       </div>
       <form onSubmit={handleSubmit} className="px-4 py-3">
         <div className="flex items-center gap-2 font-mono text-sm">
-          <span className="terminal-text">{prompt}</span>
+          <span className="terminal-token-prompt">{prompt}</span>
+          <div className="terminal-input-wrap flex-1">
+            <div className="terminal-input-overlay" aria-hidden="true">
+              {input.length === 0 ? null : tokenizeForDisplay(input).map((part, index) => (
+                <span key={`${part.text}-${index}`} className={part.className}>{part.text}</span>
+              ))}
+            </div>
           <input
             ref={inputRef}
             value={input}
@@ -522,6 +660,7 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange, aliases, onAlia
             disabled={!isFocusLocked}
             tabIndex={isFocusLocked ? 0 : -1}
           />
+          </div>
         </div>
       </form>
     </div>
