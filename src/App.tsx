@@ -6,6 +6,7 @@ import { createEmptyOrFallback, serializeFileSystem } from '@/filesystem'
 
 const STORAGE_KEY = 'terminal-bookmark-manager:filesystem'
 const THEME_KEY = 'terminal-bookmark-manager:theme'
+const ALIASES_KEY = 'terminal-bookmark-manager:aliases'
 
 function App() {
   const [storageError, setStorageError] = useState<string | null>(null)
@@ -25,6 +26,22 @@ function App() {
     } catch (error) {
       console.error(error)
       return createEmptyOrFallback(null)
+    }
+  })
+  const [aliases, setAliases] = useState<Record<string, string>>(() => {
+    try {
+      const raw = window.localStorage.getItem(ALIASES_KEY)
+      if (!raw) return {}
+      const parsed = JSON.parse(raw)
+      if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return {}
+      return Object.fromEntries(
+        Object.entries(parsed).filter(
+          (entry): entry is [string, string] => typeof entry[0] === 'string' && typeof entry[1] === 'string'
+        )
+      )
+    } catch (error) {
+      console.error(error)
+      return {}
     }
   })
 
@@ -48,6 +65,14 @@ function App() {
     }
   }, [theme])
 
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(ALIASES_KEY, JSON.stringify(aliases))
+    } catch (error) {
+      console.error(error)
+    }
+  }, [aliases])
+
   return (
     <div className="min-h-screen w-screen terminal-page">
       <div className="terminal-container">
@@ -61,6 +86,8 @@ function App() {
           onFsChange={setFs}
           theme={theme}
           onThemeChange={setTheme}
+          aliases={aliases}
+          onAliasesChange={setAliases}
         />
       </div>
     </div>

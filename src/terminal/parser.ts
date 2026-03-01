@@ -9,7 +9,7 @@ export type ParseError = {
   error: string;
 };
 
-function tokenize(input: string): { tokens: string[]; error?: string } {
+export function tokenizeInput(input: string): { tokens: string[]; error?: string } {
   const tokens: string[] = [];
   let current = '';
   let inQuotes = false;
@@ -58,7 +58,7 @@ export function parseCommand(input: string): ParsedCommand | ParseError {
     return { error: 'Empty command' };
   }
 
-  const { tokens, error } = tokenize(trimmed);
+  const { tokens, error } = tokenizeInput(trimmed);
   if (error) return { error };
   if (tokens.length === 0) return { error: 'Empty command' };
 

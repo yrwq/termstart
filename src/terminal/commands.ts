@@ -14,7 +14,7 @@ import {
   resolvePath,
 } from '../filesystem';
 import type { ParsedCommand } from './parser';
-import { hasFlag } from './parser';
+import { hasFlag, parseCommand, tokenizeInput } from './parser';
 
 type CommandResult = {
   output?: string[];
@@ -28,6 +28,8 @@ type CommandContext = {
   openUrl: (url: string) => boolean;
   theme: string;
   setTheme: (next: string) => void;
+  aliases: Record<string, string>;
+  setAliases: (next: Record<string, string>) => void;
 };
 
 type CommandDefinition = {
@@ -61,6 +63,35 @@ function formatCommandHelp(command: CommandDefinition): string[] {
     `${command.name} - ${command.description}`,
     `usage: ${command.usage}`,
   ];
+}
+
+function formatAlias(name: string, value: string): string {
+  return `${name}='${value}'`;
+}
+
+function expandAlias(parsed: ParsedCommand, aliases: Record<string, string>, depth = 0): ParsedCommand | null {
+  if (depth > 10) return null;
+
+  const aliasValue = aliases[parsed.name];
+  if (!aliasValue) return parsed;
+
+  const aliasTokensResult = tokenizeInput(aliasValue);
+  if (aliasTokensResult.error || aliasTokensResult.tokens.length === 0) {
+    return null;
+  }
+
+  const rawSuffix = parsed.raw.trim().slice(parsed.name.length).trim();
+  const expandedRaw = rawSuffix.length > 0 ? `${aliasValue} ${rawSuffix}` : aliasValue;
+  const expanded = parseCommand(expandedRaw);
+  if ('error' in expanded) {
+    return null;
+  }
+
+  if (expanded.name === parsed.name) {
+    return expanded;
+  }
+
+  return expandAlias(expanded, aliases, depth + 1);
 }
 
 function sortTreeEntries(entries: FileSystemNode[]): FileSystemNode[] {
@@ -138,6 +169,41 @@ const commandList: CommandDefinition[] = [
         return { error: `man: ${target} not found` };
       }
       return { output: formatCommandHelp(match) };
+    },
+  },
+  {
+    name: 'alias',
+    description: 'list or create command aliases',
+    usage: 'alias [name command...]',
+    run: (command, context) => {
+      if (command.args.length === 0) {
+        const entries = Object.entries(context.aliases)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([name, value]) => formatAlias(name, value));
+        return { output: entries };
+      }
+
+      if (command.args.length < 2) {
+        const name = command.args[0];
+        const existing = context.aliases[name];
+        if (!existing) return { error: `alias: ${name}: not found` };
+        return { output: [formatAlias(name, existing)] };
+      }
+
+      const [name] = command.args;
+      if (!/^[A-Za-z0-9._-]+$/.test(name)) {
+        return { error: `alias: invalid name: ${name}` };
+      }
+
+      const value = command.raw.trim().split(/\s+/).slice(2).join(' ').trim();
+      if (!value) return { error: `alias: invalid value for ${name}` };
+
+      const nextAliases = {
+        ...context.aliases,
+        [name]: value,
+      };
+      context.setAliases(nextAliases);
+      return { output: [formatAlias(name, value)] };
     },
   },
   {
@@ -320,21 +386,30 @@ function resolveCommand(name: string): CommandDefinition | undefined {
 }
 
 export function executeCommand(parsed: ParsedCommand, context: CommandContext): CommandResult {
-  const command = resolveCommand(parsed.name);
+  const expanded = expandAlias(parsed, context.aliases);
+  if (!expanded) {
+    return { error: `${parsed.name}: alias expansion failed` };
+  }
+
+  const command = resolveCommand(expanded.name);
   if (!command) {
-    return { error: `${parsed.name}: command not found` };
+    return { error: `${expanded.name}: command not found` };
   }
 
   try {
-    return command.run(parsed, context);
+    return command.run(expanded, context);
   } catch (error) {
     console.error(error);
-    return { error: `error executing ${parsed.name}` };
+    return { error: `error executing ${expanded.name}` };
   }
 }
 
 export function getCommandNames(): string[] {
   return commandList.map((cmd) => cmd.name);
+}
+
+export function getAliasNames(aliases: Record<string, string>): string[] {
+  return Object.keys(aliases).sort((a, b) => a.localeCompare(b));
 }
 
 export function getThemeNames(): string[] {

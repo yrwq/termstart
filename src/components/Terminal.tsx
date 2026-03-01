@@ -5,7 +5,7 @@ import {
   isDirectory,
   listDirectory,
 } from '@/filesystem';
-import { executeCommand, getCommandNames, getThemeNames } from '@/terminal/commands';
+import { executeCommand, getAliasNames, getCommandNames, getThemeNames } from '@/terminal/commands';
 import { parseCommand } from '@/terminal/parser';
 
 type TerminalProps = {
@@ -13,6 +13,8 @@ type TerminalProps = {
   onFsChange: (next: FileSystem) => void;
   theme: string;
   onThemeChange: (next: string) => void;
+  aliases: Record<string, string>;
+  onAliasesChange: (next: Record<string, string>) => void;
 };
 
 type HistoryLine = {
@@ -33,7 +35,7 @@ function createOpenUrlHandler(): (url: string) => boolean {
   };
 }
 
-export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps) {
+export function Terminal({ fs, onFsChange, theme, onThemeChange, aliases, onAliasesChange }: TerminalProps) {
   const [input, setInput] = useState('');
   const [cursor, setCursor] = useState(0);
   const [history, setHistory] = useState<HistoryLine[]>([]);
@@ -86,6 +88,8 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
       openUrl: createOpenUrlHandler(),
       theme,
       setTheme: onThemeChange,
+      aliases,
+      setAliases: onAliasesChange,
     });
 
     if (result.clear) {
@@ -198,7 +202,7 @@ export function Terminal({ fs, onFsChange, theme, onThemeChange }: TerminalProps
   };
 
   const completeCommandName = (token: string, tokenStart: number, tokenEnd: number) => {
-    completeFromValues(token, tokenStart, tokenEnd, getCommandNames());
+    completeFromValues(token, tokenStart, tokenEnd, [...getCommandNames(), ...getAliasNames(aliases)]);
   };
 
   const completePath = (
