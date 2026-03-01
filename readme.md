@@ -1,7 +1,7 @@
 # termstart
 
 <p align="center">
-  <img width="460" height="300" src="https://github.com/user-attachments/assets/c6d5cb88-29e5-4c7a-88e7-c1f3b42caf5e">
+  <img width="460" height="300" src="./assets/preview.png">
 </p>
 
 terminal themed bookmark manager for web browsers
